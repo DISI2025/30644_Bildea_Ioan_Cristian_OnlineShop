@@ -13,7 +13,9 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         default_schema: public
     show-sql: true
-
+  jwt:
+    secret-key: your-256-bit-secret-your-256-bit-secret
+    token-expiration-days: 7
 server:
   port: 8001
 

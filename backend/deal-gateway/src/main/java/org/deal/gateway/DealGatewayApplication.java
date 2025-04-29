@@ -1,4 +1,4 @@
-package org.deal.identityservice;
+package org.deal.gateway;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -6,10 +6,10 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-public class IdentityServiceApplication {
+public class DealGatewayApplication {
 
-    public static void main(final String[] args) {
-        SpringApplication.run(IdentityServiceApplication.class, args);
+    public static void main(String[] args) {
+        SpringApplication.run(DealGatewayApplication.class, args);
     }
 
 }
