@@ -1,12 +1,10 @@
 import './App.css';
-import LoginPage from "./pages/LoginPage.tsx";
+import AppRoutes from "./routes/AppRoutes.tsx";
 
 function App() {
 
     return (
-        <div className="App">
-            <LoginPage />
-        </div>
+        <AppRoutes/>
     );
 }
 

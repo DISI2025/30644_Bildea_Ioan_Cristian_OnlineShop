@@ -1,8 +1,7 @@
 import { Form, Input, Button, Checkbox, Typography, Divider } from "antd";
 import { GoogleOutlined, AppleOutlined } from "@ant-design/icons";
 import type { FormProps } from "antd";
-import InputFormErrorText from "../components/InputFormErrorText.tsx";
-import InputFormErrorList from "../components/InputFormErrorList.tsx";
+import InputFormError from "../components/InputFormError.tsx";
 import {useSnackbar} from "../context/SnackbarContext.tsx";
 import {useNavigate} from "react-router-dom";
 
@@ -48,11 +47,19 @@ export default function LoginPage () {
                         rules={[
                             {
                                 type: 'email',
-                                message: <InputFormErrorText message={'Please enter a valid email'} />
+                                message: <InputFormError
+                                    messages={[
+                                        'Please enter a valid email'
+                                    ]}
+                                />
                             },
                             {
                                 required: true,
-                                message: <InputFormErrorText message={'Please write your email'} />
+                                message: <InputFormError
+                                    messages={[
+                                        'Please write your email'
+                                    ]}
+                                />
                             }
                         ]}>
                         <Input placeholder="Enter your email" />
@@ -64,13 +71,18 @@ export default function LoginPage () {
                         rules={[
                             {
                                 required: true,
-                                message: <InputFormErrorText message={'Please write your password'} />
+                                message: <InputFormError
+                                    messages={[
+                                        'Please write your password.'
+                                    ]}
+                                />
                             },
                             {
                                 pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
                                 message: (
-                                    <InputFormErrorList
+                                    <InputFormError
                                         messages={[
+                                            'Password must meet the following requirements:',
                                             'At least 8 characters long',
                                             'At least one uppercase letter',
                                             'At least one lowercase letter',
@@ -86,7 +98,7 @@ export default function LoginPage () {
 
                     <div style={{display: "flex", justifyContent: "space-between", marginBottom: 16}}>
                         <Checkbox>Remember me</Checkbox>
-                        <Link href="#">Forgot password?</Link>
+                        <Link onClick={() => navigate('/forgot-password')}>Forgot password?</Link>
                     </div>
 
                     <Form.Item>
@@ -121,7 +133,7 @@ export default function LoginPage () {
 
                 <div style={{ marginTop: 20, textAlign: "center" }}>
                     <Text>Don't have an account? </Text>
-                    <Link href="#">Sign up</Link>
+                    <Link onClick={() => navigate('/signup')}>Sign up</Link>
                 </div>
             </div>
         </div>
