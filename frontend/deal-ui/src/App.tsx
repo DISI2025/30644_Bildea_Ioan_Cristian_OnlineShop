@@ -5,7 +5,7 @@ function App() {
 
     return (
         <div className="App">
-            {/* Render the Home page component to test our Ant Design theme and components */}
+            {/* Render the Home page component to test our Ant Design theme and compoeeverenents */}
             <Home />
         </div>
     );
