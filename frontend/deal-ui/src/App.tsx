@@ -1,10 +1,10 @@
 import './App.css';
-import AppRoutes from "./routes/AppRoutes.tsx";
+import AppRouter from "./routes/AppRouter.tsx";
 
 function App() {
 
     return (
-        <AppRoutes/>
+        <AppRouter/>
     );
 }
 

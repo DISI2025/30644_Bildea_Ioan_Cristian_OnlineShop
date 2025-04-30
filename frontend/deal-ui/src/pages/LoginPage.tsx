@@ -1,19 +1,17 @@
 import { Form, Input, Button, Checkbox, Typography, Divider } from "antd";
 import { GoogleOutlined, AppleOutlined } from "@ant-design/icons";
 import type { FormProps } from "antd";
-import InputFormError from "../components/InputFormError.tsx";
 import {useSnackbar} from "../context/SnackbarContext.tsx";
 import {useNavigate} from "react-router-dom";
+import {emailRules, passwordRules} from "../utlis/Validators.tsx";
 
 const { Title, Text, Link } = Typography;
-
 export default function LoginPage () {
-
     const {showSuccess, showInfo, showError} = useSnackbar();
     const navigate = useNavigate();
 
-    const onFinish: FormProps['onFinish'] = (values) => {
-        console.log("Received values:", values);
+    const onFinish: FormProps['onFinish'] = () => {
+        //TODO backend call;
         showSuccess('Login Successful', 'You have been logged in successfully.');
         navigate('/');
     };
@@ -44,55 +42,14 @@ export default function LoginPage () {
                     <Form.Item
                         label="Email address"
                         name="email"
-                        rules={[
-                            {
-                                type: 'email',
-                                message: <InputFormError
-                                    messages={[
-                                        'Please enter a valid email'
-                                    ]}
-                                />
-                            },
-                            {
-                                required: true,
-                                message: <InputFormError
-                                    messages={[
-                                        'Please write your email'
-                                    ]}
-                                />
-                            }
-                        ]}>
+                        rules={emailRules}>
                         <Input placeholder="Enter your email" />
                     </Form.Item>
 
                     <Form.Item
                         label="Password"
                         name="password"
-                        rules={[
-                            {
-                                required: true,
-                                message: <InputFormError
-                                    messages={[
-                                        'Please write your password.'
-                                    ]}
-                                />
-                            },
-                            {
-                                pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-                                message: (
-                                    <InputFormError
-                                        messages={[
-                                            'Password must meet the following requirements:',
-                                            'At least 8 characters long',
-                                            'At least one uppercase letter',
-                                            'At least one lowercase letter',
-                                            'At least one number',
-                                            'At least one special character (e.g., @$!%*?&)'
-                                        ]}
-                                    />
-                                )
-                            },
-                        ]}>
+                        rules={passwordRules}>
                         <Input.Password placeholder="Enter your password"/>
                     </Form.Item>
 
