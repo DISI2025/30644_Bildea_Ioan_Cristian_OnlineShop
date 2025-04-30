@@ -1,18 +1,17 @@
 import {Form, Input, Button, Typography, FormProps} from 'antd';
 import { LockOutlined, ArrowLeftOutlined } from '@ant-design/icons';
-import InputFormError from "../components/InputFormError.tsx";
 import {useNavigate} from "react-router-dom";
 import {useSnackbar} from "../context/SnackbarContext.tsx";
+import {emailRules} from "../utlis/Validators.tsx";
 
 const { Title, Text, Link } = Typography;
 
 export default function ForgotPasswordPage() {
-
     const navigate = useNavigate();
     const {showSuccess, showError} = useSnackbar();
 
-    const onFinish: FormProps['onFinish'] = (values) => {
-        console.log("Received values:", values);
+    const onFinish: FormProps['onFinish'] = () => {
+        //TODO backend call
         showSuccess('Reset Link Sent Successful', 'The reset link was sent successfully.');
         navigate('/');
     };
@@ -44,24 +43,7 @@ export default function ForgotPasswordPage() {
                     <Form.Item
                         label="Email address"
                         name="email"
-                        rules={[
-                            {
-                                type: 'email',
-                                message: <InputFormError
-                                    messages={[
-                                        'Please enter a valid email'
-                                    ]}
-                                />
-                            },
-                            {
-                                required: true,
-                                message: <InputFormError
-                                    messages={[
-                                        'Please write your email'
-                                    ]}
-                                />
-                            }
-                        ]}>
+                        rules={emailRules}>
                         <Input placeholder="Email address" />
                     </Form.Item>
 
