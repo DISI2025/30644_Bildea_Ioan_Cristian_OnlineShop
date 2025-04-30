@@ -7,7 +7,7 @@ function App() {
         <div className="App">
             {/* Render the Home page component to test our Ant Design theme and components */}
             <Home />
-        </div>
+        </div> 
     );
 }
 
