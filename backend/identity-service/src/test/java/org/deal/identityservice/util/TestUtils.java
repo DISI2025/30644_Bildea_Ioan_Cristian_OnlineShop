@@ -1,6 +1,8 @@
 package org.deal.identityservice.util;
 
 import org.deal.core.exception.DealError;
+import org.deal.core.request.user.CreateUserRequest;
+import org.deal.core.request.user.UpdateUserRequest;
 import org.deal.core.response.DealResponse;
 import org.deal.core.util.Mapper;
 import org.deal.identityservice.entity.User;
@@ -56,6 +58,19 @@ public class TestUtils {
     public interface UserUtils {
         static User randomUser() {
             return new User(UUID.randomUUID(), randomString());
+        }
+
+        static CreateUserRequest createUserRequest(final User user) {
+            return new CreateUserRequest(
+                    user.getUsername()
+            );
+        }
+
+        static UpdateUserRequest updateUserRequest(final User user) {
+            return new UpdateUserRequest(
+                    user.getId(),
+                    user.getUsername()
+            );
         }
     }
 

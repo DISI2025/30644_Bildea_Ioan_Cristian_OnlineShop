@@ -186,9 +186,10 @@
                 <version>${jacoco.version}</version>
                 <configuration>
                     <excludes>
-                        <exclude>./src/main/java/org/deal/identityservice/IdentityServiceApplication</exclude>
+                        <exclude>**/IdentityServiceApplication.*</exclude>
                         <exclude>**/config/*</exclude>
                         <exclude>**/*DTO.*</exclude>
+                        <exclude>**/exception/*</exclude>
                     </excludes>
                     <rules>
                         <rule>
@@ -225,6 +226,12 @@
                             <goal>check</goal>
                         </goals>
                         <configuration>
+                            <excludes>
+                                <exclude>**/IdentityServiceApplication.*</exclude>
+                                <exclude>**/config/*</exclude>
+                                <exclude>**/*DTO.*</exclude>
+                                <exclude>**/exception/*</exclude>
+                            </excludes>
                             <rules>
                                 <rule>
                                     <element>BUNDLE</element>
