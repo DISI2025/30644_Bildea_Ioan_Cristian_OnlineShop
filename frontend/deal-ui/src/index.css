@@ -66,3 +66,43 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+.hover-lift:hover {
+  transform: translateY(-2px) !important;
+}
+
+.title-hover:hover {
+  transform: scale(1.05) !important;
+}
+
+.ant-menu-horizontal {
+  border: none !important;
+  line-height: 46px !important;
+}
+
+.ant-menu-item {
+  padding: 0 16px !important;
+  margin: 0 4px !important;
+}
+
+.ant-menu-item::after {
+  display: none !important;
+}
+
+.ant-menu-item:hover,
+.ant-menu-item-selected {
+  color: #8e44ad !important;
+  background: transparent !important;
+}
+
+.ant-menu-item-selected::before,
+.ant-menu-item:hover::before {
+  content: '';
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 0;
+  height: 2px;
+  background: #8e44ad;
+  border-radius: 2px;
+}
