@@ -1,13 +1,10 @@
 import './App.css';
-import {Home} from "./pages/Home.tsx";
+import AppRouter from "./routes/AppRouter.tsx";
 
 function App() {
 
     return (
-        <div className="App">
-            {/* Render the Home page component to test our Ant Design theme and components */}
-            <Home />
-        </div>
+        <AppRouter/>
     );
 }
 
