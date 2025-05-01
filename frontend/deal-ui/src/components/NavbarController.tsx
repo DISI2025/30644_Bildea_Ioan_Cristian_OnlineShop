@@ -9,7 +9,7 @@ interface NavbarActionsProps {
   onNavigate: (path: string) => void;
 }
 
-export const NavbarActions: React.FC<NavbarActionsProps> = ({
+export const NavbarController: React.FC<NavbarActionsProps> = ({
   onThemeChange,
   isDarkMode,
   onNavigate,
