@@ -26,7 +26,7 @@ public class AppConfig {
     public OkHttpClient okHttpClient() {
         return new OkHttpClient().newBuilder()
                 .callTimeout(15, TimeUnit.SECONDS)
-                .cache(new Cache(new File("../../resources/cache"), 10 * 1024 * 1024))
+                .cache(new Cache(new File("./backend/deal-gateway/src/main/resources/cache"), 10 * 1024 * 1024))
                 .build();
     }
 
