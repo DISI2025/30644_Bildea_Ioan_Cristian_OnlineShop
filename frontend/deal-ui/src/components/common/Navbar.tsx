@@ -1,34 +1,34 @@
-import React, { useMemo } from 'react';
-import { Layout, Menu, theme, Flex } from 'antd';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useTheme } from '../../context/ThemeContext.tsx';
-import { ROUTES } from '../../routes/AppRouters.tsx';
-import { HomeOutlined, AppstoreOutlined, ShopOutlined } from '@ant-design/icons';
-import { Logo } from './Logo.tsx';
-import { NavbarController } from './NavbarController.tsx';
+import React, {useMemo} from 'react';
+import {Layout, Menu, theme, Flex} from 'antd';
+import {useNavigate, useLocation} from 'react-router-dom';
+import {useTheme} from '../../context/ThemeContext.tsx';
+import {ROUTES} from '../../routes/AppRouter.tsx';
+import {HomeOutlined} from '@ant-design/icons';
+import {Logo} from './Logo.tsx';
+import {NavbarController} from './NavbarController.tsx';
 
-const { Header } = Layout;
-const { useToken } = theme;
+const {Header} = Layout;
+const {useToken} = theme;
 
 export const Navbar: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { toggleTheme } = useTheme();
-    const { token } = useToken();
+    const {toggleTheme} = useTheme();
+    const {token} = useToken();
 
     const menuItems = useMemo(() => [
         {
             key: ROUTES.HOME,
             label: (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <HomeOutlined style={{ fontSize: '18px' }} />
+                <div style={{display: 'flex', alignItems: 'center', gap: token.spacing.xs}}>
+                    <HomeOutlined style={{fontSize: token.customFontSize.md}}/>
                     <span>Home</span>
                 </div>
             ),
         },
-    ], []);
+    ], [token]);
 
-    const handleMenuClick = ({ key }: { key: string }) => {
+    const handleMenuClick = ({key}: { key: string }) => {
         navigate(key);
     };
 
@@ -36,21 +36,21 @@ export const Navbar: React.FC = () => {
         <Header
             style={{
                 background: token.colorBgContainer,
-                padding: `0 ${token.paddingLG}px`,
+                padding: `0 ${token.spacing.lg}px`,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                boxShadow: `0 4px 20px ${token.colorBgElevated}`,
+                boxShadow: token.shadows.light.md,
                 position: 'sticky',
                 top: 0,
-                zIndex: 1000,
-                height: '64px',
+                zIndex: token.layout.headerHeight,
+                height: token.layout.headerHeight,
                 transition: 'all 0.3s ease',
                 backdropFilter: 'blur(10px)',
             }}
         >
-            <Flex align="center" gap={token.marginLG}>
-                <Logo onClick={() => navigate(ROUTES.HOME)} />
+            <Flex align="center" gap={token.spacing.lg}>
+                <Logo onClick={() => navigate(ROUTES.HOME)}/>
                 <Menu
                     mode="horizontal"
                     selectedKeys={[location.pathname]}
@@ -59,8 +59,8 @@ export const Navbar: React.FC = () => {
                     style={{
                         background: 'transparent',
                         color: token.colorText,
-                        fontSize: '15px',
-                        minWidth: '400px',
+                        fontSize: token.customFontSize.base,
+                        minWidth: token.layout.maxWidth.sm,
                         borderBottom: 'none',
                     }}
                 />

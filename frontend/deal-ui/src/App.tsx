@@ -1,8 +1,5 @@
-import { Routes, Route } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
-import { Home } from './pages/Home';
-import RegisterPage from './pages/RegisterPage';
-import { ROUTES } from './routes/AppRouters';
+import AppRouter from './routes/AppRouter.tsx';
 import { useTheme } from './context/ThemeContext';
 import { Layout } from 'antd';
 
@@ -15,11 +12,7 @@ function App() {
         <ConfigProvider theme={theme}>
             <Layout style={{ minHeight: '100vh' }}>
                 <Content>
-                    <Routes>
-                        <Route path={ROUTES.HOME} element={<Home />} />
-                        <Route path={ROUTES.REGISTER} element={<RegisterPage />} />
-                        {/* Add more routes as needed */}
-                    </Routes>
+                    <AppRouter/>
                 </Content>
             </Layout>
         </ConfigProvider>
