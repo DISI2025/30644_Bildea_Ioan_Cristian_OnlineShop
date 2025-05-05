@@ -3,6 +3,6 @@ package org.deal.core.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record JwtLoginResponseDTO(String accessToken) {
+public record LoginResponse(String accessToken, UserDTO userDTO) {
 
 }

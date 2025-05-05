@@ -1,7 +1,7 @@
 package org.deal.identityservice.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.deal.core.dto.JwtLoginResponseDTO;
+import org.deal.core.dto.LoginResponse;
 import org.deal.core.exception.DealError;
 import org.deal.core.request.user.LoginUserRequest;
 import org.deal.core.response.DealResponse;
@@ -20,7 +20,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public DealResponse<JwtLoginResponseDTO> login(@RequestBody LoginUserRequest loginRequestDto) {
+    public DealResponse<LoginResponse> login(@RequestBody LoginUserRequest loginRequestDto) {
         return authService.authenticate(loginRequestDto)
                 .map(DealResponse::successResponse)
                 .orElse(DealResponse.failureResponse(

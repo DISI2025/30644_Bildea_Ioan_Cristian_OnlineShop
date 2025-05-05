@@ -57,7 +57,7 @@ public class TestUtils {
 
     public interface UserUtils {
         static User randomUser() {
-            return new User(UUID.randomUUID(), randomString());
+            return new User(UUID.randomUUID(), randomString(), randomString(), randomString());
         }
 
         static CreateUserRequest createUserRequest(final User user) {
