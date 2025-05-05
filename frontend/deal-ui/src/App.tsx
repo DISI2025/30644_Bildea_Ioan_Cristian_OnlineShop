@@ -1,12 +1,12 @@
 import './App.css';
-import AssignCategoryPage from "./pages/AssignCategoryPage.tsx";
+import ProductManagerScreen from "./pages/ProductManagementScreen.tsx";
 
 function App() {
 
     return (
         <div className="App">
             {/* Render the Home page component to test our Ant Design theme and components */}
-            <AssignCategoryPage />
+            <ProductManagerScreen />
         </div>
     );
 }
