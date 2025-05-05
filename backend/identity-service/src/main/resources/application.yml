@@ -15,7 +15,7 @@ spring:
     show-sql: true
   jwt:
     secret-key: your-256-bit-secret-your-256-bit-secret
-    token-expiration-days: 7
+    token-expiration-days: 1
 server:
   port: 8001
 
