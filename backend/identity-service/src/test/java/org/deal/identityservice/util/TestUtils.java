@@ -1,7 +1,11 @@
 package org.deal.identityservice.util;
 
+import org.deal.core.dto.LoginResponse;
+import org.deal.core.dto.Role;
+import org.deal.core.dto.UserDTO;
 import org.deal.core.exception.DealError;
 import org.deal.core.request.user.CreateUserRequest;
+import org.deal.core.request.user.LoginUserRequest;
 import org.deal.core.request.user.UpdateUserRequest;
 import org.deal.core.response.DealResponse;
 import org.deal.core.util.Mapper;
@@ -57,7 +61,11 @@ public class TestUtils {
 
     public interface UserUtils {
         static User randomUser() {
-            return new User(UUID.randomUUID(), randomString(), randomString(), randomString());
+            return new User(UUID.randomUUID(), randomString(), randomString(), Role.USER);
+        }
+
+        static UserDTO randomUserDTO() {
+            return new UserDTO(UUID.randomUUID(), randomString(), Role.USER);
         }
 
         static CreateUserRequest createUserRequest(final User user) {
@@ -75,4 +83,13 @@ public class TestUtils {
         }
     }
 
+    public interface LoginUtils {
+        static LoginUserRequest randomLoginRequest() {
+            return new LoginUserRequest(randomString(), randomString());
+        }
+
+        static LoginResponse randomLoginResponse() {
+            return new LoginResponse(randomString(), UserUtils.randomUserDTO());
+        }
+    }
 }
