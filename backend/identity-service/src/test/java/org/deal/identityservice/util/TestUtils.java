@@ -1,14 +1,14 @@
 package org.deal.identityservice.util;
 
-import org.deal.core.dto.LoginResponse;
-import org.deal.core.dto.Role;
 import org.deal.core.dto.UserDTO;
 import org.deal.core.exception.DealError;
+import org.deal.core.request.login.LoginRequest;
 import org.deal.core.request.user.CreateUserRequest;
-import org.deal.core.request.user.LoginUserRequest;
 import org.deal.core.request.user.UpdateUserRequest;
 import org.deal.core.response.DealResponse;
+import org.deal.core.response.login.LoginResponse;
 import org.deal.core.util.Mapper;
+import org.deal.core.util.Role;
 import org.deal.identityservice.entity.User;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.http.HttpStatus;
@@ -84,8 +84,8 @@ public class TestUtils {
     }
 
     public interface LoginUtils {
-        static LoginUserRequest randomLoginRequest() {
-            return new LoginUserRequest(randomString(), randomString());
+        static LoginRequest randomLoginRequest() {
+            return new LoginRequest(randomString(), randomString());
         }
 
         static LoginResponse randomLoginResponse() {

@@ -1,10 +1,9 @@
-package org.deal.core.request.user;
+package org.deal.core.request.login;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Getter;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public record LoginUserRequest(
+public record LoginRequest(
         @JsonProperty String username, @JsonProperty String password) {
 }

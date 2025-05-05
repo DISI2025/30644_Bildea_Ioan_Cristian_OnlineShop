@@ -1,10 +1,10 @@
 package org.deal.identityservice.service;
 
 import lombok.RequiredArgsConstructor;
-import org.deal.core.dto.LoginResponse;
 import org.deal.core.exception.DealError;
 import org.deal.core.exception.DealException;
-import org.deal.core.request.user.LoginUserRequest;
+import org.deal.core.request.login.LoginRequest;
+import org.deal.core.response.login.LoginResponse;
 import org.deal.identityservice.entity.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,7 +23,7 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserService userService;
 
-    public Optional<LoginResponse> authenticate(final LoginUserRequest loginUserRequest) {
+    public Optional<LoginResponse> authenticate(final LoginRequest loginUserRequest) {
         try {
             Authentication auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(

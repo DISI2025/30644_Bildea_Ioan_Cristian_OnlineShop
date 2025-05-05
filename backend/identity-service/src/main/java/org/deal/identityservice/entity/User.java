@@ -13,7 +13,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.deal.core.dto.Role;
+import org.deal.core.util.Role;
 
 import java.util.UUID;
 

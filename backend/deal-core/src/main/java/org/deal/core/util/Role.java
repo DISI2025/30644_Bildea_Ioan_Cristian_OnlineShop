@@ -1,4 +1,4 @@
-package org.deal.core.dto;
+package org.deal.core.util;
 
 public enum Role {
     USER,

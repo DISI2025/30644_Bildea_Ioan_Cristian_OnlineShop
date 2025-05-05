@@ -1,10 +1,10 @@
 package org.deal.identityservice.service;
 
-import org.deal.core.dto.LoginResponse;
 import org.deal.core.dto.UserDTO;
 import org.deal.core.exception.DealError;
 import org.deal.core.exception.DealException;
-import org.deal.core.request.user.LoginUserRequest;
+import org.deal.core.request.login.LoginRequest;
+import org.deal.core.response.login.LoginResponse;
 import org.deal.identityservice.entity.User;
 import org.deal.identityservice.util.TestUtils.LoginUtils;
 import org.deal.identityservice.util.TestUtils.UserUtils;
@@ -41,7 +41,7 @@ class AuthServiceTest {
     @Test
     void authenticate_validCredentials_shouldReturnLoginResponse() {
         // Arrange
-        LoginUserRequest loginRequest = LoginUtils.randomLoginRequest();
+        LoginRequest loginRequest = LoginUtils.randomLoginRequest();
         String username = loginRequest.username();
         String token = "mocked-jwt-token";
 
@@ -81,7 +81,7 @@ class AuthServiceTest {
     @Test
     void authenticate_invalidCredentials_shouldThrowDealException() {
         // Arrange
-        LoginUserRequest loginRequest = LoginUtils.randomLoginRequest();
+        LoginRequest loginRequest = LoginUtils.randomLoginRequest();
 
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenThrow(new BadCredentialsException("Bad credentials"));
