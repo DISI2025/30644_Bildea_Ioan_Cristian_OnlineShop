@@ -10,9 +10,9 @@ interface NavbarActionsProps {
 }
 
 export const NavbarController: React.FC<NavbarActionsProps> = ({
-    onThemeChange,
-    onNavigate,
-}) => {
+                                                                   onThemeChange,
+                                                                   onNavigate,
+                                                               }) => {
     const {token} = useToken();
 
     return (
