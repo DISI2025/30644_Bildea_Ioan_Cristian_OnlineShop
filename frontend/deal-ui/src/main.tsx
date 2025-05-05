@@ -14,7 +14,7 @@ const ThemedApp: React.FC = () => {
     return (
         <ConfigProvider theme={theme}>
             <SnackbarProvider>
-                <App />
+                <App />       
             </SnackbarProvider>
         </ConfigProvider>
     );
