@@ -37,7 +37,7 @@ export const Home: React.FC = () => {
                         { key: '1', label: 'Home' },
                         { key: '2', label: 'Products' },
                         { key: '3', label: 'Categories' },
-                        { key: '4', label: 'Cart' }
+                        { key: '4', label: 'Cart'  }
                     ]}
                     style={{lineHeight: '64px'}}
                 />
