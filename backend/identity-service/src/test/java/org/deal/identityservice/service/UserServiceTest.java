@@ -106,6 +106,7 @@ class UserServiceTest extends BaseUnitTest {
         var initialUser = randomUser();
         var updatedUser = randomUser();
         updatedUser.setId(initialUser.getId());
+        updatedUser.setPassword(initialUser.getPassword());
         when(userRepository.findById(initialUser.getId())).thenReturn(Optional.of(initialUser));
 
         var result = victim.update(updateUserRequest(updatedUser));

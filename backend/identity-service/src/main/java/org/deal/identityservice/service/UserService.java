@@ -59,7 +59,7 @@ public class UserService  implements UserDetailsService {
     }
 
     @Override
-    public CustomUserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public CustomUserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
         return userRepository.findByUsername(username)
                 .map(CustomUserDetails::new)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));

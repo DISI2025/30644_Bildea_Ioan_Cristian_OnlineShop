@@ -23,7 +23,7 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final UserService userService;
 
-    public Optional<LoginResponse> authenticate(LoginUserRequest loginUserRequest) {
+    public Optional<LoginResponse> authenticate(final LoginUserRequest loginUserRequest) {
         try {
             Authentication auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(

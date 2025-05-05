@@ -20,7 +20,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public DealResponse<LoginResponse> login(@RequestBody LoginUserRequest loginRequestDto) {
+    public DealResponse<LoginResponse> login(final @RequestBody LoginUserRequest loginRequestDto) {
         return authService.authenticate(loginRequestDto)
                 .map(DealResponse::successResponse)
                 .orElse(DealResponse.failureResponse(

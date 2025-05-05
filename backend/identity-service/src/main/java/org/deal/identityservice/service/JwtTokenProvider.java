@@ -22,8 +22,8 @@ public class JwtTokenProvider {
     private Key key;
 
     public JwtTokenProvider(
-            @Value("${spring.jwt.secret-key}") String secretKey,
-            @Value("${spring.jwt.token-expiration-days}") Integer tokenExpirationDays
+            final @Value("${spring.jwt.secret-key}") String secretKey,
+            final @Value("${spring.jwt.token-expiration-days}") Integer tokenExpirationDays
     ) {
         this.tokenExpirationDays = tokenExpirationDays;
         this.secretKey = secretKey;
@@ -34,7 +34,7 @@ public class JwtTokenProvider {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 
-    public String generateToken(Authentication authentication) {
+    public String generateToken(final Authentication authentication) {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
         Date now = new Date();
