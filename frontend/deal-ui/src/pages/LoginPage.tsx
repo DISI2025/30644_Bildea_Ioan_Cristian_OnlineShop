@@ -1,19 +1,27 @@
-import { Form, Input, Button, Checkbox, Typography, Divider } from "antd";
-import { GoogleOutlined, AppleOutlined } from "@ant-design/icons";
-import type { FormProps } from "antd";
+import {Form, Input, Button, Checkbox, Typography, Divider} from "antd";
+import {GoogleOutlined, AppleOutlined} from "@ant-design/icons";
+import type {FormProps} from "antd";
 import {useSnackbar} from "../context/SnackbarContext.tsx";
 import {useNavigate} from "react-router-dom";
-import {emailRules, passwordRules} from "../utlis/Validators.tsx";
+import {usernameRules, passwordRules} from "../utlis/Validators.tsx";
+import {AuthData, AuthRequest, BaseResponse, DealResponse} from "../types/transfer.ts";
+import {useLoginMutation} from "../store/api.ts";
 
-const { Title, Text, Link } = Typography;
-export default function LoginPage () {
-    const {showSuccess, showInfo, showError} = useSnackbar();
+const {Title, Text, Link} = Typography;
+export default function LoginPage() {
+    const {showSuccess, showInfo, showError, showErrors} = useSnackbar();
     const navigate = useNavigate();
+    const [login] = useLoginMutation();
 
-    const onFinish: FormProps['onFinish'] = () => {
-        //TODO backend call;
-        showSuccess('Login Successful', 'You have been logged in successfully.');
-        navigate('/');
+    const onFinish: FormProps['onFinish'] = (data: AuthRequest) => {
+        login(data).unwrap().then((response: DealResponse<AuthData>) => {
+            // TODO: Handle the response and store the auth data in the state
+            // dispatch(startSession(response.data));
+            showSuccess('Login Successful', 'You have been logged in successfully.');
+            navigate('/');
+        }).catch((response: BaseResponse) => {
+            showErrors(response?.errors);
+        });
     };
 
     const onFinishFailed = () => {
@@ -35,15 +43,16 @@ export default function LoginPage () {
                 borderRadius: 12,
                 boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
             }}>
-                <Title level={3} style={{ textAlign: "center", marginBottom: 0 }}>DEAL</Title>
-                <Text style={{ display: "block", textAlign: "center", marginBottom: 30 }}>Sign in to your account</Text>
+                <Title level={3} style={{textAlign: "center", marginBottom: 0}}>DEAL</Title>
+                <Text style={{display: "block", textAlign: "center", marginBottom: 30}}>Sign in to your
+                    account</Text>
 
                 <Form layout="vertical" onFinish={onFinish} onFinishFailed={onFinishFailed}>
                     <Form.Item
-                        label="Email address"
-                        name="email"
-                        rules={emailRules}>
-                        <Input placeholder="Enter your email" />
+                        label="Username"
+                        name="username"
+                        rules={usernameRules}>
+                        <Input placeholder="Enter your username"/>
                     </Form.Item>
 
                     <Form.Item
@@ -71,7 +80,7 @@ export default function LoginPage () {
 
                 <Divider>Or continue with</Divider>
 
-                <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
+                <div style={{display: "flex", justifyContent: "space-between", gap: 10}}>
                     <Button
                         icon={<GoogleOutlined/>}
                         onClick={() => showInfo('FYI', 'Google authentication coming soon.')}
@@ -80,7 +89,7 @@ export default function LoginPage () {
                         Google
                     </Button>
                     <Button
-                        icon={<AppleOutlined />}
+                        icon={<AppleOutlined/>}
                         onClick={() => showInfo('FYI', 'Apple authentication coming soon.')}
                         block
                     >
@@ -88,7 +97,7 @@ export default function LoginPage () {
                     </Button>
                 </div>
 
-                <div style={{ marginTop: 20, textAlign: "center" }}>
+                <div style={{marginTop: 20, textAlign: "center"}}>
                     <Text>Don't have an account? </Text>
                     <Link onClick={() => navigate('/signup')}>Sign up</Link>
                 </div>
