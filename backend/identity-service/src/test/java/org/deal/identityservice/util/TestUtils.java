@@ -3,6 +3,8 @@ package org.deal.identityservice.util;
 import org.deal.core.exception.DealError;
 import org.deal.core.request.user.CreateUserRequest;
 import org.deal.core.request.user.UpdateUserRequest;
+import org.deal.core.request.user.forgotpassword.ForgotPasswordRequest;
+import org.deal.core.request.user.forgotpassword.ResetPasswordRequest;
 import org.deal.core.response.DealResponse;
 import org.deal.core.util.Mapper;
 import org.deal.identityservice.entity.User;
@@ -57,7 +59,7 @@ public class TestUtils {
 
     public interface UserUtils {
         static User randomUser() {
-            return new User(UUID.randomUUID(), randomString());
+            return new User(UUID.randomUUID(), randomString(), randomString());
         }
 
         static CreateUserRequest createUserRequest(final User user) {
@@ -74,4 +76,16 @@ public class TestUtils {
         }
     }
 
+    public interface ForgotPasswordUtils {
+        static ForgotPasswordRequest randomForgotPasswordRequest() {
+            return new ForgotPasswordRequest(randomString());
+        }
+
+        static ResetPasswordRequest randomResetPasswordRequest(final User user) {
+            return new ResetPasswordRequest(
+                    randomString(),
+                    user.getUsername()
+            );
+        }
+    }
 }
