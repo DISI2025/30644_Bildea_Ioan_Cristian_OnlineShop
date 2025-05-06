@@ -17,7 +17,9 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class EcommerceTest {
     private WebDriver driver;
+
     private LoginPage loginPage;
+
     private HomePage homePage;
 
     @BeforeEach
