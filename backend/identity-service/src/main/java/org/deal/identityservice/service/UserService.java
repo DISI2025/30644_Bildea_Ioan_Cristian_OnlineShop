@@ -7,10 +7,8 @@ import org.deal.core.request.user.UpdateUserRequest;
 import org.deal.core.util.Mapper;
 import org.deal.identityservice.entity.User;
 import org.deal.identityservice.repository.UserRepository;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,9 +18,10 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class UserService  implements UserDetailsService {
+public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public Optional<List<UserDTO>> findAll() {
         return Optional.of(userRepository.findAll().stream().map(this::mapToDTO).toList());
@@ -36,6 +35,7 @@ public class UserService  implements UserDetailsService {
         var user = userRepository.save(
                 User.builder()
                         .withUsername(request.username())
+                        .withPassword(passwordEncoder.encode(request.password()))
                         .build()
         );
 
@@ -63,11 +63,6 @@ public class UserService  implements UserDetailsService {
         return userRepository.findByUsername(username)
                 .map(CustomUserDetails::new)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 
     public UserDTO mapToDTO(final User user) {

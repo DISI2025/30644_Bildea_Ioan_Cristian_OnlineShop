@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,6 +34,9 @@ class UserServiceTest extends BaseUnitTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private UserService victim;
@@ -176,12 +180,14 @@ class UserServiceTest extends BaseUnitTest {
         User expectedUser = randomUser();
 
         when(builderMock.withUsername(expectedUser.getUsername())).thenReturn(builderMock);
+        when(builderMock.withPassword(expectedUser.getPassword())).thenReturn(builderMock);
         when(builderMock.build()).thenReturn(expectedUser);
 
         mockStatic(User.class);
         when(User.builder()).thenReturn(builderMock);
 
         when(userRepository.save(expectedUser)).thenReturn(expectedUser);
+        when(passwordEncoder.encode(expectedUser.getPassword())).thenReturn(expectedUser.getPassword());
 
         return expectedUser;
     }
