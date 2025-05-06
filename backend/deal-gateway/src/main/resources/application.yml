@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: deal-gateway
+  cloud:
+    gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origin-patterns: "/**"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: is
+          uri: lb://identity-service
+          predicates:
+            - Path=/is/**
+      default-filters:
+        - AddRequestHeader=proxied, true
+        - StripPrefix=1
+      enabled: true
+  main:
+    web-application-type: reactive
+server:
+  port: 8000
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+

@@ -1,3 +1,11 @@
+# Running locally:
+- To run locally, make sure every criteria of the backend services and/or frontend are met.
+- Then, run them in the following order:
+  + Service Discovery
+  + Individual services (e.g. Identity Service)
+  + Gateway
+  + Frontend
+
 # Git Branching & Workflow for Jira DEAL‑ Stories
 
 This guide defines a clear, consistent workflow to manage feature and sub‑feature branches aligned with your Jira stories (`DEAL-[ID]`).
