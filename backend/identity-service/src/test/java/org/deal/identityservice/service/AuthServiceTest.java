@@ -69,7 +69,7 @@ class AuthServiceTest {
                 .get()
                 .satisfies(loginResponse -> {
                     assertThat(loginResponse.accessToken()).isEqualTo(token);
-                    assertThat(loginResponse.userDTO()).isEqualTo(userDTO);
+                    assertThat(loginResponse.user()).isEqualTo(userDTO);
                 });
 
         verify(authenticationManager).authenticate(any());

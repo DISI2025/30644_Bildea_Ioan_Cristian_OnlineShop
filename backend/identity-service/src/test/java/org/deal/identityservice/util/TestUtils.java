@@ -71,7 +71,8 @@ public class TestUtils {
         static CreateUserRequest createUserRequest(final User user) {
             return new CreateUserRequest(
                     user.getUsername(),
-                    user.getPassword()
+                    user.getPassword(),
+                    user.getRole()
             );
         }
 

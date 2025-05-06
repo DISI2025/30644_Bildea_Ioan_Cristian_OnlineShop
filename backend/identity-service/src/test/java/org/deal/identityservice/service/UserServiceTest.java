@@ -181,6 +181,7 @@ class UserServiceTest extends BaseUnitTest {
 
         when(builderMock.withUsername(expectedUser.getUsername())).thenReturn(builderMock);
         when(builderMock.withPassword(expectedUser.getPassword())).thenReturn(builderMock);
+        when(builderMock.withRole(expectedUser.getRole())).thenReturn(builderMock);
         when(builderMock.build()).thenReturn(expectedUser);
 
         mockStatic(User.class);

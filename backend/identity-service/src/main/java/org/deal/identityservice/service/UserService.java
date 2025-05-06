@@ -36,6 +36,7 @@ public class UserService implements UserDetailsService {
                 User.builder()
                         .withUsername(request.username())
                         .withPassword(passwordEncoder.encode(request.password()))
+                        .withRole(request.role())
                         .build()
         );
 
