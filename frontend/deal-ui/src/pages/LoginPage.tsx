@@ -16,6 +16,7 @@ export default function LoginPage() {
     const onFinish: FormProps['onFinish'] = (data: AuthRequest) => {
         login(data).unwrap().then((response: DealResponse<AuthData>) => {
             // TODO: Handle the response and store the auth data in the state
+            console.log(response);
             // dispatch(startSession(response.data));
             showSuccess('Login Successful', 'You have been logged in successfully.');
             navigate('/');
