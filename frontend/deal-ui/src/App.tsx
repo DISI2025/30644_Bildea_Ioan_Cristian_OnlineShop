@@ -1,12 +1,12 @@
 import './App.css';
-import {Home} from "./pages/Home.tsx";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage.tsx";
 
 function App() {
 
     return (
         <div className="App">
             {/* Render the Home page component to test our Ant Design theme and components */}
-            <Home />
+            <ForgotPasswordPage />
         </div>
     );
 }

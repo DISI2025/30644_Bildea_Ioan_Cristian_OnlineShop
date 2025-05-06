@@ -1,8 +1,8 @@
-import {Form, Input, Button, Typography, FormProps} from 'antd';
+import { Button, Typography } from 'antd';
 import { LockOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import {useNavigate} from "react-router-dom";
 import {useSnackbar} from "../context/SnackbarContext.tsx";
-import {emailRules} from "../utlis/Validators.tsx";
+import ForgotPasswordForm from "../components/auth/ForgotPasswordForm.tsx";
 
 const { Title, Text, Link } = Typography;
 
@@ -10,13 +10,13 @@ export default function ForgotPasswordPage() {
     const navigate = useNavigate();
     const {showSuccess, showError} = useSnackbar();
 
-    const onFinish: FormProps['onFinish'] = () => {
-        //TODO backend call
-        showSuccess('Reset Link Sent Successful', 'The reset link was sent successfully.');
+    const handleForgotPasswordSubmit = (values: { email: string }) => {
+        //TODO backend call with values
+        showSuccess('Reset Link Sent Successful', 'The reset link was sent successfully to ' + values.email);
         navigate('/');
     };
 
-    const onFinishFailed = () => {
+    const handleForgotPasswordFailed = () => {
         showError("Oops!", "Please fix the highlighted errors.");
     };
 
@@ -39,20 +39,10 @@ export default function ForgotPasswordPage() {
                 <Title level={5}>Forgot your password?</Title>
                 <Text>Enter your email address and we’ll send you a link to reset your password.</Text>
 
-                <Form layout="vertical" onFinish={onFinish} onFinishFailed={onFinishFailed} style={{ marginTop: 24 }}>
-                    <Form.Item
-                        label="Email address"
-                        name="email"
-                        rules={emailRules}>
-                        <Input placeholder="Email address" />
-                    </Form.Item>
-
-                    <Form.Item>
-                        <Button type="primary" htmlType="submit" block>
-                            Send reset link
-                        </Button>
-                    </Form.Item>
-                </Form>
+                <ForgotPasswordForm
+                    onFinish={handleForgotPasswordSubmit}
+                    onFinishFailed={handleForgotPasswordFailed}
+                />
 
                 <div style={{ margin: '16px 0' }}>
                     <Text type="secondary">Or</Text>
