@@ -13,9 +13,25 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         default_schema: public
     show-sql: true
-
+  mail:
+    host: sandbox.smtp.mailtrap.io
+    port: 2525
+    username: b8fdd630cf89fd
+    password: 18823e7df8615b
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 server:
   port: 8001
+
+app:
+  frontend:
+    reset-password-url: https://frontend/reset-password
+    reset-password-email-title: 'Reset Password'
+    reset-password-email-body: 'Reset your password using :'
 
 springdoc:
   swagger-ui:
