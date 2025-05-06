@@ -17,7 +17,7 @@ spring:
     secret-key: your-256-bit-secret-your-256-bit-secret
     token-expiration-days: 1
 server:
-  port: 8080
+  port: 8081
 
 springdoc:
   swagger-ui:

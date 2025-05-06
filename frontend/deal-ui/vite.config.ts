@@ -7,7 +7,7 @@ export default defineConfig({
         watch: {usePolling: true,},
         proxy: {
             '^/api': {
-                target: 'http://localhost:8082',
+                target: 'http://localhost:8080',
                 rewrite: (path) => path.replace('/api', ''),
             },
         },
