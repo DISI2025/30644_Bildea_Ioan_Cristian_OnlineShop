@@ -8,5 +8,6 @@ import org.deal.core.util.Role;
 public record CreateUserRequest(
         @JsonProperty String username,
         @JsonProperty String password,
+        @JsonProperty String email,
         @JsonProperty Role role) {
 }
