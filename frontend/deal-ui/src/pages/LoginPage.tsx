@@ -3,7 +3,7 @@ import {GoogleOutlined, AppleOutlined} from "@ant-design/icons";
 import type {FormProps} from "antd";
 import {useSnackbar} from "../context/SnackbarContext.tsx";
 import {useNavigate} from "react-router-dom";
-import {usernameRules, passwordRules} from "../utlis/Validators.tsx";
+import {usernameRules, passwordRules} from "../utils/validators.tsx";
 import {AuthData, AuthRequest, BaseResponse, DealResponse} from "../types/transfer.ts";
 import {useLoginMutation} from "../store/api.ts";
 import {useDispatch} from "react-redux";

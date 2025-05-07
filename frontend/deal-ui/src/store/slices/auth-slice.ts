@@ -1,5 +1,5 @@
 import { User } from "../../types/entities";
-import {TOKEN_KEY, USER_KEY} from "../../utlis/constants.ts";
+import {TOKEN_KEY, USER_KEY} from "../../utils/constants.ts";
 import Cookies from 'js-cookie';
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import { AuthData } from "../../types/transfer.ts";

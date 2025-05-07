@@ -1,6 +1,6 @@
 import {createApi} from '@reduxjs/toolkit/query/react';
 import {fetchBaseQuery} from '@reduxjs/toolkit/query';
-import {AUTH_HEADER, buildAuthHeader, DEAL_ENDPOINTS, TOKEN_KEY} from "../utlis/constants.ts";
+import {AUTH_HEADER, buildAuthHeader, DEAL_ENDPOINTS, TOKEN_KEY} from "../utils/constants.ts";
 import Cookies from 'js-cookie';
 import {AuthData, AuthRequest, BaseResponse, CreateUserRequest, DealResponse} from "../types/transfer.ts";
 
