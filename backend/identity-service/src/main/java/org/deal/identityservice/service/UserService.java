@@ -66,6 +66,14 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
+    public Optional<UserDTO> findByEmail(final String email) {
+        return userRepository.findByEmail(email).map(this::mapToDTO);
+    }
+
+    public boolean updateUserPassword(final UUID id, final String newPassword) {
+        return userRepository.updateUserPassword(id, passwordEncoder.encode(newPassword)) != 0;
+    }
+
     public UserDTO mapToDTO(final User user) {
         return Mapper.mapTo(user, UserDTO.class);
     }
