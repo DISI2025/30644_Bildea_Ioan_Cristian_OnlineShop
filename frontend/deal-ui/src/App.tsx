@@ -1,19 +1,21 @@
-import './App.css';
-import { Route, Routes } from 'react-router-dom';
-import { Home } from './pages/Home.tsx';
-import Profile from './pages/profile/Profile';
-import NotFound from './pages/NotFound.tsx';
+import { ConfigProvider } from 'antd';
+import AppRouter from './routes/AppRouter.tsx';
+import { useTheme } from './context/ThemeContext';
 import { Layout } from 'antd';
 
+const { Content } = Layout;
+
 function App() {
+    const { theme } = useTheme();
+
     return (
-        <Layout className="App" style={{ width: '100%', minHeight: '100vh' }}>
-            <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/profile/:userId" element={<Profile />} />
-                <Route path="*" element={<NotFound />} />
-            </Routes>
-        </Layout>
+        <ConfigProvider theme={theme}>
+            <Layout style={{ minHeight: '100vh' }}>
+                <Content>
+                    <AppRouter/>
+                </Content>
+            </Layout>
+        </ConfigProvider>
     );
 }
 

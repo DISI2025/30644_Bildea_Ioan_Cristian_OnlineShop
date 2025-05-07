@@ -7,6 +7,9 @@ import org.deal.core.request.user.UpdateUserRequest;
 import org.deal.core.util.Mapper;
 import org.deal.identityservice.entity.User;
 import org.deal.identityservice.repository.UserRepository;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,8 +18,10 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class UserService implements UserDetailsService {
+
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public Optional<List<UserDTO>> findAll() {
         return Optional.of(userRepository.findAll().stream().map(this::mapToDTO).toList());
@@ -30,6 +35,9 @@ public class UserService {
         var user = userRepository.save(
                 User.builder()
                         .withUsername(request.username())
+                        .withEmail(request.email())
+                        .withPassword(passwordEncoder.encode(request.password()))
+                        .withRole(request.role())
                         .build()
         );
 
@@ -52,7 +60,13 @@ public class UserService {
                 .map(this::mapToDTO);
     }
 
-    private UserDTO mapToDTO(final User user) {
+    @Override
+    public User loadUserByUsername(final String username) throws UsernameNotFoundException {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
+
+    public UserDTO mapToDTO(final User user) {
         return Mapper.mapTo(user, UserDTO.class);
     }
 }

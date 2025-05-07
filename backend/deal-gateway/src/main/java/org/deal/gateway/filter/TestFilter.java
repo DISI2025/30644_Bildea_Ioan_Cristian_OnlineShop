@@ -33,12 +33,12 @@ public class TestFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         log.info("[INCOMING] {}", exchange.getRequest().getURI());
 
-        try {
-            List<UserDTO> users = dealClient.callListResponse(DealService.IS, "/users", HttpMethod.GET, UserDTO.class);
-            log.info("Users: {}", users);
-        } catch (DealException e) {
-            return handleBadRequest(exchange, e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+//        try {
+//            List<UserDTO> users = dealClient.callListResponse(DealService.IS, "/users", HttpMethod.GET, UserDTO.class);
+//            log.info("Users: {}", users);
+//        } catch (DealException e) {
+//            return handleBadRequest(exchange, e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
 
         return chain.filter(exchange);
     }

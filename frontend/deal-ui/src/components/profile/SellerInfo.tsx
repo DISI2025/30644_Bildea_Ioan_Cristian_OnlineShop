@@ -1,7 +1,7 @@
 import React from 'react';
 import { Form, Input, Button, Select, Tag, Typography, Space, Row, Col, Divider, Collapse, Alert, Card } from 'antd';
-import { UserProfile } from '../Profile';
-import { sellerInfoRules } from '../../../utils/validators';
+import { UserProfile } from '../../pages/profile/Profile.tsx';
+import { sellerInfoRules } from '../../utils/validators.ts';
 
 const { Text, Title } = Typography;
 const { Option } = Select;

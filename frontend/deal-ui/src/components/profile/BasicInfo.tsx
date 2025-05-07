@@ -1,7 +1,7 @@
 import React from 'react';
 import { Form, Input, Button, Space, Tag, Typography, Row, Col, Card } from 'antd';
-import { UserProfile } from '../Profile';
-import { basicInfoRules } from '../../../utils/validators';
+import { UserProfile } from '../../pages/profile/Profile.tsx';
+import { basicInfoRules } from '../../utils/validators.ts';
 
 const { Text } = Typography;
 

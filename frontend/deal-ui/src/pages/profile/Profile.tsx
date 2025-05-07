@@ -9,14 +9,13 @@ import {
   message,
   Tabs,
   Switch,
-  Divider,
   Row,
   Col,
 } from 'antd';
-import BasicInfo from './components/BasicInfo';
-import SellerInfo from './components/SellerInfo';
-import BuyerInfo from './components/BuyerInfo';
-import AdminInfo from './components/AdminInfo';
+import BasicInfo from '../../components/profile/BasicInfo.tsx';
+import SellerInfo from '../../components/profile/SellerInfo.tsx';
+import BuyerInfo from '../../components/profile/BuyerInfo.tsx';
+import AdminInfo from '../../components/profile/AdminInfo.tsx';
 
 const { Title } = Typography;
 const { Content, Footer } = Layout;
@@ -75,11 +74,11 @@ interface ProfilePageParams {
   userId: string;
 }
 
-const Profile: React.FC = () => {
+const ProfilePage: React.FC = () => {
   const { userId } = useParams<keyof ProfilePageParams>() as ProfilePageParams;
   const navigate = useNavigate();
   const [form] = Form.useForm();
-  
+
   const [profileData, setProfileData] = useState<UserProfile | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -101,7 +100,7 @@ const Profile: React.FC = () => {
       // Get mock profile data
       const userData = getMockUserData(userId);
       setProfileData(userData);
-      
+
       // Pre-populate form with user data
       form.setFieldsValue({
         username: userData.username,
@@ -110,13 +109,13 @@ const Profile: React.FC = () => {
         preferredCourier: userData.sellerInfo?.preferredCourier,
         productCategories: userData.sellerInfo?.productCategories,
       });
-      
+
       // Set mock categories
       setCategories(mockCategories);
-      
+
       setLoading(false);
     }, 800); // 800ms to simulate network call
-    
+
     return () => clearTimeout(timer);
   }, [userId, form]);
 
@@ -133,12 +132,12 @@ const Profile: React.FC = () => {
     if (!profileData) return;
 
     setSaving(true);
-    
+
     // Process preferred locations from comma-separated string to array
     const preferredLocationsArray = values.preferredLocations
       ? values.preferredLocations.split(',').map((loc: string) => loc.trim())
       : [];
-    
+
     // Prepare updated profile data
     const updatedProfile: Partial<UserProfile> = {
       ...profileData,
@@ -186,10 +185,10 @@ const Profile: React.FC = () => {
               <Card style={{ boxShadow: '0 2px 8px rgba(0, 0, 0, 0.09)', borderRadius: '8px', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '40px 20px' }}>
                 <Title level={4}>User not found</Title>
                 <div style={{ marginTop: '16px' }}>
-                  <button 
-                    style={{ 
-                      backgroundColor: '#1890ff', 
-                      color: 'white', 
+                  <button
+                    style={{
+                      backgroundColor: '#1890ff',
+                      color: 'white',
                       border: 'none',
                       borderRadius: '2px',
                       padding: '8px 16px',
@@ -215,9 +214,9 @@ const Profile: React.FC = () => {
         <Row justify="center" gutter={[16, 16]}>
           <Col xs={24}>
             <Card
-              style={{ 
-                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.09)', 
-                borderRadius: '8px', 
+              style={{
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.09)',
+                borderRadius: '8px',
                 width: '100%',
                 overflow: 'hidden'
               }}
@@ -240,8 +239,8 @@ const Profile: React.FC = () => {
                 onFinish={handleSubmit}
                 style={{ width: '100%' }}
               >
-                <Tabs 
-                  defaultActiveKey="basic" 
+                <Tabs
+                  defaultActiveKey="basic"
                   activeKey={activeTab}
                   onChange={handleTabChange}
                   style={{ width: '100%' }}
@@ -270,8 +269,8 @@ const Profile: React.FC = () => {
                         <>
                           {isCustomer && (
                             <div style={{ width: '100%' }}>
-                              <Card 
-                                style={{ 
+                              <Card
+                                style={{
                                   marginBottom: '24px',
                                   borderRadius: '8px',
                                   boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
@@ -291,7 +290,7 @@ const Profile: React.FC = () => {
                                   </span>
                                 </div>
                               </Card>
-                              
+
                               {isSellerView ? (
                                 <SellerInfo
                                   profileData={profileData}
@@ -308,14 +307,14 @@ const Profile: React.FC = () => {
                               )}
                             </div>
                           )}
-                          
+
                           {isAdmin && !isCustomer && (
                             <AdminInfo />
                           )}
                         </>
                       ),
                     },
-                  ]} 
+                  ]}
                 />
               </Form>
             </Card>
@@ -329,4 +328,4 @@ const Profile: React.FC = () => {
   );
 };
 
-export default Profile; 
+export default ProfilePage;
