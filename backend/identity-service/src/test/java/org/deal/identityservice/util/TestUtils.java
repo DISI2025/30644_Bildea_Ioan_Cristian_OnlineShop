@@ -1,10 +1,14 @@
 package org.deal.identityservice.util;
 
+import org.deal.core.dto.UserDTO;
 import org.deal.core.exception.DealError;
+import org.deal.core.request.login.LoginRequest;
 import org.deal.core.request.user.CreateUserRequest;
 import org.deal.core.request.user.UpdateUserRequest;
 import org.deal.core.response.DealResponse;
+import org.deal.core.response.login.LoginResponse;
 import org.deal.core.util.Mapper;
+import org.deal.core.util.Role;
 import org.deal.identityservice.entity.User;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.http.HttpStatus;
@@ -57,12 +61,18 @@ public class TestUtils {
 
     public interface UserUtils {
         static User randomUser() {
-            return new User(UUID.randomUUID(), randomString());
+            return new User(UUID.randomUUID(), randomString(), randomString(), Role.USER);
+        }
+
+        static UserDTO randomUserDTO() {
+            return new UserDTO(UUID.randomUUID(), randomString(), Role.USER);
         }
 
         static CreateUserRequest createUserRequest(final User user) {
             return new CreateUserRequest(
-                    user.getUsername()
+                    user.getUsername(),
+                    user.getPassword(),
+                    user.getRole()
             );
         }
 
@@ -74,4 +84,13 @@ public class TestUtils {
         }
     }
 
+    public interface LoginUtils {
+        static LoginRequest randomLoginRequest() {
+            return new LoginRequest(randomString(), randomString());
+        }
+
+        static LoginResponse randomLoginResponse() {
+            return new LoginResponse(randomString(), UserUtils.randomUserDTO());
+        }
+    }
 }
