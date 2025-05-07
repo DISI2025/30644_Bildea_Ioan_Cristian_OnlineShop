@@ -21,14 +21,11 @@ export const ROUTES = {
 export default function AppRouter() {
     return (
         <Routes>
-            {/* Auth routes */}
             <Route path={ROUTES.REGISTER} element={<RegisterPage/>}/>
             <Route path={ROUTES.LOGIN} element={<LoginPage/>}/>
             <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPasswordPage/>}/>
             <Route path={ROUTES.RESET_PASSWORD} element={<ResetPasswordPage/>}/>
 
-            {/* Public routes */}
-            {/* TODO: Add others page routes */}
             <Route path={ROUTES.HOME} element={<HomePage/>}/>
 
             {/* Catch all route for 404 */}
