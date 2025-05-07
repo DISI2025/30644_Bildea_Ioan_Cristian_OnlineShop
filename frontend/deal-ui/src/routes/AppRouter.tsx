@@ -3,6 +3,7 @@ import NotFoundPage from "../pages/NotFoundPage.tsx";
 import RegisterPage from "../pages/RegisterPage";
 import {HomePage} from "../pages/HomePage.tsx";
 import LoginPage from "../pages/LoginPage.tsx";
+import ProfilePage from "../pages/ProfilePage.tsx";
 import ForgotPasswordPage from "../pages/ForgotPasswordPage.tsx";
 import ResetPasswordPage from "../pages/ResetPasswordPage.tsx";
 import PrivateRoute from "./ProtectedRoute.tsx";
@@ -17,6 +18,7 @@ export const ROUTES = {
    PRODUCTS: "/products",
    CATEGORIES: "/categories",
    CART: "/cart",
+   PROFILE: "/profile/:username",
    // Todo: update this
    ADMIN_ROUTE: "/admin",
    NOT_FOUND: "*"
@@ -29,6 +31,8 @@ export default function AppRouter() {
          <Route path={ROUTES.LOGIN} element={<LoginPage/>}/>
          <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPasswordPage/>}/>
          <Route path={ROUTES.RESET_PASSWORD} element={<ResetPasswordPage/>}/>
+
+         <Route path={ROUTES.PROFILE} element={<ProfilePage/>}/>
 
          <Route path={ROUTES.HOME} element={<PrivateRoute><HomePage/></PrivateRoute>}/>
          <Route path={ROUTES.ADMIN_ROUTE} element={
