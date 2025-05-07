@@ -1,64 +1,87 @@
-import { Button, Typography } from 'antd';
-import { LockOutlined, ArrowLeftOutlined } from '@ant-design/icons';
-import {useNavigate} from "react-router-dom";
-import {useSnackbar} from "../context/SnackbarContext.tsx";
-import ForgotPasswordForm from "../components/auth/ForgotPasswordForm.tsx";
+import {Layout, theme, Typography} from 'antd';
+import {useNavigate} from 'react-router-dom';
+import {useSnackbar} from '../context/SnackbarContext';
+import {ROUTES} from '../routes/AppRouter';
+import {ForgotPasswordForm} from '../components/auth/ForgotPasswordForm';
+import {SimpleHeader} from '../components/common/SimpleHeader';
+import {useForgotPasswordMutation} from "../store/api.ts";
+import {BaseResponse, DealResponse, ForgotPasswordRequest, ForgotPasswordResponse} from "../types/transfer.ts";
 
-const { Title, Text, Link } = Typography;
+const {Content} = Layout;
+const {Title, Text} = Typography;
+const {useToken} = theme;
 
 export default function ForgotPasswordPage() {
+    const [forgotPassword] = useForgotPasswordMutation();
+    const {showSuccess, showError, showErrors} = useSnackbar();
     const navigate = useNavigate();
-    const {showSuccess, showError} = useSnackbar();
+    const {token} = useToken();
 
-    const handleForgotPasswordSubmit = (values: { email: string }) => {
-        //TODO backend call with values
-        showSuccess('Reset Link Sent Successful', 'The reset link was sent successfully to ' + values.email);
-        navigate('/');
-    };
-
-    const handleForgotPasswordFailed = () => {
-        showError("Oops!", "Please fix the highlighted errors.");
+    const handleForgotPasswordSuccess = (data: ForgotPasswordRequest) => {
+        forgotPassword(data).unwrap()
+            .then((response: DealResponse<ForgotPasswordResponse>) => {
+                showSuccess('Reset Link Sent', response.payload.message);
+                navigate(ROUTES.LOGIN);
+            })
+            .catch((response: BaseResponse) => {
+                showErrors(response?.errors);
+            });
     };
 
     return (
-        <div style={{
-            height: '100vh',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            backgroundColor: '#f7f8fa'
-        }}>
-            <div style={{
-                width: 400,
-                padding: 30,
-                backgroundColor: "#fff",
-                borderRadius: 12,
-                boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}>
-                <LockOutlined style={{ fontSize: 32, marginBottom: 16 }} />
-                <Title level={3}>DEAL</Title>
-                <Title level={5}>Forgot your password?</Title>
-                <Text>Enter your email address and we’ll send you a link to reset your password.</Text>
+        <Layout>
+            <SimpleHeader/>
+            <Content style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                minHeight: `calc(100vh - ${token.layout.headerHeight})`,
+                backgroundColor: token.colorBgLayout,
+                padding: token.spacing.md,
+                boxSizing: "border-box",
+            }}>
+                <div style={{
+                    width: "100%",
+                    maxWidth: token.layout.maxWidth.sm,
+                    backgroundColor: token.colorBgContainer,
+                    borderRadius: token.borderRadius.md,
+                    boxShadow: token.shadows.light.md,
+                    padding: `${token.spacing.xl} ${token.spacing.lg}`,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: token.spacing.lg
+                }}>
+                    <div style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: token.spacing.xxs
+                    }}>
+                        <Title level={3} style={{
+                            textAlign: "center",
+                            margin: token.spacing.none,
+                            fontSize: token.customFontSize.xxl,
+                            color: token.colorText,
+                        }}>
+                            Forgot your password?
+                        </Title>
+                        <Text style={{
+                            textAlign: "center",
+                            fontSize: token.customFontSize.sm,
+                            color: token.colorTextSecondary,
+                        }}>
+                            Enter your email address and we'll send you a link to reset your password.
+                        </Text>
+                    </div>
 
-                <ForgotPasswordForm
-                    onFinish={handleForgotPasswordSubmit}
-                    onFinishFailed={handleForgotPasswordFailed}
-                />
-
-                <div style={{ margin: '16px 0' }}>
-                    <Text type="secondary">Or</Text>
+                    <ForgotPasswordForm
+                        onForgotPasswordSuccess={handleForgotPasswordSuccess}
+                        onForgotPasswordError={(message) => {
+                            showError("Oops!", message);
+                        }}
+                    />
                 </div>
-
-                <Button type="link" icon={<ArrowLeftOutlined />} onClick={() => navigate('/login')}>
-                    Back to login
-                </Button>
-
-                <div style={{ marginTop: 24 }}>
-                    <Text type="secondary">
-                        Need help? <Link href="#">Contact Support</Link>
-                    </Text>
-                </div>
-            </div>
-        </div>
+            </Content>
+        </Layout>
     );
-};
+}
 

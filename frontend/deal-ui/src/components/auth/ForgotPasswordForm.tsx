@@ -1,37 +1,87 @@
-import { Form, Input, Button } from 'antd';
-import {emailRules} from "../../utlis/Validators.tsx";
-import { ValidateErrorEntity } from 'rc-field-form/lib/interface';
+import type {FormProps} from "antd";
+import {Button, Form, Input, theme, Typography} from "antd";
+import {useNavigate} from "react-router-dom";
+import {emailRules} from "../../utils/validators";
+import {ROUTES} from "../../routes/AppRouter";
+import {ForgotPasswordRequest} from "../../types/transfer";
+import {useState} from "react";
+
+const {Text, Link} = Typography;
+const {useToken} = theme;
 
 interface ForgotPasswordFormProps {
-    onFinish: (values: { email: string }) => void;
-    onFinishFailed: (errorInfo: ValidateErrorEntity) => void;
+    onForgotPasswordSuccess: (data: ForgotPasswordRequest) => void;
+    onForgotPasswordError: (message: string) => void;
 }
 
-export default function ForgotPasswordForm ({onFinish, onFinishFailed}: ForgotPasswordFormProps) {
+export const ForgotPasswordForm = ({onForgotPasswordSuccess, onForgotPasswordError}: ForgotPasswordFormProps) => {
+    const [form] = Form.useForm<ForgotPasswordRequest>();
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
+    const {token} = useToken();
+
+    const onFinish: FormProps<ForgotPasswordRequest>['onFinish'] = async (values) => {
+        try {
+            setLoading(true);
+            onForgotPasswordSuccess(values);
+        } catch (error) {
+            onForgotPasswordError(error instanceof Error ? error.message : 'An error occurred while processing your request');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleValidationError: FormProps<ForgotPasswordRequest>['onFinishFailed'] = (errorInfo) => {
+        console.error('Validation failed:', errorInfo);
+    };
+
     return (
-        <div>
-
-            <Form
-                layout="vertical"
-                onFinish={onFinish}
-                onFinishFailed={onFinishFailed}
-                style={{ marginTop: 24 }}
+        <Form<ForgotPasswordRequest>
+            form={form}
+            layout="vertical"
+            onFinish={onFinish}
+            onFinishFailed={handleValidationError}
+            scrollToFirstError
+            style={{width: "100%"}}
+            size="large"
+        >
+            <Form.Item
+                label={<span style={{
+                    fontSize: token.customFontSize.sm,
+                    color: token.colorText
+                }}>Email address</span>}
+                name="email"
+                rules={emailRules}
+                hasFeedback
+                style={{marginBottom: token.spacing.sm}}
             >
-                <Form.Item
-                    label="Email address"
-                    name="email"
-                    rules={emailRules}
-                    hasFeedback
-                >
-                    <Input placeholder="Email address" />
-                </Form.Item>
+                <Input placeholder="Enter your email address"/>
+            </Form.Item>
 
-                <Form.Item>
-                    <Button type="primary" htmlType="submit" block>
-                        Send reset link
-                    </Button>
-                </Form.Item>
-            </Form>
-        </div>
+            <Form.Item>
+                <Button
+                    type="primary"
+                    htmlType="submit"
+                    block
+                    size="large"
+                    loading={loading}
+                    style={{
+                        borderRadius: token.borderRadius.sm,
+                        height: token.controlHeight
+                    }}
+                >
+                    Send reset link
+                </Button>
+            </Form.Item>
+
+            <div style={{
+                textAlign: "center",
+                fontSize: token.customFontSize.sm,
+                color: token.colorTextSecondary
+            }}>
+                <Text>Remember your password? </Text>
+                <Link onClick={() => navigate(ROUTES.LOGIN)}>Sign in</Link>
+            </div>
+        </Form>
     );
 };
