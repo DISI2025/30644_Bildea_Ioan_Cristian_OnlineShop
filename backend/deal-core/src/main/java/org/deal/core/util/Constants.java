@@ -27,7 +27,7 @@ public interface Constants {
         int SECOND = 1000;
         int MINUTE = 60 * SECOND;
         int HOUR = 60 * MINUTE;
-        int DEFAULT_JWT_EXPIRY = 24 * HOUR;
+        int DAY = 24 * HOUR;
 
         static Date now() {
             return new Date();
