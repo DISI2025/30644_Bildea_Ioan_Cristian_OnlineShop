@@ -6,9 +6,9 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 
 public class LogInPage extends BasePage {
-    private final By usernameField = By.name("username");
-    private final By passwordField = By.name("password");
-    private final By logInButton = By.xpath("//button[contains(text(), 'Sign in')");
+    private final By usernameField = By.id("username");
+    private final By passwordField = By.id("password");
+    private final By logInButton = By.cssSelector("button[type='submit']");
     // TODO get the elements properly
     private final By errorMessage = By.cssSelector("[data-test='error']");
 
@@ -19,7 +19,7 @@ public class LogInPage extends BasePage {
 
     // methods
     public void navigateToLogInPage() {
-        driver.get("http://localhost:3000/login");
+        driver.get("http://localhost:5173/login");
     }
 
     public boolean isLogInPageDisplayed() {
@@ -31,13 +31,13 @@ public class LogInPage extends BasePage {
         WebElement passwordElement = wait.until(ExpectedConditions.visibilityOfElementLocated(passwordField));
         WebElement logInElement = wait.until(ExpectedConditions.elementToBeClickable(logInButton));
 
-        super.sendKeys(usernameElement, username);
-        super.sendKeys(passwordElement, password);
-        super.click(logInElement);
+        this.sendKeys(usernameElement, username);
+        this.sendKeys(passwordElement, password);
+        this.click(logInElement);
     }
 
     public String getErrorMessage() {
         WebElement errorElement = wait.until(ExpectedConditions.visibilityOfElementLocated(errorMessage));
-        return super.getText(errorElement);
+        return this.getText(errorElement);
     }
 }

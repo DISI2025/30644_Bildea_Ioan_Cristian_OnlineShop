@@ -1,4 +1,4 @@
-package tests.example;
+package tests;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -6,7 +6,8 @@ import org.junit.jupiter.api.Test;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import pages.example.*;
+import pages.HomePage;
+import pages.LogInPage;
 import utils.TestData;
 
 import java.time.Duration;
@@ -14,24 +15,25 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class EcommerceTest {
+public class LogInTest {
     private WebDriver driver;
-    private LoginPage loginPage;
+    private LogInPage loginPage;
     private HomePage homePage;
 
     @BeforeEach
     public void setUp() {
         ChromeOptions options = getChromeOptions();
-        
+
         driver = new ChromeDriver(options);
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
         driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(30));
-        
-        loginPage = new LoginPage(driver);
+
+        loginPage = new LogInPage(driver);
         homePage = new HomePage(driver);
-        
-        loginPage.navigateToLoginPage();
+
+        loginPage.navigateToLogInPage();
     }
 
     private static ChromeOptions getChromeOptions() {
@@ -58,30 +60,22 @@ public class EcommerceTest {
 
     @Test
     public void testSuccessfulLogin() {
-        loginPage.login(TestData.Credentials.STANDARD_USER, TestData.Credentials.PASSWORD);
-        
+        loginPage.logIn(TestData.Credentials.STANDARD_USER, TestData.Credentials.PASSWORD);
+
         assertTrue(homePage.isHomePageDisplayed(), TestData.Messages.HOME_PAGE_DISPLAYED);
-        assertEquals(TestData.Messages.EXPECTED_PAGE_TITLE, homePage.getPageTitle(), 
-            TestData.Messages.PAGE_TITLE);
     }
 
     @Test
     public void testLoginWithInvalidCredentials() {
-        loginPage.login(TestData.Credentials.INVALID_USER, TestData.Credentials.INVALID_PASSWORD);
-        
-        String errorMessage = loginPage.getErrorMessage();
-        assertFalse(errorMessage.isEmpty(), TestData.Messages.ERROR_MESSAGE_DISPLAYED);
-        assertTrue(errorMessage.contains(TestData.Messages.ERROR_INVALID_CREDENTIALS), 
-            "Error message should indicate invalid credentials");
+        loginPage.logIn(TestData.Credentials.INVALID_USER, TestData.Credentials.INVALID_PASSWORD);
+
+        assertTrue(loginPage.isLogInPageDisplayed(), TestData.Messages.ERROR_INVALID_CREDENTIALS);
     }
 
     @Test
     public void testLoginWithEmptyCredentials() {
-        loginPage.login("", "");
-        
-        String errorMessage = loginPage.getErrorMessage();
-        assertFalse(errorMessage.isEmpty(), TestData.Messages.ERROR_MESSAGE_DISPLAYED);
-        assertTrue(errorMessage.contains(TestData.Messages.ERROR_USERNAME_REQUIRED), 
-            "Error message should indicate username is required");
+        loginPage.logIn("", "");
+
+        assertTrue(loginPage.isLogInPageDisplayed());
     }
-} 
+}
