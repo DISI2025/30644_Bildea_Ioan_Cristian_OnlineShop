@@ -20,17 +20,17 @@ export default function RegisterPage() {
    const navigate = useNavigate();
    const {token} = useToken();
 
-   // Todo: cristi -> use this
-   const doRegister = (data: CreateUserRequest) => {
+   const handleRegisterSuccess = (data: CreateUserRequest) => {
       register(data).unwrap()
          .then((response: DealResponse<AuthData>) => {
             dispatch(startSession(response.payload));
-            navigate('/');
+            showSuccess('Registration Successful', 'Your account has been created successfully.');
+            navigate(ROUTES.HOME);
          })
          .catch((response: BaseResponse) => {
             showErrors(response?.errors);
          });
-   }
+   };
 
    return (
       <Layout>
@@ -78,10 +78,7 @@ export default function RegisterPage() {
                </div>
 
                <RegisterForm
-                  onRegisterSuccess={() => {
-                     showSuccess('Registration Successful', 'Your account has been created successfully.');
-                     navigate(ROUTES.LOGIN);
-                  }}
+                  onRegisterSuccess={handleRegisterSuccess}
                   onRegisterError={(message) => {
                      showError("Oops!", message);
                   }}

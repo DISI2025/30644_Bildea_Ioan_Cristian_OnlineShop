@@ -1,32 +1,37 @@
-import {Form, Input, Button, Checkbox, Typography, theme} from "antd";
 import type {FormProps} from "antd";
+import {Button, Checkbox, Form, Input, theme, Typography} from "antd";
 import {useNavigate} from "react-router-dom";
-import {usernameRules, emailRules, passwordRules, confirmPasswordRules, fullNameRules} from "../../utils/validators";
+import {confirmPasswordRules, emailRules, passwordRules, usernameRules} from "../../utils/validators";
 import {ROUTES} from "../../routes/AppRouter";
-import {RegisterFormData} from "../../types/api";
+import {CreateUserRequest} from "../../types/transfer";
 import {useState} from "react";
+import {UserRole} from "../../types/entities.ts";
 
 const {Text, Link} = Typography;
 const {useToken} = theme;
 
 interface RegisterFormProps {
-    onRegisterSuccess: () => void;
+    onRegisterSuccess: (data: CreateUserRequest) => void;
     onRegisterError: (message: string) => void;
 }
 
 export const RegisterForm = ({onRegisterSuccess, onRegisterError}: RegisterFormProps) => {
-    const [form] = Form.useForm<RegisterFormData>();
+    const [form] = Form.useForm<CreateUserRequest>();
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const {token} = useToken();
 
-    // TODO: Implement integrated register endpoind and fix type errors
-    const onFinish: FormProps<RegisterFormData>['onFinish'] = async (values) => {
+    const onFinish: FormProps<CreateUserRequest>['onFinish'] = async (values) => {
         try {
             setLoading(true);
-            console.log(values)
-            // TODO: Implement registration logic
-            onRegisterSuccess();
+            
+            const requestData: CreateUserRequest = {
+                username: values.username,
+                email: values.email,
+                password: values.password,
+                role: UserRole.USER
+            }
+            onRegisterSuccess(requestData);
         } catch (error) {
             onRegisterError(error instanceof Error ? error.message : 'An error occurred during registration');
         } finally {
@@ -34,12 +39,12 @@ export const RegisterForm = ({onRegisterSuccess, onRegisterError}: RegisterFormP
         }
     };
 
-    const handleValidationError: FormProps<RegisterFormData>['onFinishFailed'] = (errorInfo) => {
+    const handleValidationError: FormProps<CreateUserRequest>['onFinishFailed'] = (errorInfo) => {
         console.error('Validation failed:', errorInfo);
     };
 
     return (
-        <Form<RegisterFormData>
+        <Form<CreateUserRequest>
             form={form}
             layout="vertical"
             onFinish={onFinish}
@@ -52,26 +57,13 @@ export const RegisterForm = ({onRegisterSuccess, onRegisterError}: RegisterFormP
                 label={<span style={{
                     fontSize: token.customFontSize.sm,
                     color: token.colorText
-                }}>Full Name</span>}
-                name="fullName"
-                rules={fullNameRules}
-                hasFeedback
-                style={{marginBottom: token.spacing.sm}}
-            >
-                <Input placeholder="Enter your full name"/>
-            </Form.Item>
-
-            <Form.Item
-                label={<span style={{
-                    fontSize: token.customFontSize.sm,
-                    color: token.colorText
                 }}>Username</span>}
                 name="username"
                 rules={usernameRules}
                 hasFeedback
                 style={{marginBottom: token.spacing.sm}}
             >
-                <Input placeholder="Choose a username"/>
+                <Input placeholder="Enter your username"/>
             </Form.Item>
 
             <Form.Item
@@ -131,7 +123,7 @@ export const RegisterForm = ({onRegisterSuccess, onRegisterError}: RegisterFormP
                 </Checkbox>
             </Form.Item>
 
-            <Form.Item style={{marginBottom: token.spacing.none}}>
+            <Form.Item>
                 <Button
                     type="primary"
                     htmlType="submit"
