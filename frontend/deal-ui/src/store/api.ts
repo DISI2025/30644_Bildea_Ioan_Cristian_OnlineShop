@@ -2,7 +2,7 @@ import {createApi} from '@reduxjs/toolkit/query/react';
 import {fetchBaseQuery} from '@reduxjs/toolkit/query';
 import {AUTH_HEADER, buildAuthHeader, DEAL_ENDPOINTS, TOKEN_KEY} from "../utils/constants.ts";
 import Cookies from 'js-cookie';
-import {AuthData, AuthRequest, BaseResponse, CreateUserRequest, DealResponse} from "../types/transfer.ts";
+import {AuthData, AuthRequest, BaseResponse, CreateUserRequest, DealResponse, ForgotPasswordRequest, ForgotPasswordResponse, ResetPasswordRequest, ResetPasswordResponse} from "../types/transfer.ts";
 
 const appBaseQuery = fetchBaseQuery({
    baseUrl: DEAL_ENDPOINTS.BASE, prepareHeaders: (headers: Headers /*{getState}*/) => {
@@ -36,6 +36,24 @@ export const api = createApi({
          transformErrorResponse: (response) => response.data as BaseResponse,
       }),
 
+      forgotPassword: builder.mutation<DealResponse<ForgotPasswordResponse>, ForgotPasswordRequest>({
+         query: (request) => ({
+            url: `${DEAL_ENDPOINTS.AUTH}/forgot-password`,
+            method: "POST",
+            body: request
+         }),
+         transformErrorResponse: (response) => response.data as BaseResponse,
+      }),
+
+      resetPassword: builder.mutation<DealResponse<ResetPasswordResponse>, ResetPasswordRequest>({
+         query: (request) => ({
+            url: `${DEAL_ENDPOINTS.AUTH}/reset-password`,
+            method: "POST",
+            body: request
+         }),
+         transformErrorResponse: (response) => response.data as BaseResponse,
+      }),
+
       //TODO Just as an example
       /*        getCourses: builder.query<DealResponse<Course[]>, void>({
                   query: () => Endpoints.courses,
@@ -47,5 +65,7 @@ export const api = createApi({
 
 export const {
    useLoginMutation,
-   useRegisterMutation
+   useRegisterMutation,
+   useForgotPasswordMutation,
+   useResetPasswordMutation
 } = api;

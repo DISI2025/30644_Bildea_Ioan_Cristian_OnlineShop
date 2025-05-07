@@ -1,25 +1,31 @@
 import {Layout, theme, Typography} from 'antd';
-import {useNavigate} from 'react-router-dom';
+import {useNavigate, useParams} from 'react-router-dom';
 import {useSnackbar} from '../context/SnackbarContext';
 import {ROUTES} from '../routes/AppRouter';
-import {ForgotPasswordForm} from '../components/auth/ForgotPasswordForm';
+import {ResetPasswordForm} from '../components/auth/ResetPasswordForm';
 import {SimpleHeader} from '../components/common/SimpleHeader';
-import {useForgotPasswordMutation} from "../store/api.ts";
-import {BaseResponse, DealResponse, ForgotPasswordRequest, ForgotPasswordResponse} from "../types/transfer.ts";
+import {useResetPasswordMutation} from "../store/api.ts";
+import {BaseResponse, DealResponse, ResetPasswordRequest, ResetPasswordResponse} from "../types/transfer.ts";
 
 const {Content} = Layout;
 const {Title, Text} = Typography;
 const {useToken} = theme;
 
-export default function ForgotPasswordPage() {
-    const [forgotPassword] = useForgotPasswordMutation();
+export default function ResetPasswordPage() {
+    const {token} = useParams<{ token: string }>();
+    const [resetPassword] = useResetPasswordMutation();
     const {showSuccess, showError, showErrors} = useSnackbar();
     const navigate = useNavigate();
     const {token: themeToken} = useToken();
 
-    const handleForgotPasswordSuccess = (data: ForgotPasswordRequest) => {
-        forgotPassword(data).unwrap()
-            .then((response: DealResponse<ForgotPasswordResponse>) => {
+    if (!token) {
+        navigate(ROUTES.LOGIN);
+        return null;
+    }
+
+    const handleResetPasswordSuccess = (data: ResetPasswordRequest) => {
+        resetPassword(data).unwrap()
+            .then((response: DealResponse<ResetPasswordResponse>) => {
                 showSuccess('Success', response.payload.message);
                 navigate(ROUTES.LOGIN);
             })
@@ -62,20 +68,21 @@ export default function ForgotPasswordPage() {
                             fontSize: themeToken.customFontSize.xxl,
                             color: themeToken.colorText,
                         }}>
-                            Forgot your password?
+                            Reset your password
                         </Title>
                         <Text style={{
                             textAlign: "center",
                             fontSize: themeToken.customFontSize.sm,
                             color: themeToken.colorTextSecondary,
                         }}>
-                            Enter your email address and we'll send you a link to reset your password.
+                            Please enter your new password below.
                         </Text>
                     </div>
 
-                    <ForgotPasswordForm
-                        onForgotPasswordSuccess={handleForgotPasswordSuccess}
-                        onForgotPasswordError={(message) => {
+                    <ResetPasswordForm
+                        token={token}
+                        onResetPasswordSuccess={handleResetPasswordSuccess}
+                        onResetPasswordError={(message) => {
                             showError("Oops!", message);
                         }}
                     />
@@ -83,5 +90,4 @@ export default function ForgotPasswordPage() {
             </Content>
         </Layout>
     );
-}
-
+} 

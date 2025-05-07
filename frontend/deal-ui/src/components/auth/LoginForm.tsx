@@ -5,6 +5,7 @@ import {usernameRules, passwordRules} from "../../utils/validators";
 import {ROUTES} from "../../routes/AppRouter";
 import {AuthRequest} from "../../types/transfer";
 import {useState} from "react";
+import {useSnackbar} from "../../context/SnackbarContext";
 
 const {Text, Link} = Typography;
 const {useToken} = theme;
@@ -19,6 +20,7 @@ export const LoginForm = ({onLoginSuccess, onLoginError}: LoginFormProps) => {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const {token} = useToken();
+    const {showErrors} = useSnackbar();
 
     const onFinish: FormProps<AuthRequest>['onFinish'] = async (values) => {
         try {
@@ -32,7 +34,7 @@ export const LoginForm = ({onLoginSuccess, onLoginError}: LoginFormProps) => {
     };
 
     const handleValidationError: FormProps<AuthRequest>['onFinishFailed'] = (errorInfo) => {
-        console.error('Validation failed:', errorInfo);
+        errorInfo.errorFields.forEach(e => showErrors(e.errors));
     };
 
     return (
