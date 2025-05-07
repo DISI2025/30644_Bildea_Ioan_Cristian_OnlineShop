@@ -1,8 +1,10 @@
 import React, { createContext, useContext } from 'react';
 import { notification } from 'antd';
+import {DealError} from "../types/transfer.ts";
 
 interface SnackbarContextProps {
-    showError: (msg: string, description?: string) => void;
+    showError: (msg: string, description?: string | DealError | null) => void;
+    showErrors: (descriptions?: string[] | DealError[] | null) => void;
     showSuccess: (msg: string, description?: string) => void;
     showInfo: (msg: string, description?: string) => void;
     showWarning: (msg: string, description?: string) => void;
@@ -10,7 +12,7 @@ interface SnackbarContextProps {
 
 const SnackbarContext = createContext<SnackbarContextProps | undefined>(undefined);
 
-export const SnackbarProvider: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
+export const SnackbarProvider: React.FC<React.PropsWithChildren<object>> = ({ children }) => {
     const [api, contextHolder] = notification.useNotification();
 
     const openNotificationWithIcon = (
@@ -27,8 +29,14 @@ export const SnackbarProvider: React.FC<React.PropsWithChildren<{}>> = ({ childr
         });
     };
 
-    const showError = (msg: string, description?: string) => {
-        openNotificationWithIcon('error', msg, description);
+    const showError = (msg: string, description?: string | DealError | null) => {
+        const content = typeof description === 'string' ? description : description?.message;
+        openNotificationWithIcon('error', msg, content);
+    };
+
+    const showErrors = (descriptions?: string[] | DealError[] | null) => {
+        const description = descriptions?.join(', ');
+        openNotificationWithIcon('error', "There are multiple errors!", description);
     };
 
     const showSuccess = (msg: string, description?: string) => {
@@ -44,7 +52,7 @@ export const SnackbarProvider: React.FC<React.PropsWithChildren<{}>> = ({ childr
     };
 
     return (
-        <SnackbarContext.Provider value={{ showError, showSuccess, showInfo, showWarning }}>
+        <SnackbarContext.Provider value={{ showError, showErrors, showSuccess, showInfo, showWarning }}>
             {contextHolder}
             {children}
         </SnackbarContext.Provider>

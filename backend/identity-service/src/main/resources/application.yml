@@ -13,10 +13,16 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         default_schema: public
     show-sql: true
-
+  jwt:
+    secret-key: your-256-bit-secret-your-256-bit-secret
+    token-expiration-days: 1
 server:
-  port: 8001
+  port: 8081
 
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
+
+eureka:
+  instance:
+    prefer-ip-address: true
