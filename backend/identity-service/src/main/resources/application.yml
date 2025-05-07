@@ -36,7 +36,7 @@ eureka:
     prefer-ip-address: true
 
 whitelisted-paths: /auth/**, /swagger-ui/**, /v3/api-docs/**, /v3/api-docs.yaml, /swagger-ui.html, /bus/**, /actuator/**
-reset-password-url: https://localhost:5173/reset-password
+reset-password-url: http://localhost:5173/reset-password
 reset-password-email-title: 'Password reset email - DEAL'
 reset-password-email-body: 'Reset your password using: '
 deal-mail: no-reply@deal.com

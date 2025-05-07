@@ -28,7 +28,7 @@ export const confirmPasswordRules = (): Rule[] => [
   { required: true, message: 'Please confirm your password' },
   ({ getFieldValue }) => ({
     validator(_, value) {
-      if (!value || getFieldValue('password') === value) {
+      if (!value || getFieldValue('newPassword') === value) {
         return Promise.resolve();
       }
       return Promise.reject(new Error('The two passwords do not match'));

@@ -16,7 +16,7 @@ const {useToken} = theme;
 export default function RegisterPage() {
    const dispatch = useDispatch();
    const [register] = useRegisterMutation();
-   const {showSuccess, showError, showErrors} = useSnackbar();
+   const {showSuccess, showError, showDealErrors} = useSnackbar();
    const navigate = useNavigate();
    const {token} = useToken();
 
@@ -28,7 +28,7 @@ export default function RegisterPage() {
             navigate(ROUTES.HOME);
          })
          .catch((response: BaseResponse) => {
-            showErrors(response?.errors);
+            showDealErrors(response?.errors);
          });
    };
 
