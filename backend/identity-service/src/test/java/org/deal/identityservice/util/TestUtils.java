@@ -6,15 +6,17 @@ import org.deal.core.request.auth.LoginRequest;
 import org.deal.core.request.user.CreateUserRequest;
 import org.deal.core.request.user.UpdateUserRequest;
 import org.deal.core.response.DealResponse;
-import org.deal.core.response.login.AuthResponse;
+import org.deal.core.response.auth.AuthResponse;
 import org.deal.core.util.Mapper;
 import org.deal.core.util.Role;
+import org.deal.identityservice.entity.PasswordToken;
 import org.deal.identityservice.entity.User;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.http.HttpStatus;
 
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -40,6 +42,16 @@ public class TestUtils {
             Optional.ofNullable(response.getBody().get("payload")).ifPresentOrElse(
                     payload -> {
                         assertThat(payload, equalTo(expectedData));
+                        assertThat(response.getStatus(), equalTo(HttpStatus.OK));
+                        assertThat(response.getMessage(), equalTo(SUCCESS));
+                    },
+                    Assertions::fail
+            );
+        }
+
+        static <T> void assertThatResponseIsSuccessful(final DealResponse<T> response) {
+            Optional.ofNullable(response.getBody().get("payload")).ifPresentOrElse(
+                    payload -> {
                         assertThat(response.getStatus(), equalTo(HttpStatus.OK));
                         assertThat(response.getMessage(), equalTo(SUCCESS));
                     },
@@ -75,6 +87,12 @@ public class TestUtils {
 
         static UserDTO randomUserDTO() {
             return Mapper.mapTo(randomUser(), UserDTO.class);
+        }
+
+        static UserDTO randomUserDTO(final String email) {
+            var user = randomUser();
+            user.setEmail(email);
+            return Mapper.mapTo(user, UserDTO.class);
         }
 
         static CreateUserRequest createUserRequest(final User user) {
@@ -118,6 +136,15 @@ public class TestUtils {
                     .withAccessToken(token)
                     .withUser(Mapper.mapTo(user, UserDTO.class))
                     .build();
+        }
+
+        static PasswordToken randomPasswordToken() {
+            return new PasswordToken(
+                    UUID.randomUUID(),
+                    randomString(),
+                    UUID.randomUUID(),
+                    LocalDateTime.now()
+            );
         }
     }
 }

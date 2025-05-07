@@ -19,4 +19,11 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Integer deleteByIdReturning(final UUID id);
 
     Optional<User> findByUsername(String username);
+
+    Optional<User> findByEmail(String email);
+
+    @Transactional
+    @Modifying
+    @Query(value = "update User u set u.password=:newPassword where u.id=:id ")
+    Integer updateUserPassword(final UUID id, final String newPassword);
 }
