@@ -5,7 +5,7 @@ import {ROUTES} from '../routes/AppRouter';
 import {ForgotPasswordForm} from '../components/auth/ForgotPasswordForm';
 import {SimpleHeader} from '../components/common/SimpleHeader';
 import {useForgotPasswordMutation} from "../store/api.ts";
-import {BaseResponse, DealResponse, ForgotPasswordRequest, ForgotPasswordResponse} from "../types/transfer.ts";
+import {BaseResponse, DealResponse, ForgotPasswordRequest} from "../types/transfer.ts";
 
 const {Content} = Layout;
 const {Title, Text} = Typography;
@@ -19,8 +19,8 @@ export default function ForgotPasswordPage() {
 
     const handleForgotPasswordSuccess = (data: ForgotPasswordRequest) => {
         forgotPassword(data).unwrap()
-            .then((response: DealResponse<ForgotPasswordResponse>) => {
-                showSuccess('Success', response.payload.message);
+            .then((response: DealResponse<unknown>) => {
+                showSuccess('Success', response.message);
                 navigate(ROUTES.LOGIN);
             })
             .catch((response: BaseResponse) => {

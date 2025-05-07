@@ -5,7 +5,7 @@ import {ROUTES} from '../routes/AppRouter';
 import {ResetPasswordForm} from '../components/auth/ResetPasswordForm';
 import {SimpleHeader} from '../components/common/SimpleHeader';
 import {useResetPasswordMutation} from "../store/api.ts";
-import {BaseResponse, DealResponse, ResetPasswordRequest, ResetPasswordResponse} from "../types/transfer.ts";
+import {BaseResponse, DealResponse, ResetPasswordRequest} from "../types/transfer.ts";
 
 const {Content} = Layout;
 const {Title, Text} = Typography;
@@ -25,8 +25,8 @@ export default function ResetPasswordPage() {
 
     const handleResetPasswordSuccess = (data: ResetPasswordRequest) => {
         resetPassword(data).unwrap()
-            .then((response: DealResponse<ResetPasswordResponse>) => {
-                showSuccess('Success', response.payload.message);
+            .then((response: DealResponse<unknown>) => {
+                showSuccess('Success', response.message);
                 navigate(ROUTES.LOGIN);
             })
             .catch((response: BaseResponse) => {
