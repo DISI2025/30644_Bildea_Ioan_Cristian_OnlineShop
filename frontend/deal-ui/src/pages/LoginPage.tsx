@@ -1,13 +1,15 @@
 import {Button, Divider, Layout, theme, Typography} from "antd";
 import {AppleOutlined, GoogleOutlined} from "@ant-design/icons";
 import {useSnackbar} from "../context/SnackbarContext.tsx";
-import {useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import {AuthData, AuthRequest, BaseResponse, DealResponse} from "../types/transfer.ts";
 import {useLoginMutation} from "../store/api.ts";
-import {useDispatch} from "react-redux";
-import {startSession} from "../store/slices/auth-slice.ts";
+import {useDispatch, useSelector} from "react-redux";
+import {AuthState, selectAuthState, startSession} from "../store/slices/auth-slice.ts";
 import {LoginForm} from "../components/auth/LoginForm";
 import {SimpleHeader} from "../components/common/SimpleHeader";
+import {getRedirectedPath} from "../utils/url.ts";
+import {useEffect} from "react";
 
 const {Content} = Layout;
 const {Title, Text} = Typography;
@@ -16,7 +18,9 @@ const {useToken} = theme;
 export default function LoginPage() {
    const {showSuccess, showInfo, showErrors, showDealErrors} = useSnackbar();
    const dispatch = useDispatch();
+   const authState: AuthState = useSelector(selectAuthState);
    const navigate = useNavigate();
+   const location = useLocation();
    const [login] = useLoginMutation();
    const {token} = useToken();
 
@@ -24,11 +28,20 @@ export default function LoginPage() {
       login(data).unwrap().then((response: DealResponse<AuthData>) => {
          dispatch(startSession(response.payload));
          showSuccess('Login Successful', 'You have been logged in successfully.');
-         navigate('/');
+         navigate(getRedirectedPath(location.search));
       }).catch((response: BaseResponse) => {
          showDealErrors(response?.errors);
       });
    };
+
+   useEffect(() => {
+      if (authState.loggedIn) {
+         navigate(getRedirectedPath(location.search));
+      }
+
+      return () => {
+      };
+   }, [authState.loggedIn, location.search, navigate]);
 
    return (
       <Layout>
