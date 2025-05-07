@@ -5,6 +5,7 @@ import {emailRules} from "../../utils/validators";
 import {ROUTES} from "../../routes/AppRouter";
 import {ForgotPasswordRequest} from "../../types/transfer";
 import {useState} from "react";
+import {useSnackbar} from "../../context/SnackbarContext";
 
 const {Text, Link} = Typography;
 const {useToken} = theme;
@@ -19,6 +20,7 @@ export const ForgotPasswordForm = ({onForgotPasswordSuccess, onForgotPasswordErr
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const {token} = useToken();
+    const {showErrors} = useSnackbar();
 
     const onFinish: FormProps<ForgotPasswordRequest>['onFinish'] = async (values) => {
         try {
@@ -32,7 +34,7 @@ export const ForgotPasswordForm = ({onForgotPasswordSuccess, onForgotPasswordErr
     };
 
     const handleValidationError: FormProps<ForgotPasswordRequest>['onFinishFailed'] = (errorInfo) => {
-        console.error('Validation failed:', errorInfo);
+        errorInfo.errorFields.forEach(e => showErrors(e.errors));
     };
 
     return (

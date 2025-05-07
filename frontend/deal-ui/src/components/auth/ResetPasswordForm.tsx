@@ -5,6 +5,7 @@ import {confirmPasswordRules, passwordRules} from "../../utils/validators";
 import {ROUTES} from "../../routes/AppRouter";
 import {ResetPasswordRequest} from "../../types/transfer";
 import {useState} from "react";
+import {useSnackbar} from "../../context/SnackbarContext";
 
 const {Text, Link} = Typography;
 const {useToken} = theme;
@@ -20,6 +21,7 @@ export const ResetPasswordForm = ({token, onResetPasswordSuccess, onResetPasswor
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const {token: themeToken} = useToken();
+    const {showErrors} = useSnackbar();
 
     const onFinish: FormProps<ResetPasswordRequest>['onFinish'] = async (values) => {
         try {
@@ -36,7 +38,7 @@ export const ResetPasswordForm = ({token, onResetPasswordSuccess, onResetPasswor
     };
 
     const handleValidationError: FormProps<ResetPasswordRequest>['onFinishFailed'] = (errorInfo) => {
-        console.error('Validation failed:', errorInfo);
+        errorInfo.errorFields.forEach(e => showErrors(e.errors));
     };
 
     return (

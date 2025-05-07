@@ -6,6 +6,7 @@ import {ROUTES} from "../../routes/AppRouter";
 import {CreateUserRequest} from "../../types/transfer";
 import {useState} from "react";
 import {UserRole} from "../../types/entities.ts";
+import {useSnackbar} from "../../context/SnackbarContext";
 
 const {Text, Link} = Typography;
 const {useToken} = theme;
@@ -20,6 +21,7 @@ export const RegisterForm = ({onRegisterSuccess, onRegisterError}: RegisterFormP
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const {token} = useToken();
+    const {showErrors} = useSnackbar();
 
     const onFinish: FormProps<CreateUserRequest>['onFinish'] = async (values) => {
         try {
@@ -40,7 +42,7 @@ export const RegisterForm = ({onRegisterSuccess, onRegisterError}: RegisterFormP
     };
 
     const handleValidationError: FormProps<CreateUserRequest>['onFinishFailed'] = (errorInfo) => {
-        console.error('Validation failed:', errorInfo);
+        errorInfo.errorFields.forEach(e => showErrors(e.errors));
     };
 
     return (

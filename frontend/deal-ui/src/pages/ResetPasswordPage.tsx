@@ -26,7 +26,7 @@ export default function ResetPasswordPage() {
     const handleResetPasswordSuccess = (data: ResetPasswordRequest) => {
         resetPassword(data).unwrap()
             .then((response: DealResponse<ResetPasswordResponse>) => {
-                showSuccess('Password Reset Successful', response.payload.message);
+                showSuccess('Success', response.payload.message);
                 navigate(ROUTES.LOGIN);
             })
             .catch((response: BaseResponse) => {
