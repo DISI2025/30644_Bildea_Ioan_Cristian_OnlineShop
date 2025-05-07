@@ -1,4 +1,4 @@
-import {User} from "./entities.ts";
+import {User, UserRole} from "./entities.ts";
 
 export interface BaseResponse {
     status: number;
@@ -23,4 +23,11 @@ export interface AuthData
 export interface AuthRequest {
     username: string;
     password: string;
+}
+
+export interface CreateUserRequest {
+    username: string;
+    password: string;
+    email: string;
+    role: UserRole;
 }

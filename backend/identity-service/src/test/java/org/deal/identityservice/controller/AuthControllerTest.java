@@ -3,7 +3,6 @@ package org.deal.identityservice.controller;
 import org.deal.core.exception.DealError;
 import org.deal.identityservice.service.AuthService;
 import org.deal.identityservice.util.BaseUnitTest;
-import org.deal.identityservice.util.TestUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,13 +13,20 @@ import org.springframework.http.HttpStatus;
 import java.util.List;
 import java.util.Optional;
 
+import static org.deal.identityservice.util.TestUtils.AuthUtils.prepareAuthResponse;
+import static org.deal.identityservice.util.TestUtils.AuthUtils.randomLoginRequest;
 import static org.deal.identityservice.util.TestUtils.ResponseUtils.assertThatResponseFailed;
 import static org.deal.identityservice.util.TestUtils.ResponseUtils.assertThatResponseIsSuccessful;
+import static org.deal.identityservice.util.TestUtils.UserUtils.createUserRequest;
+import static org.deal.identityservice.util.TestUtils.UserUtils.randomUser;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class AuthControllerTest extends BaseUnitTest {
+
+    private static final String TOKEN = "mockToken";
 
     @Mock
     private AuthService authService;
@@ -29,31 +35,45 @@ class AuthControllerTest extends BaseUnitTest {
     private AuthController victim;
 
     @Test
-    void testLogin_validCredentials_returnsSuccess() {
-        var loginRequest = TestUtils.LoginUtils.randomLoginRequest();
-        var loginResponse = TestUtils.LoginUtils.randomLoginResponse();
+    void testLogin_validCredentials_shouldReturnSuccess() {
+        var request = randomLoginRequest();
+        var expectedResponse = prepareAuthResponse(request.username(), TOKEN);
+        when(authService.authenticate(request)).thenReturn(Optional.of(expectedResponse));
 
-        when(authService.authenticate(loginRequest)).thenReturn(Optional.of(loginResponse));
+        var response = victim.login(request);
 
-        var response = victim.login(loginRequest);
-
-        verify(authService).authenticate(loginRequest);
-        assertThatResponseIsSuccessful(response, loginResponse);
+        verify(authService).authenticate(request);
+        assertThatResponseIsSuccessful(response, expectedResponse);
     }
 
     @Test
-    void testLogin_invalidCredentials_returnsFailure() {
-        var loginRequest = TestUtils.LoginUtils.randomLoginRequest();
+    void testLogin_invalidCredentials_shouldReturnFailure() {
+        when(authService.authenticate(any())).thenReturn(Optional.empty());
 
-        when(authService.authenticate(loginRequest)).thenReturn(Optional.empty());
+        var response = victim.login(randomLoginRequest());
 
-        var response = victim.login(loginRequest);
+        verify(authService).authenticate(any());
+        assertThatResponseFailed(response, List.of(DealError.BAD_CREDENTIAL_EXCEPTION), HttpStatus.UNAUTHORIZED);
+    }
 
-        verify(authService).authenticate(loginRequest);
-        assertThatResponseFailed(
-                response,
-                List.of(new DealError(DealError.BAD_CREDENTIAL_EXCEPTION.message())),
-                HttpStatus.BAD_REQUEST
-        );
+    @Test
+    void testRegister_userIsCreated_shouldReturnSuccess() {
+        var request = createUserRequest(randomUser());
+        var expectedResponse = prepareAuthResponse(request.username(), TOKEN);
+        when(authService.register(request)).thenReturn(Optional.of(expectedResponse));
+
+        var response = victim.register(request);
+
+        verify(authService).register(request);
+        assertThatResponseIsSuccessful(response, expectedResponse);
+    }
+
+    @Test
+    void testRegister_userIsNotCreated_shouldReturnFailure() {
+        when(authService.register(any())).thenReturn(Optional.empty());
+
+        var response = victim.register(createUserRequest(randomUser()));
+
+        assertThatResponseFailed(response, List.of(DealError.REGISTRATION_FAILED), HttpStatus.BAD_REQUEST);
     }
 }

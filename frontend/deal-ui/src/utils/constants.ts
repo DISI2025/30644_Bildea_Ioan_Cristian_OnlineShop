@@ -5,6 +5,7 @@ export const DEAL_ENDPOINTS = {
 }
 
 export const TOKEN_KEY = 'token';
+export const USER_KEY = 'user';
 export const AUTH_HEADER = 'Authorization';
 
 export const buildAuthHeader = (token: string): string => `Bearer ${token}`;
