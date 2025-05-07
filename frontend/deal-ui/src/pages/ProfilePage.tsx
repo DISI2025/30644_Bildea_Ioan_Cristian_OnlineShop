@@ -1,13 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import {useNavigate, useParams} from 'react-router-dom';
-import {Avatar, Card, Form, Layout, message, Space, Tabs, theme, Typography, Input, Button} from 'antd';
+import {Button, Card, Form, Input, Layout, message, Space, Tabs, theme, Typography} from 'antd';
 import {HeartOutlined, LockOutlined, ShoppingOutlined, UserOutlined} from '@ant-design/icons';
 import {useSelector} from 'react-redux';
 import {selectAuthState} from '../store/slices/auth-slice';
 import {Navbar} from '../components/common/Navbar';
 import BasicInfo from '../components/profile/BasicInfo';
 import UserInfo from '../components/profile/SellerInfo';
-import BuyerInfo from '../components/profile/BuyerInfo';
 import AdminInfo from '../components/profile/AdminInfo';
 import type {FormInstance} from 'antd/es/form';
 import {UserRole} from "../types/entities";
@@ -16,7 +15,8 @@ const { Content } = Layout;
 const { Title, Text } = Typography;
 const { useToken } = theme;
 
-// DTOs for user data
+// TODO Adjust these interfaces and move them in types + integrate future endpoints
+ 
 interface BaseUserDTO {
   id: string;
   username: string;
