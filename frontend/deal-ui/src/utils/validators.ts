@@ -39,4 +39,4 @@ export const fullNameRules: Rule[] = [
   { min: 2, message: 'Full name must be at least 2 characters' },
   { max: 100, message: 'Full name cannot exceed 100 characters' },
   { pattern: /^[a-zA-Z\s'-]+$/, message: 'Full name can only contain letters, spaces, hyphens and apostrophes' }
-]; 
+];
