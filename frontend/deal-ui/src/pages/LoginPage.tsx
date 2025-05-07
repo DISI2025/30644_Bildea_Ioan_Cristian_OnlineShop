@@ -6,18 +6,19 @@ import {useNavigate} from "react-router-dom";
 import {usernameRules, passwordRules} from "../utlis/Validators.tsx";
 import {AuthData, AuthRequest, BaseResponse, DealResponse} from "../types/transfer.ts";
 import {useLoginMutation} from "../store/api.ts";
+import {useDispatch} from "react-redux";
+import {startSession} from "../store/slices/auth-slice.ts";
 
 const {Title, Text, Link} = Typography;
 export default function LoginPage() {
     const {showSuccess, showInfo, showError, showErrors} = useSnackbar();
+    const dispatch = useDispatch();
     const navigate = useNavigate();
     const [login] = useLoginMutation();
 
     const onFinish: FormProps['onFinish'] = (data: AuthRequest) => {
         login(data).unwrap().then((response: DealResponse<AuthData>) => {
-            // TODO: Handle the response and store the auth data in the state
-            console.log(response);
-            // dispatch(startSession(response.data));
+            dispatch(startSession(response.payload));
             showSuccess('Login Successful', 'You have been logged in successfully.');
             navigate('/');
         }).catch((response: BaseResponse) => {
