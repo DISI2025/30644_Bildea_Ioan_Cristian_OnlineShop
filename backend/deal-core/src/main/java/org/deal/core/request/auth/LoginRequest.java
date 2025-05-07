@@ -1,4 +1,4 @@
-package org.deal.core.request.login;
+package org.deal.core.request.auth;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
