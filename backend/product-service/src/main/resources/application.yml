@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: product-service
+  datasource:
+    url: jdbc:postgresql://localhost:5436/ps_db
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: public
+    show-sql: true
+  jwt:
+    secret-key: your-256-bit-secret-your-256-bit-secret
+    token-expiration-days: 1
+server:
+  port: 8082
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+eureka:
+  instance:
+    prefer-ip-address: true
