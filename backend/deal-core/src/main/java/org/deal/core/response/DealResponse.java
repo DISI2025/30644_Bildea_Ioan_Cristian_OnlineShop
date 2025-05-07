@@ -86,12 +86,6 @@ public class DealResponse<T> extends ResponseEntity<Object> implements Serializa
                 .build();
     }
 
-    public static void setServletResponse(final HttpServletResponse response, final String message, final int status) throws IOException {
-        response.setContentType(APPLICATION_JSON_VALUE);
-        response.setStatus(status);
-        response.getWriter().println(Mapper.writeValueAsString(failureResponse(new DealError(message), HttpStatus.valueOf(status))));
-    }
-
     private static HttpHeaders getDefaultHttpHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.set(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE);
