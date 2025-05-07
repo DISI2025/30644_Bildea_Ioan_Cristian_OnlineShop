@@ -1,54 +1,83 @@
 import React from 'react';
-import { Form, Input, Button, Select, Tag, Typography, Space, Row, Col, Divider, Collapse, Alert, Card } from 'antd';
-import { UserProfile } from '../../pages/profile/Profile.tsx';
-import { sellerInfoRules } from '../../utils/validators.ts';
+import { Form, Input, Button, Typography, Space, Row, Col, Divider, Card, theme } from 'antd';
+import type { FormInstance } from 'antd/es/form';
+import { UserRole } from '../../types/entities';
 
 const { Text, Title } = Typography;
-const { Option } = Select;
-const { Panel } = Collapse;
+const { useToken } = theme;
 
-interface SellerInfoProps {
-  profileData: UserProfile;
-  categories: { id: number; name: string }[];
+interface BaseUserDTO {
+  id: string;
+  username: string;
+  role: UserRole;
+  createdAt: string;
+}
+
+interface UserDetailsDTO extends BaseUserDTO {
+  role: UserRole.USER;
+  userInfo: {
+    shippingAddress?: string;
+    preferredLocations?: string[];
+    preferredCourier?: string;
+  };
+}
+
+interface AdminDTO extends BaseUserDTO {
+  role: UserRole.ADMIN;
+  adminInfo: {
+    permissions: string[];
+    lastLogin: string;
+  };
+}
+
+type UserDTO = UserDetailsDTO | AdminDTO;
+
+interface UserInfoProps {
+  profileData: UserDTO;
   isEditing: boolean;
-  canEditSellerInfo: boolean;
+  canEditUserInfo: boolean;
   saving: boolean;
-  form: any;
+  form: FormInstance;
   handleEdit: () => void;
   handleCancel: () => void;
 }
 
-const SellerInfo: React.FC<SellerInfoProps> = ({
+const UserInfo: React.FC<UserInfoProps> = ({
   profileData,
-  categories,
   isEditing,
-  canEditSellerInfo,
+  canEditUserInfo,
   saving,
   form,
   handleEdit,
   handleCancel,
 }) => {
+  const { token } = useToken();
+
+  if (profileData.role !== UserRole.USER) {
+    return null;
+  }
+
   return (
     <Card
-      className="seller-info-card"
-      style={{ 
+      className="user-info-card"
+      style={{
         width: '100%',
-        boxShadow: '0 1px 5px rgba(0,0,0,0.1)',
-        borderRadius: '8px',
+        boxShadow: token.shadows.light.md,
+        borderRadius: token.borderRadius.md,
         overflow: 'hidden',
-        marginBottom: '24px'
+        marginBottom: token.spacing.lg
       }}
     >
       <Row gutter={[16, 16]} style={{ width: '100%' }}>
         <Col xs={24}>
-          {isEditing && canEditSellerInfo ? (
+          {isEditing && canEditUserInfo ? (
             <Form
               form={form}
               layout="vertical"
               initialValues={{
-                preferredLocations: profileData.sellerInfo?.preferredLocations?.join(', '),
-                preferredCourier: profileData.sellerInfo?.preferredCourier,
-                productCategories: profileData.sellerInfo?.productCategories,
+                preferredLocations: profileData.userInfo.preferredLocations?.join(', '),
+                preferredCourier: profileData.userInfo.preferredCourier,
+                shippingAddress: profileData.userInfo.shippingAddress,
               }}
               style={{ width: '100%' }}
             >
@@ -56,9 +85,11 @@ const SellerInfo: React.FC<SellerInfoProps> = ({
                 <Col xs={24} md={12}>
                   <Form.Item
                     name="preferredLocations"
-                    label="Preferred Locations"
+                    label={<span style={{
+                      fontSize: token.customFontSize.sm,
+                      color: token.colorText
+                    }}>Preferred Locations</span>}
                     help="Enter locations separated by commas"
-                    rules={sellerInfoRules.preferredLocations}
                   >
                     <Input placeholder="Cluj-Napoca, Bucharest, ..." />
                   </Form.Item>
@@ -67,30 +98,24 @@ const SellerInfo: React.FC<SellerInfoProps> = ({
                 <Col xs={24} md={12}>
                   <Form.Item
                     name="preferredCourier"
-                    label="Preferred Courier"
-                    rules={sellerInfoRules.preferredCourier}
+                    label={<span style={{
+                      fontSize: token.customFontSize.sm,
+                      color: token.colorText
+                    }}>Preferred Courier</span>}
                   >
                     <Input placeholder="Fan Courier, DHL, ..." />
                   </Form.Item>
                 </Col>
-                
+
                 <Col xs={24}>
                   <Form.Item
-                    name="productCategories"
-                    label="Product Categories"
-                    rules={sellerInfoRules.productCategories}
+                    name="shippingAddress"
+                    label={<span style={{
+                      fontSize: token.customFontSize.sm,
+                      color: token.colorText
+                    }}>Shipping Address</span>}
                   >
-                    <Select
-                      mode="multiple"
-                      placeholder="Select product categories"
-                      style={{ width: '100%' }}
-                    >
-                      {categories.map(category => (
-                        <Option key={category.id} value={category.id}>
-                          {category.name}
-                        </Option>
-                      ))}
-                    </Select>
+                    <Input placeholder="Enter your shipping address" />
                   </Form.Item>
                 </Col>
               </Row>
@@ -102,8 +127,8 @@ const SellerInfo: React.FC<SellerInfoProps> = ({
                     htmlType="submit" 
                     loading={saving}
                     style={{ 
-                      backgroundColor: '#1890ff',
-                      borderColor: '#1890ff'
+                      backgroundColor: token.colorPrimary,
+                      borderColor: token.colorPrimary
                     }}
                   >
                     Save Changes
@@ -114,101 +139,51 @@ const SellerInfo: React.FC<SellerInfoProps> = ({
             </Form>
           ) : (
             <div style={{ width: '100%' }}>
-              <Title level={5} style={{ marginBottom: '16px', color: '#434343' }}>Seller Details</Title>
-              <Row gutter={[24, 16]}>
+              <Title level={5} style={{ marginBottom: token.spacing.md, color: token.colorText }}>User Details</Title>
+              <Row gutter={[20, 16]}>
                 <Col xs={24} md={12}>
-                  <div className="info-item" style={{ marginBottom: '16px' }}>
-                    <Text strong style={{ display: 'block', marginBottom: '4px', color: '#595959' }}>Preferred Locations</Text>
-                    <Text style={{ fontSize: '16px' }}>
-                      {profileData.sellerInfo?.preferredLocations?.length
-                        ? profileData.sellerInfo.preferredLocations.join(', ')
+                  <div className="info-item" style={{ marginBottom: token.spacing.md }}>
+                    <Text strong style={{ display: 'block', marginBottom: token.spacing.xxs, color: token.colorTextSecondary }}>Preferred Locations</Text>
+                    <Text style={{ fontSize: token.customFontSize.base }}>
+                      {profileData.userInfo.preferredLocations?.length
+                        ? profileData.userInfo.preferredLocations.join(', ')
                         : 'None specified'}
                     </Text>
                   </div>
                 </Col>
                 
                 <Col xs={24} md={12}>
-                  <div className="info-item" style={{ marginBottom: '16px' }}>
-                    <Text strong style={{ display: 'block', marginBottom: '4px', color: '#595959' }}>Preferred Courier</Text>
-                    <Text style={{ fontSize: '16px' }}>
-                      {profileData.sellerInfo?.preferredCourier || 'None specified'}
+                  <div className="info-item" style={{ marginBottom: token.spacing.md }}>
+                    <Text strong style={{ display: 'block', marginBottom: token.spacing.xxs, color: token.colorTextSecondary }}>Preferred Courier</Text>
+                    <Text style={{ fontSize: token.customFontSize.base }}>
+                      {profileData.userInfo.preferredCourier || 'None specified'}
                     </Text>
                   </div>
                 </Col>
-                
+
                 <Col xs={24}>
-                  <div className="info-item" style={{ marginBottom: '16px' }}>
-                    <Text strong style={{ display: 'block', marginBottom: '4px', color: '#595959' }}>Product Categories</Text>
-                    <div style={{ marginTop: 8 }}>
-                      {profileData.sellerInfo?.productCategories?.length
-                        ? profileData.sellerInfo.productCategories.map(catId => {
-                            const category = categories.find(c => c.id === catId);
-                            return category ? (
-                              <Tag color="blue" key={catId} style={{ margin: '0 4px 4px 0', padding: '4px 8px' }}>
-                                {category.name}
-                              </Tag>
-                            ) : null;
-                          })
-                        : 'None specified'}
-                    </div>
+                  <div className="info-item" style={{ marginBottom: token.spacing.md }}>
+                    <Text strong style={{ display: 'block', marginBottom: token.spacing.xxs, color: token.colorTextSecondary }}>Shipping Address</Text>
+                    <Text style={{ fontSize: token.customFontSize.base }}>
+                      {profileData.userInfo.shippingAddress || 'None specified'}
+                    </Text>
                   </div>
                 </Col>
               </Row>
               
-              {canEditSellerInfo && (
+              {canEditUserInfo && (
                 <Button 
                   type="primary" 
                   onClick={handleEdit} 
                   style={{ 
-                    marginTop: 16,
-                    backgroundColor: '#1890ff',
-                    borderColor: '#1890ff'
+                    marginTop: token.spacing.md,
+                    backgroundColor: token.colorPrimary,
+                    borderColor: token.colorPrimary
                   }}
                 >
-                  Edit Seller Information
+                  Edit User Information
                 </Button>
               )}
-
-              <Divider style={{ margin: '24px 0' }} />
-              
-              <Card
-                title={<Text strong style={{ fontSize: '16px' }}>Seller Products</Text>}
-                style={{ 
-                  width: '100%',
-                  borderRadius: '6px',
-                  marginTop: '16px'
-                }}
-              >
-                <Alert
-                  message="Product Management"
-                  description={
-                    <div>
-                      <p>This feature will be integrated in a future task.</p>
-                      <p>Here you will be able to:</p>
-                      <ul style={{ paddingLeft: '20px' }}>
-                        <li>View all your products</li>
-                        <li>Add new products</li>
-                        <li>Edit existing products</li>
-                        <li>Remove products from your listing</li>
-                      </ul>
-                      <Button 
-                        type="primary" 
-                        disabled
-                        style={{ 
-                          marginTop: '12px',
-                          backgroundColor: '#1890ff',
-                          borderColor: '#1890ff'
-                        }}
-                      >
-                        Manage Products (Coming Soon)
-                      </Button>
-                    </div>
-                  }
-                  type="info"
-                  showIcon
-                  style={{ background: 'rgba(24, 144, 255, 0.1)', border: 'none' }}
-                />
-              </Card>
             </div>
           )}
         </Col>
@@ -217,4 +192,4 @@ const SellerInfo: React.FC<SellerInfoProps> = ({
   );
 };
 
-export default SellerInfo; 
+export default UserInfo; 

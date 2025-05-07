@@ -1,7 +1,10 @@
 import React from 'react';
-import { Typography, Alert, Row, Col, Card, Statistic, Table, Tag } from 'antd';
+import { Typography, Alert, Row, Col, Card, Statistic, Table, Tag, theme } from 'antd';
 
 const { Title, Text } = Typography;
+const { useToken } = theme;
+
+// TODO: Replace with actual API call to fetch admin stats
 
 // Mock admin stats
 const mockAdminStats = {
@@ -19,6 +22,8 @@ const pendingApprovals = [
 ];
 
 const AdminInfo: React.FC = () => {
+  const { token } = useToken();
+
   const columns = [
     {
       title: 'ID',
@@ -53,10 +58,10 @@ const AdminInfo: React.FC = () => {
       className="admin-info-card"
       style={{ 
         width: '100%',
-        boxShadow: '0 1px 5px rgba(0,0,0,0.1)',
-        borderRadius: '8px',
+        boxShadow: token.shadows.light.md,
+        borderRadius: token.borderRadius.md,
         overflow: 'hidden',
-        marginBottom: '24px'
+        marginBottom: token.spacing.lg
       }}
     >
       <Alert
@@ -68,26 +73,26 @@ const AdminInfo: React.FC = () => {
         showIcon
         style={{ 
           width: '100%', 
-          marginBottom: '24px',
+          marginBottom: token.spacing.lg,
           border: 'none',
           background: 'rgba(24, 144, 255, 0.1)'
         }}
       />
 
-      <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
+      <Row gutter={[16, 16]} style={{ marginBottom: token.spacing.lg }}>
         <Col xs={24} sm={12} md={6}>
           <Card 
             className="stat-card"
             style={{ 
               height: '100%',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-              borderRadius: '6px'
+              boxShadow: token.shadows.light.sm,
+              borderRadius: token.borderRadius.sm
             }}
           >
             <Statistic 
               title="Total Users" 
               value={mockAdminStats.totalUsers} 
-              valueStyle={{ color: '#3f8600', fontSize: '24px' }} 
+              valueStyle={{ color: '#3f8600', fontSize: token.customFontSize.xl }} 
             />
           </Card>
         </Col>
@@ -96,14 +101,14 @@ const AdminInfo: React.FC = () => {
             className="stat-card"
             style={{ 
               height: '100%',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-              borderRadius: '6px'
+              boxShadow: token.shadows.light.sm,
+              borderRadius: token.borderRadius.sm
             }}
           >
             <Statistic 
               title="Active Sellers" 
               value={mockAdminStats.activeSellers} 
-              valueStyle={{ color: '#1890ff', fontSize: '24px' }} 
+              valueStyle={{ color: token.colorPrimary, fontSize: token.customFontSize.xl }} 
             />
           </Card>
         </Col>
@@ -112,14 +117,14 @@ const AdminInfo: React.FC = () => {
             className="stat-card"
             style={{ 
               height: '100%',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-              borderRadius: '6px'
+              boxShadow: token.shadows.light.sm,
+              borderRadius: token.borderRadius.sm
             }}
           >
             <Statistic 
               title="Total Products" 
               value={mockAdminStats.totalProducts} 
-              valueStyle={{ color: '#722ed1', fontSize: '24px' }} 
+              valueStyle={{ color: '#722ed1', fontSize: token.customFontSize.xl }} 
             />
           </Card>
         </Col>
@@ -128,25 +133,25 @@ const AdminInfo: React.FC = () => {
             className="stat-card"
             style={{ 
               height: '100%',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-              borderRadius: '6px'
+              boxShadow: token.shadows.light.sm,
+              borderRadius: token.borderRadius.sm
             }}
           >
             <Statistic 
               title="Pending Approvals" 
               value={mockAdminStats.pendingApprovals} 
-              valueStyle={{ color: '#fa8c16', fontSize: '24px' }} 
+              valueStyle={{ color: '#fa8c16', fontSize: token.customFontSize.xl }} 
             />
           </Card>
         </Col>
       </Row>
 
       <Card 
-        title={<Text strong style={{ fontSize: '16px' }}>Pending Approvals</Text>} 
+        title={<Text strong style={{ fontSize: token.customFontSize.base }}>Pending Approvals</Text>} 
         style={{ 
           width: '100%',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-          borderRadius: '6px' 
+          boxShadow: token.shadows.light.sm,
+          borderRadius: token.borderRadius.sm
         }}
       >
         <Table 
@@ -155,7 +160,7 @@ const AdminInfo: React.FC = () => {
           rowKey="id"
           pagination={false}
           scroll={{ x: 'max-content' }}
-          style={{ marginTop: '8px' }}
+          style={{ marginTop: token.spacing.sm }}
         />
       </Card>
     </Card>

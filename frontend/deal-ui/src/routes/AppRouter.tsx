@@ -3,14 +3,16 @@ import NotFoundPage from "../pages/NotFoundPage.tsx";
 import RegisterPage from "../pages/RegisterPage";
 import {HomePage} from "../pages/HomePage.tsx";
 import LoginPage from "../pages/LoginPage.tsx";
-import ProfilePage from "../pages/profile/Profile.tsx";
+import ProfilePage from "../pages/ProfilePage.tsx";
 
 export const ROUTES = {
     HOME: "/",
     LOGIN: "/login",
     REGISTER: "/register",
+    FORGOT_PASSWORD: "/forgot-password",
+    RESET_PASSWORD: "/reset-password/:token",
+    PROFILE: "/profile/:username",
     PRODUCTS: "/products",
-    PROFILE: "/profile:userId",
     CATEGORIES: "/categories",
     CART: "/cart",
     NOT_FOUND: "*"
@@ -22,11 +24,11 @@ export default function AppRouter() {
             {/* Auth routes */}
             <Route path={ROUTES.REGISTER} element={<RegisterPage/>}/>
             <Route path={ROUTES.LOGIN} element={<LoginPage/>}/>
+            <Route path={ROUTES.PROFILE} element={<ProfilePage/>}/>
 
             {/* Public routes */}
             {/* TODO: Add others page routes */}
             <Route path={ROUTES.HOME} element={<HomePage/>}/>
-            <Route path={ROUTES.PROFILE} element={<ProfilePage/>}/>
 
             {/* Catch all route for 404 */}
             <Route path={ROUTES.NOT_FOUND} element={<NotFoundPage/>}/>

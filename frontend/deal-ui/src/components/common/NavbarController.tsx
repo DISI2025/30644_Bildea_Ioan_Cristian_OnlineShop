@@ -33,7 +33,7 @@ export const NavbarController: React.FC<NavbarActionsProps> = ({
             key: 'profile',
             label: 'Profile',
             icon: <UserOutlined />,
-            onClick: () => onNavigate('/profile'),
+            onClick: () => onNavigate(ROUTES.PROFILE.replace(':username', user?.username || '')),
         },
         {
             key: 'logout',
