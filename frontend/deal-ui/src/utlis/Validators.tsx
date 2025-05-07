@@ -1,6 +1,6 @@
 import { Rule } from 'antd/es/form';
 import ErrorMessageList from "../components/ErrorMessageList.tsx";
-
+// TODO Refactor these:
 export const usernameRules: Rule[] = [
     {
         required: true,

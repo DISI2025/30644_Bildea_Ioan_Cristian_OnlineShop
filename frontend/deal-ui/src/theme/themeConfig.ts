@@ -1,5 +1,6 @@
 import { theme as antdTheme } from 'antd';
-import type {ThemeConfig} from 'antd/es/config-provider/context';
+import type { ThemeConfig } from 'antd/es/config-provider/context';
+import { customTokens } from './customTokens';
 
 export const lightTheme: ThemeConfig = {
     token: {
@@ -23,14 +24,12 @@ export const lightTheme: ThemeConfig = {
 
         fontFamily: 'Roboto, sans-serif',
         fontSize: 14,
-        borderRadius: 4,
         controlHeight: 36,
         motionDurationMid: '0.2s',
         motionEaseInOut: 'cubic-bezier(0.645, 0.045, 0.355, 1)',
     },
     components: {
         Button: {
-            borderRadius: 4,
             controlHeight: 40,
         },
         Input: {
@@ -62,14 +61,12 @@ export const darkTheme: ThemeConfig = {
 
         fontFamily: 'Roboto, sans-serif',
         fontSize: 14,
-        borderRadius: 4,
         controlHeight: 36,
         motionDurationMid: '0.2s',
         motionEaseInOut: 'cubic-bezier(0.645, 0.045, 0.355, 1)',
     },
     components: {
         Button: {
-            borderRadius: 4,
             controlHeight: 40,
         },
         Input: {
@@ -78,3 +75,11 @@ export const darkTheme: ThemeConfig = {
     },
     algorithm: antdTheme.darkAlgorithm,
 };
+
+// Add custom tokens to both themes
+[lightTheme, darkTheme].forEach(theme => {
+    theme.token = {
+        ...theme.token,
+        ...customTokens,
+    };
+});
