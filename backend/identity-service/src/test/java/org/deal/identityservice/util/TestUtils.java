@@ -2,17 +2,19 @@ package org.deal.identityservice.util;
 
 import org.deal.core.dto.UserDTO;
 import org.deal.core.exception.DealError;
-import org.deal.core.request.login.LoginRequest;
+import org.deal.core.request.auth.LoginRequest;
 import org.deal.core.request.user.CreateUserRequest;
 import org.deal.core.request.user.UpdateUserRequest;
 import org.deal.core.response.DealResponse;
-import org.deal.core.response.login.LoginResponse;
+import org.deal.core.response.login.AuthResponse;
 import org.deal.core.util.Mapper;
 import org.deal.core.util.Role;
 import org.deal.identityservice.entity.User;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.http.HttpStatus;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -61,17 +63,24 @@ public class TestUtils {
 
     public interface UserUtils {
         static User randomUser() {
-            return new User(UUID.randomUUID(), randomString(), randomString(), Role.USER);
+            return new User(
+                    UUID.randomUUID(),
+                    randomString(),
+                    randomString(),
+                    Timestamp.from(Instant.now()),
+                    randomString(),
+                    Role.USER);
         }
 
         static UserDTO randomUserDTO() {
-            return new UserDTO(UUID.randomUUID(), randomString(), Role.USER);
+            return Mapper.mapTo(randomUser(), UserDTO.class);
         }
 
         static CreateUserRequest createUserRequest(final User user) {
             return new CreateUserRequest(
                     user.getUsername(),
                     user.getPassword(),
+                    user.getEmail(),
                     user.getRole()
             );
         }
@@ -79,7 +88,9 @@ public class TestUtils {
         static UpdateUserRequest updateUserRequest(final User user) {
             return new UpdateUserRequest(
                     user.getId(),
-                    user.getUsername()
+                    user.getUsername(),
+                    user.getEmail(),
+                    user.getRole()
             );
         }
     }
@@ -89,8 +100,8 @@ public class TestUtils {
             return new LoginRequest(randomString(), randomString());
         }
 
-        static LoginResponse randomLoginResponse() {
-            return new LoginResponse(randomString(), UserUtils.randomUserDTO());
+        static AuthResponse randomLoginResponse() {
+            return new AuthResponse(randomString(), UserUtils.randomUserDTO());
         }
     }
 }

@@ -1,16 +1,15 @@
 package org.deal.identityservice.service;
 
 import lombok.RequiredArgsConstructor;
-import org.deal.core.exception.DealError;
-import org.deal.core.exception.DealException;
-import org.deal.core.request.login.LoginRequest;
-import org.deal.core.response.login.LoginResponse;
+import org.deal.core.dto.UserDTO;
+import org.deal.core.request.auth.LoginRequest;
+import org.deal.core.request.user.CreateUserRequest;
+import org.deal.core.response.login.AuthResponse;
+import org.deal.core.util.Mapper;
+import org.deal.identityservice.config.JwtServiceImpl;
 import org.deal.identityservice.entity.User;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -20,24 +19,24 @@ import java.util.Optional;
 public class AuthService {
 
     private final AuthenticationManager authenticationManager;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final JwtServiceImpl jwtService;
     private final UserService userService;
 
-    public Optional<LoginResponse> authenticate(final LoginRequest loginUserRequest) {
-        try {
-            Authentication auth = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            loginUserRequest.username(),
-                            loginUserRequest.password()
-                    )
-            );
-            String token = jwtTokenProvider.generateToken(auth);
-            CustomUserDetails userDetails = userService.loadUserByUsername(loginUserRequest.username());
-            User user = userDetails.getUser();
+    public AuthResponse authenticate(final LoginRequest loginUserRequest) {
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginUserRequest.username(), loginUserRequest.password()));
 
-            return Optional.of(new LoginResponse(token, userService.mapToDTO(user)));
-        } catch (BadCredentialsException ex) {
-            throw new DealException(DealError.BAD_CREDENTIAL_EXCEPTION.message(), HttpStatus.BAD_REQUEST);
-        }
+        User user = userService.loadUserByUsername(loginUserRequest.username());
+        return AuthResponse.builder()
+                .withUser(Mapper.mapTo(user, UserDTO.class))
+                .withAccessToken(jwtService.generateToken(user))
+                .build();
+    }
+
+    public Optional<AuthResponse> register(final CreateUserRequest createUserRequest) {
+        return userService.create(createUserRequest)
+                .map(userDTO -> AuthResponse.builder()
+                        .withUser(Mapper.mapTo(userDTO, UserDTO.class))
+                        .withAccessToken(jwtService.generateToken(userDTO))
+                        .build());
     }
 }

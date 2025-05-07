@@ -1,16 +1,18 @@
 package org.deal.identityservice.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.deal.core.exception.DealError;
-import org.deal.core.request.login.LoginRequest;
+import org.deal.core.request.auth.LoginRequest;
+import org.deal.core.request.user.CreateUserRequest;
 import org.deal.core.response.DealResponse;
-import org.deal.core.response.login.LoginResponse;
+import org.deal.core.response.login.AuthResponse;
 import org.deal.identityservice.service.AuthService;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import static org.deal.core.exception.DealError.REGISTRATION_FAILED;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 
 @RestController
@@ -21,10 +23,15 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public DealResponse<LoginResponse> login(final @RequestBody LoginRequest loginRequest) {
-        return authService.authenticate(loginRequest)
+    public DealResponse<AuthResponse> login(final @RequestBody LoginRequest loginRequest) {
+        AuthResponse authResponse = authService.authenticate(loginRequest);
+        return DealResponse.successResponse(authResponse);
+    }
+
+    @PostMapping("/register")
+    public DealResponse<AuthResponse> register(@RequestBody final CreateUserRequest createUserRequest) {
+        return authService.register(createUserRequest)
                 .map(DealResponse::successResponse)
-                .orElse(DealResponse.failureResponse(
-                        new DealError(DealError.BAD_CREDENTIAL_EXCEPTION.message()), HttpStatus.BAD_REQUEST));
+                .orElse(DealResponse.failureResponse(REGISTRATION_FAILED, BAD_REQUEST));
     }
 }
