@@ -21,6 +21,7 @@ import java.util.UUID;
 
 import static org.deal.core.util.Constants.FAILURE;
 import static org.deal.core.util.Constants.SUCCESS;
+import static org.deal.identityservice.util.TestUtils.UserUtils.randomUser;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -67,7 +68,7 @@ public class TestUtils {
                     UUID.randomUUID(),
                     randomString(),
                     randomString(),
-                    Timestamp.from(Instant.now()),
+                    truncateNanos(Timestamp.from(Instant.now())),
                     randomString(),
                     Role.USER);
         }
@@ -93,15 +94,30 @@ public class TestUtils {
                     user.getRole()
             );
         }
+
+        static Timestamp truncateNanos(final Timestamp timestamp) {
+            return Timestamp.valueOf(timestamp.toLocalDateTime().withNano(0));
+        }
     }
 
-    public interface LoginUtils {
+    public interface AuthUtils {
         static LoginRequest randomLoginRequest() {
             return new LoginRequest(randomString(), randomString());
         }
 
-        static AuthResponse randomLoginResponse() {
-            return new AuthResponse(randomString(), UserUtils.randomUserDTO());
+        static LoginRequest loginRequest(final User user) {
+            return new LoginRequest(user.getUsername(), user.getPassword());
+        }
+
+        static AuthResponse prepareAuthResponse(final String username, final String token) {
+            var user = randomUser();
+            user.setUsername(username);
+
+
+            return AuthResponse.builder()
+                    .withAccessToken(token)
+                    .withUser(Mapper.mapTo(user, UserDTO.class))
+                    .build();
         }
     }
 }

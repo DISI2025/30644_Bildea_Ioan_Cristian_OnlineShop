@@ -1,4 +1,4 @@
-package org.deal.identityservice.config;
+package org.deal.identityservice.service;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
