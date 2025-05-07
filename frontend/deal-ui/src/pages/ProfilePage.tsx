@@ -180,16 +180,25 @@ const ProfilePage: React.FC = () => {
       ),
       children: (
         <Card
-          style={{
+          title={<Text strong style={{ fontSize: token.customFontSize.base }}>Reset Password</Text>}
+          style={{ 
             width: '100%',
-            boxShadow: token.shadows.light.md,
-            borderRadius: token.borderRadius.md,
-            overflow: 'hidden',
-            marginBottom: token.spacing.lg
+            borderRadius: token.borderRadius.sm,
           }}
         >
-          <Title level={4}>Security Settings</Title>
-          <Text>This section will be implemented in a future task.</Text>
+          <div style={{ padding: token.spacing.md }}>
+            <Text type="secondary">
+              This feature will be implemented in a future task. Here you will be able to:
+            </Text>
+            <ul style={{ 
+              paddingLeft: token.spacing.lg,
+              marginTop: token.spacing.sm,
+              color: token.colorTextSecondary
+            }}>
+              <li>Reset your password if forgotten</li>
+              <li>Set up a new secure password</li>
+            </ul>
+          </div>
         </Card>
       )
     }
@@ -348,7 +357,6 @@ const ProfilePage: React.FC = () => {
                 }}>
                   <li>View and manage incoming orders</li>
                   <li>Process order shipments</li>
-                  <li>Handle returns and refunds</li>
                   <li>Track order status</li>
                 </ul>
               </div>
