@@ -70,6 +70,18 @@ export const confirmPasswordRules = (): Rule[] => [
   }),
 ];
 
+export const confirmPasswordRulesRegister = (): Rule[] => [
+  { required: true, message: 'Please confirm your password' },
+  ({ getFieldValue }) => ({
+    validator(_, value) {
+      if (!value || getFieldValue('password') === value) {
+        return Promise.resolve();
+      }
+      return Promise.reject(new Error('The two passwords do not match'));
+    },
+  }),
+];
+
 export const fullNameRules: Rule[] = [
   { required: true, message: 'Please enter your full name' },
   { min: 2, message: 'Full name must be at least 2 characters' },
