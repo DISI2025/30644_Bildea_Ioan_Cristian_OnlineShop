@@ -26,7 +26,7 @@ export default function AppRouter() {
    return (
       <Routes>
          <Route path={ROUTES.REGISTER} element={<RegisterPage/>}/>
-         <Route path={ROUTES.LOGIN} element={<LoginPage/>}/>
+         <Route path={ROUTES.LOGIN} element={<LoginPage/>}/>   
          <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPasswordPage/>}/>
          <Route path={ROUTES.RESET_PASSWORD} element={<ResetPasswordPage/>}/>
 
