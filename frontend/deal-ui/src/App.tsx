@@ -15,7 +15,7 @@ function App() {
                     <AppRouter/>
                 </Content>
             </Layout>
-        </ConfigProvider>
+        </ConfigProvider> 
     );
 }
 
