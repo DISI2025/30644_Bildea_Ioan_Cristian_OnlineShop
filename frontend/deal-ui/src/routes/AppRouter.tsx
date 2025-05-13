@@ -7,6 +7,7 @@ import ForgotPasswordPage from "../pages/ForgotPasswordPage.tsx";
 import ResetPasswordPage from "../pages/ResetPasswordPage.tsx";
 import PrivateRoute from "./ProtectedRoute.tsx";
 import AdminRoute from "./AdminRoute.tsx";
+import OrderManagementPage from "../pages/OrderManagementPage.tsx";
 
 export const ROUTES = {
    HOME: "/home",
@@ -15,6 +16,7 @@ export const ROUTES = {
    FORGOT_PASSWORD: "/forgot-password",
    RESET_PASSWORD: "/reset-password",
    PRODUCTS: "/products",
+    ORDER_MANAGEMENT: "/order-management",
    CATEGORIES: "/categories",
    CART: "/cart",
    // Todo: update this
@@ -26,9 +28,10 @@ export default function AppRouter() {
    return (
       <Routes>
          <Route path={ROUTES.REGISTER} element={<RegisterPage/>}/>
-         <Route path={ROUTES.LOGIN} element={<LoginPage/>}/>   
+         <Route path={ROUTES.LOGIN} element={<LoginPage/>}/>
          <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPasswordPage/>}/>
          <Route path={ROUTES.RESET_PASSWORD} element={<ResetPasswordPage/>}/>
+         <Route path={ROUTES.ORDER_MANAGEMENT} element={<OrderManagementPage/>}/>
 
          <Route path={ROUTES.HOME} element={<PrivateRoute><HomePage/></PrivateRoute>}/>
          <Route path={ROUTES.ADMIN_ROUTE} element={
