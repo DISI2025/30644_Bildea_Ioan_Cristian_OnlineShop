@@ -1,7 +1,7 @@
 services:
   # -------------------- Containers --------------------
 
-  is_db:
+  ps_db:
     env_file:
       - path: ./local.env
         required: false

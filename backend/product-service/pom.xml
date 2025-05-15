@@ -145,7 +145,7 @@
 				<version>${jacoco.version}</version>
 				<configuration>
 					<excludes>
-						<exclude>**/IdentityServiceApplication.*</exclude>
+						<exclude>**/ProductServiceApplication.*</exclude>
 						<exclude>**/config/*</exclude>
 						<exclude>**/*DTO.*</exclude>
 						<exclude>**/exception/*</exclude>
@@ -186,7 +186,7 @@
 						</goals>
 						<configuration>
 							<excludes>
-								<exclude>**/IdentityServiceApplication.*</exclude>
+								<exclude>**/ProductServiceApplication.*</exclude>
 								<exclude>**/config/*</exclude>
 								<exclude>**/*DTO.*</exclude>
 								<exclude>**/exception/*</exclude>
@@ -215,7 +215,7 @@
 			</plugin>
 
 		</plugins>
-		<finalName>identity-service</finalName>
+		<finalName>product-service</finalName>
 	</build>
 
 
