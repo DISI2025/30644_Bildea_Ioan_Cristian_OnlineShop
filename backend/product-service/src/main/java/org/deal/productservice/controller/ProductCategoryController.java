@@ -1,6 +1,7 @@
 package org.deal.productservice.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.deal.core.dto.ProductCategoryDTO;
 import org.deal.core.exception.DealError;
 import org.deal.core.request.productcategory.CreateProductCategoryRequest;
@@ -28,7 +29,9 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @RestController
 @RequestMapping("/product-categories")
 @RequiredArgsConstructor
+@Slf4j
 public class ProductCategoryController {
+
     private final ProductCategoryService productCategoryService;
 
     @GetMapping

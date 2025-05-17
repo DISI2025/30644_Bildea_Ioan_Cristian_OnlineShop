@@ -221,7 +221,7 @@
                 <configuration>
                     <excludes>
                         <exclude>**/IdentityServiceApplication.*</exclude>
-                        <exclude>**/JwtServiceImpl.*</exclude>
+                        <exclude>**/JwtService.*</exclude>
                         <exclude>**/config/*</exclude>
                         <exclude>**/*DTO.*</exclude>
                         <exclude>**/exception/*</exclude>
@@ -263,7 +263,7 @@
                         <configuration>
                             <excludes>
                                 <exclude>**/IdentityServiceApplication.*</exclude>
-                                <exclude>**/JwtServiceImpl.*</exclude>
+                                <exclude>**/JwtService.*</exclude>
                                 <exclude>**/config/*</exclude>
                                 <exclude>**/*DTO.*</exclude>
                                 <exclude>**/exception/*</exclude>

@@ -113,6 +113,14 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
+
+        <!-- Instancio -->
+        <dependency>
+            <groupId>org.instancio</groupId>
+            <artifactId>instancio-junit</artifactId>
+            <version>5.4.1</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -175,6 +183,7 @@
                         <exclude>**/ProductServiceApplication.*</exclude>
                         <exclude>**/config/*</exclude>
                         <exclude>**/*DTO.*</exclude>
+                        <exclude>**/*Aspect.*</exclude>
                         <exclude>**/exception/*</exclude>
                     </excludes>
                     <rules>
@@ -216,6 +225,7 @@
                                 <exclude>**/ProductServiceApplication.*</exclude>
                                 <exclude>**/config/*</exclude>
                                 <exclude>**/*DTO.*</exclude>
+                                <exclude>**/*Aspect.*</exclude>
                                 <exclude>**/exception/*</exclude>
                             </excludes>
                             <rules>
