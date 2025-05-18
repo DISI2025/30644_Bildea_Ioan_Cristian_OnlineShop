@@ -151,6 +151,11 @@ public class DealClient {
 
     private String resolveUrl(final DealService service, final String path) {
         List<ServiceInstance> instances = discoveryClient.getInstances(service.getValue());
+
+        if (Objects.isNull(instances) || instances.isEmpty()) {
+            throw new DealException("No services found for " + service, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
         ServiceInstance instance = instances.get(0);
         String url = instance.getUri().toString();
 
