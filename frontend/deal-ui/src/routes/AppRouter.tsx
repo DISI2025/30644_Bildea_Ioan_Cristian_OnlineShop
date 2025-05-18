@@ -7,6 +7,7 @@ import ForgotPasswordPage from "../pages/ForgotPasswordPage.tsx";
 import ResetPasswordPage from "../pages/ResetPasswordPage.tsx";
 import PrivateRoute from "./ProtectedRoute.tsx";
 import AdminRoute from "./AdminRoute.tsx";
+import ProductCategoriesPage from "../pages/ProductCategoriesScreen.tsx";
 
 export const ROUTES = {
    HOME: "/home",
@@ -33,7 +34,7 @@ export default function AppRouter() {
          <Route path={ROUTES.HOME} element={<PrivateRoute><HomePage/></PrivateRoute>}/>
          <Route path={ROUTES.ADMIN_ROUTE} element={
             <AdminRoute>
-               <div>Respect, atmine</div>
+                <Route path={ROUTES.ADMIN_ROUTE} element={<ProductCategoriesPage/>}/>
             </AdminRoute>
          }/>
 
