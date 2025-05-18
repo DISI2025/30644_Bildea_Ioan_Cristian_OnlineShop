@@ -1,13 +1,21 @@
-import './App.css';
-import ProductCategoriesScreen from "./pages/ProductCategoriesScreen.tsx";
+import { ConfigProvider } from 'antd';
+import AppRouter from './routes/AppRouter.tsx';
+import { useTheme } from './context/ThemeContext';
+import { Layout } from 'antd';
+
+const { Content } = Layout;
 
 function App() {
+    const { theme } = useTheme();
 
     return (
-        <div className="App">
-            {/* Render the Home page component to test our Ant Design theme and components */}
-            <ProductCategoriesScreen />
-        </div>
+        <ConfigProvider theme={theme}>
+            <Layout style={{ minHeight: '100vh' }}>
+                <Content>
+                    <AppRouter/>
+                </Content>
+            </Layout>
+        </ConfigProvider>
     );
 }
 
