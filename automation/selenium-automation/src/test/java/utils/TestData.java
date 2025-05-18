@@ -4,8 +4,8 @@ public class TestData {
 
     // Constants for Example Test Data. Can be deleted and replaced with actual test data.
     public static class Credentials {
-        public static final String STANDARD_USER = "standard_user";
-        public static final String PASSWORD = "secret_sauce";
+        public static final String STANDARD_USER = "Ristian";
+        public static final String PASSWORD = "mypass";
         public static final String INVALID_USER = "invalid_user";
         public static final String INVALID_PASSWORD = "invalid_password";
     }

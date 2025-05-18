@@ -35,6 +35,7 @@ public class UserService implements UserDetailsService {
         var user = userRepository.save(
                 User.builder()
                         .withUsername(request.username())
+                        .withEmail(request.email())
                         .withPassword(passwordEncoder.encode(request.password()))
                         .withRole(request.role())
                         .build()
@@ -60,10 +61,17 @@ public class UserService implements UserDetailsService {
     }
 
     @Override
-    public CustomUserDetails loadUserByUsername(final String username) throws UsernameNotFoundException {
+    public User loadUserByUsername(final String username) throws UsernameNotFoundException {
         return userRepository.findByUsername(username)
-                .map(CustomUserDetails::new)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    }
+
+    public Optional<UserDTO> findByEmail(final String email) {
+        return userRepository.findByEmail(email).map(this::mapToDTO);
+    }
+
+    public boolean updateUserPassword(final UUID id, final String newPassword) {
+        return userRepository.updateUserPassword(id, passwordEncoder.encode(newPassword)) != 0;
     }
 
     public UserDTO mapToDTO(final User user) {

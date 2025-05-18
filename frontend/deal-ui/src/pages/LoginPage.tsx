@@ -1,108 +1,135 @@
-import {Form, Input, Button, Checkbox, Typography, Divider} from "antd";
-import {GoogleOutlined, AppleOutlined} from "@ant-design/icons";
-import type {FormProps} from "antd";
+import {Button, Divider, Layout, theme, Typography} from "antd";
+import {AppleOutlined, GoogleOutlined} from "@ant-design/icons";
 import {useSnackbar} from "../context/SnackbarContext.tsx";
-import {useNavigate} from "react-router-dom";
-import {usernameRules, passwordRules} from "../utlis/Validators.tsx";
+import {useLocation, useNavigate} from "react-router-dom";
 import {AuthData, AuthRequest, BaseResponse, DealResponse} from "../types/transfer.ts";
 import {useLoginMutation} from "../store/api.ts";
+import {useDispatch, useSelector} from "react-redux";
+import {AuthState, selectAuthState, startSession} from "../store/slices/auth-slice.ts";
+import {LoginForm} from "../components/auth/LoginForm";
+import {SimpleHeader} from "../components/common/SimpleHeader";
+import {getRedirectedPath} from "../utils/url.ts";
+import {useEffect} from "react";
 
-const {Title, Text, Link} = Typography;
+const {Content} = Layout;
+const {Title, Text} = Typography;
+const {useToken} = theme;
+
 export default function LoginPage() {
-    const {showSuccess, showInfo, showError, showErrors} = useSnackbar();
-    const navigate = useNavigate();
-    const [login] = useLoginMutation();
+   const {showSuccess, showInfo, showErrors, showDealErrors} = useSnackbar();
+   const dispatch = useDispatch();
+   const authState: AuthState = useSelector(selectAuthState);
+   const navigate = useNavigate();
+   const location = useLocation();
+   const [login] = useLoginMutation();
+   const {token} = useToken();
 
-    const onFinish: FormProps['onFinish'] = (data: AuthRequest) => {
-        login(data).unwrap().then((response: DealResponse<AuthData>) => {
-            // TODO: Handle the response and store the auth data in the state
-            console.log(response);
-            // dispatch(startSession(response.data));
-            showSuccess('Login Successful', 'You have been logged in successfully.');
-            navigate('/');
-        }).catch((response: BaseResponse) => {
-            showErrors(response?.errors);
-        });
-    };
+   const handleLoginSuccess = (data: AuthRequest) => {
+      login(data).unwrap().then((response: DealResponse<AuthData>) => {
+         dispatch(startSession(response.payload));
+         showSuccess('Login Successful', 'You have been logged in successfully.');
+         navigate(getRedirectedPath(location.search));
+      }).catch((response: BaseResponse) => {
+         showDealErrors(response?.errors);
+      });
+   };
 
-    const onFinishFailed = () => {
-        showError("Oops!", "Please fix the highlighted errors.");
-    };
+   useEffect(() => {
+      if (authState.loggedIn) {
+         navigate(getRedirectedPath(location.search));
+      }
 
-    return (
-        <div style={{
+      return () => {
+      };
+   }, [authState.loggedIn, location.search, navigate]);
+
+   return (
+      <Layout>
+         <SimpleHeader/>
+         <Content style={{
             display: "flex",
-            justifyContent: "center",
             alignItems: "center",
-            height: "100vh",
-            backgroundColor: "#f7f8fa"
-        }}>
+            justifyContent: "center",
+            minHeight: `calc(100vh - ${token.layout.headerHeight})`,
+            backgroundColor: token.colorBgLayout,
+            padding: token.spacing.md,
+            boxSizing: "border-box",
+         }}>
             <div style={{
-                width: 400,
-                padding: 30,
-                backgroundColor: "#fff",
-                borderRadius: 12,
-                boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+               width: "100%",
+               maxWidth: token.layout.maxWidth.sm,
+               backgroundColor: token.colorBgContainer,
+               borderRadius: token.borderRadius.md,
+               boxShadow: token.shadows.light.md,
+               padding: `${token.spacing.xl} ${token.spacing.lg}`,
+               display: "flex",
+               flexDirection: "column",
+               gap: token.spacing.lg
             }}>
-                <Title level={3} style={{textAlign: "center", marginBottom: 0}}>DEAL</Title>
-                <Text style={{display: "block", textAlign: "center", marginBottom: 30}}>Sign in to your
-                    account</Text>
+               <div style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: token.spacing.xxs
+               }}>
+                  <Title level={3} style={{
+                     textAlign: "center",
+                     margin: token.spacing.none,
+                     fontSize: token.customFontSize.xxl,
+                     color: token.colorText,
+                  }}>
+                     Welcome back
+                  </Title>
+                  <Text style={{
+                     textAlign: "center",
+                     fontSize: token.customFontSize.sm,
+                     color: token.colorTextSecondary,
+                  }}>
+                     Sign in to your DEAL account
+                  </Text>
+               </div>
 
-                <Form layout="vertical" onFinish={onFinish} onFinishFailed={onFinishFailed}>
-                    <Form.Item
-                        label="Username"
-                        name="username"
-                        rules={usernameRules}>
-                        <Input placeholder="Enter your username"/>
-                    </Form.Item>
+               <LoginForm
+                  onLoginSuccess={handleLoginSuccess}
+                  onLoginError={(message) => showErrors([message])}
+               />
 
-                    <Form.Item
-                        label="Password"
-                        name="password"
-                        rules={passwordRules}>
-                        <Input.Password placeholder="Enter your password"/>
-                    </Form.Item>
+               <Divider style={{
+                  color: token.colorTextSecondary,
+                  fontSize: token.customFontSize.xs
+               }}>Or continue with</Divider>
 
-                    <div style={{display: "flex", justifyContent: "space-between", marginBottom: 16}}>
-                        <Checkbox>Remember me</Checkbox>
-                        <Link onClick={() => navigate('/forgot-password')}>Forgot password?</Link>
-                    </div>
-
-                    <Form.Item>
-                        <Button
-                            type="primary"
-                            htmlType="submit"
-                            block
-                        >
-                            Sign in
-                        </Button>
-                    </Form.Item>
-                </Form>
-
-                <Divider>Or continue with</Divider>
-
-                <div style={{display: "flex", justifyContent: "space-between", gap: 10}}>
-                    <Button
-                        icon={<GoogleOutlined/>}
-                        onClick={() => showInfo('FYI', 'Google authentication coming soon.')}
-                        block
-                    >
-                        Google
-                    </Button>
-                    <Button
-                        icon={<AppleOutlined/>}
-                        onClick={() => showInfo('FYI', 'Apple authentication coming soon.')}
-                        block
-                    >
-                        Apple
-                    </Button>
-                </div>
-
-                <div style={{marginTop: 20, textAlign: "center"}}>
-                    <Text>Don't have an account? </Text>
-                    <Link onClick={() => navigate('/signup')}>Sign up</Link>
-                </div>
+               <div style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  gap: token.spacing.sm
+               }}>
+                  <Button
+                     icon={<GoogleOutlined/>}
+                     onClick={() => showInfo('FYI', 'Google authentication coming soon.')}
+                     block
+                     size="large"
+                     style={{
+                        borderRadius: token.borderRadius.sm,
+                        height: token.controlHeight
+                     }}
+                  >
+                     Google
+                  </Button>
+                  <Button
+                     icon={<AppleOutlined/>}
+                     onClick={() => showInfo('FYI', 'Apple authentication coming soon.')}
+                     block
+                     size="large"
+                     style={{
+                        borderRadius: token.borderRadius.sm,
+                        height: token.controlHeight
+                     }}
+                  >
+                     Apple
+                  </Button>
+               </div>
             </div>
-        </div>
-    );
-};
+         </Content>
+      </Layout>
+   );
+}

@@ -1,12 +1,20 @@
 import { Rule } from 'antd/es/form';
 import ErrorMessageList from "../components/ErrorMessageList.tsx";
 
-export const usernameRules: Rule[] = [
+export const emailRules: Rule[] = [
+    {
+        type: 'email',
+        message: <ErrorMessageList
+            messages={[
+                'Please enter a valid email'
+            ]}
+        />
+    },
     {
         required: true,
         message: <ErrorMessageList
             messages={[
-                'Please write your username'
+                'Please write your email'
             ]}
         />
     }
@@ -21,19 +29,19 @@ export const passwordRules: Rule[] = [
             ]}
         />
     },
-    // {
-    //     pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-    //     message: (
-    //         <ErrorMessageList
-    //             messages={[
-    //                 'Password must meet the following requirements:',
-    //                 'At least 8 characters long',
-    //                 'At least one uppercase letter',
-    //                 'At least one lowercase letter',
-    //                 'At least one number',
-    //                 'At least one special character (e.g., @$!%*?&)'
-    //             ]}
-    //         />
-    //     )
-    // },
+    {
+        pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+        message: (
+            <ErrorMessageList
+                messages={[
+                    'Password must meet the following requirements:',
+                    'At least 8 characters long',
+                    'At least one uppercase letter',
+                    'At least one lowercase letter',
+                    'At least one number',
+                    'At least one special character (e.g., @$!%*?&)'
+                ]}
+            />
+        )
+    },
 ];

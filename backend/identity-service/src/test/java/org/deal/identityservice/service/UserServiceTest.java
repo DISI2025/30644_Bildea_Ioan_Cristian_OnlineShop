@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
@@ -19,10 +20,14 @@ import java.util.UUID;
 import static org.deal.identityservice.util.TestUtils.UserUtils.createUserRequest;
 import static org.deal.identityservice.util.TestUtils.UserUtils.randomUser;
 import static org.deal.identityservice.util.TestUtils.UserUtils.updateUserRequest;
+import static org.deal.identityservice.util.TestUtils.randomString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
@@ -94,15 +99,29 @@ class UserServiceTest extends BaseUnitTest {
 
     @Test
     void testCreate_userIsCreated_shouldReturnCreatedUser() {
-        var expectedUser = prepareUserBuilder();
+        User expectedUser = randomUser();
 
-        var result = victim.create(createUserRequest(expectedUser));
+        User.UserBuilder builderMock = mock(User.UserBuilder.class);
+        when(builderMock.withUsername(expectedUser.getUsername())).thenReturn(builderMock);
+        when(builderMock.withEmail(expectedUser.getEmail())).thenReturn(builderMock);
+        when(builderMock.withPassword(expectedUser.getPassword())).thenReturn(builderMock);
+        when(builderMock.withRole(expectedUser.getRole())).thenReturn(builderMock);
+        when(builderMock.build()).thenReturn(expectedUser);
 
-        verify(userRepository).save(expectedUser);
-        result.ifPresentOrElse(
-                user -> assertThat(user, equalTo(Mapper.mapTo(expectedUser, UserDTO.class))),
-                this::assertThatFails
-        );
+        when(userRepository.save(expectedUser)).thenReturn(expectedUser);
+        when(passwordEncoder.encode(expectedUser.getPassword())).thenReturn(expectedUser.getPassword());
+
+        try (var mockedStatic = mockStatic(User.class)) {
+            mockedStatic.when(User::builder).thenReturn(builderMock);
+
+            var result = victim.create(createUserRequest(expectedUser));
+
+            verify(userRepository).save(expectedUser);
+            result.ifPresentOrElse(
+                    user -> assertThat(user, equalTo(Mapper.mapTo(expectedUser, UserDTO.class))),
+                    this::assertThatFails
+            );
+        }
     }
 
     @Test
@@ -174,23 +193,34 @@ class UserServiceTest extends BaseUnitTest {
         result.ifPresent(this::assertThatFails);
     }
 
+    @Test
+    void testLoadUserByUsername_shouldReturnValidUser() {
+        var user = randomUser();
+        when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
 
-    private User prepareUserBuilder() {
-        User.UserBuilder builderMock = mock(User.UserBuilder.class);
-        User expectedUser = randomUser();
+        var result = victim.loadUserByUsername(user.getUsername());
 
-        when(builderMock.withUsername(expectedUser.getUsername())).thenReturn(builderMock);
-        when(builderMock.withPassword(expectedUser.getPassword())).thenReturn(builderMock);
-        when(builderMock.withRole(expectedUser.getRole())).thenReturn(builderMock);
-        when(builderMock.build()).thenReturn(expectedUser);
-
-        mockStatic(User.class);
-        when(User.builder()).thenReturn(builderMock);
-
-        when(userRepository.save(expectedUser)).thenReturn(expectedUser);
-        when(passwordEncoder.encode(expectedUser.getPassword())).thenReturn(expectedUser.getPassword());
-
-        return expectedUser;
+        verify(userRepository).findByUsername(user.getUsername());
+        assertThat(result, equalTo(user));
     }
 
+    @Test
+    void testLoadUserByUsername_userNotFound_throwsException() {
+        when(userRepository.findByUsername(any())).thenReturn(Optional.empty());
+
+        assertThrows(UsernameNotFoundException.class, () -> victim.loadUserByUsername(any()));
+    }
+
+    @Test
+    void testUpdateUserPassword_shouldReturnSuccess() {
+        String newPassword = randomString();
+        when(userRepository.updateUserPassword(any(), anyString())).thenReturn(1);
+        when(passwordEncoder.encode(newPassword)).thenReturn(newPassword);
+
+        boolean result = victim.updateUserPassword(UUID.randomUUID(), newPassword);
+
+        verify(userRepository).updateUserPassword(any(), eq(newPassword));
+        verify(passwordEncoder).encode(newPassword);
+        assertThat(result, equalTo(true));
+    }
 }
