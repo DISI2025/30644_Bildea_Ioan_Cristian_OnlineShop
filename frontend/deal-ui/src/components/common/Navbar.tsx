@@ -35,7 +35,7 @@ export const Navbar: React.FC = () => {
             label: (
                 <div style={{display: 'flex', alignItems: 'center', gap: token.spacing.xs}}>
                     <ShoppingOutlined style={{fontSize: token.customFontSize.md}}/>
-                    <span>Products</span>
+                    <span>Products Manager</span>
                 </div>
             ),
         },
@@ -56,16 +56,7 @@ export const Navbar: React.FC = () => {
             label: (
                 <div style={{display: 'flex', alignItems: 'center', gap: token.spacing.xs}}>
                     <ProductOutlined style={{fontSize: token.customFontSize.md}}/>
-                    <span>Product Category</span>
-                </div>
-            ),
-        },
-        {
-            key: ROUTES.PRODUCTS,
-            label: (
-                <div style={{display: 'flex', alignItems: 'center', gap: token.spacing.xs}}>
-                    <ShoppingOutlined style={{fontSize: token.customFontSize.md}}/>
-                    <span>Products</span>
+                    <span>Product Category Manager</span>
                 </div>
             ),
         },

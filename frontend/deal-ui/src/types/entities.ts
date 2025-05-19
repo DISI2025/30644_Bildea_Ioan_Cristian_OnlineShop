@@ -1,11 +1,10 @@
-export interface BaseEntity {
-    id: string;
-}
-
 export enum UserRole
 {
     USER = "USER",
     ADMIN = "ADMIN",
+}
+export interface BaseEntity {
+    id: string;
 }
 
 export interface  User extends BaseEntity {
@@ -13,8 +12,7 @@ export interface  User extends BaseEntity {
     role: UserRole;
 }
 
-export interface ProductCategory {
-    id: string;
+export interface ProductCategory extends BaseEntity {
     categoryName: string;
 }
 
@@ -25,4 +23,5 @@ export interface Product extends BaseEntity {
     stock: number;
     imageUrl: string;
     categoryId: string;
+    sellerId: string;
 }
