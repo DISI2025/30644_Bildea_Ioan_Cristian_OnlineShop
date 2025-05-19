@@ -16,6 +16,7 @@ public record ProductDTO(
         Integer stock,
         String imageUrl,
         Set<ProductCategoryDTO> categories,
+        UUID sellerId,
         Timestamp createdAt
 ) implements Serializable {
 }

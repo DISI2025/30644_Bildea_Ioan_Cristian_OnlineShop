@@ -131,6 +131,7 @@ class ProductServiceTest extends BaseUnitTest {
         updatedProduct.setImageUrl(initialProduct.getImageUrl());
         updatedProduct.setCategories(Set.of());
         updatedProduct.setCreatedAt(initialProduct.getCreatedAt());
+        updatedProduct.setSellerId(initialProduct.getSellerId());
         when(productRepository.findById(initialProduct.getId())).thenReturn(Optional.of(initialProduct));
 
         var result = victim.update(updateProductRequest(updatedProduct));

@@ -52,6 +52,9 @@ public class Product {
             cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
     private Set<ProductCategory> categories;
 
+    @Column(nullable = false)
+    private UUID sellerId;
+
     @Column(nullable = false, columnDefinition = "timestamp NOT NULL DEFAULT NOW()", insertable = false)
     private Timestamp createdAt;
 }
