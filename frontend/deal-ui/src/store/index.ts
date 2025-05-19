@@ -1,13 +1,20 @@
-//TODO Add here the reducers needed under the configureStore/reducer
-//TODO The slice definitions should be under the slices directory
-
 import {configureStore} from "@reduxjs/toolkit";
+import {api} from "./api.ts";
+import {setupListeners} from "@reduxjs/toolkit/query";
+import {authSlice} from "./slices/auth-slice.ts";
+import productCategoryReducer from "./slices/product-category-slice.ts";
 
 const store = configureStore({
-    reducer: {
-    }
+   reducer: {
+      [api.reducerPath]: api.reducer,
+      auth: authSlice.reducer,
+      productCategory: productCategoryReducer
+   },
+   middleware: (getDefaultMiddleware) => getDefaultMiddleware({serializableCheck: false,})
+      .concat(api.middleware),
 });
 
+setupListeners(store.dispatch);
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 
