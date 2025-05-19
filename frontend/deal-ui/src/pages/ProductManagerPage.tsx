@@ -252,7 +252,10 @@ export default function ProductManagerPage() {
     return (
         <Layout>
             <Navbar/>
-            <Content style={{padding: "2rem"}}>
+            <Content style={{
+                padding: "2rem", 
+                marginTop: `calc(${token.layout.headerHeight}px + 2rem)`
+            }}>
                 <Title level={2} style={{textAlign: "center", marginBottom: "2rem"}}>
                     Manage Products
                 </Title>
