@@ -7,7 +7,8 @@ import ForgotPasswordPage from "../pages/ForgotPasswordPage.tsx";
 import ResetPasswordPage from "../pages/ResetPasswordPage.tsx";
 import PrivateRoute from "./ProtectedRoute.tsx";
 import AdminRoute from "./AdminRoute.tsx";
-import ProductCategoryPage from "../pages/ProductCategoryPage.tsx";
+import ProductCategoryManagerPage from "../pages/ProductCategoryManagerPage.tsx";
+import ProductManagerPage from "../pages/ProductManagerPage.tsx";
 
 export const ROUTES = {
     INDEX: "/",
@@ -33,9 +34,10 @@ export default function AppRouter() {
 
             <Route path={ROUTES.HOME} element={<PrivateRoute><HomePage/></PrivateRoute>}/>
             <Route path={ROUTES.INDEX} element={<PrivateRoute><HomePage/></PrivateRoute>}/>
-            <Route path={ROUTES.PRODUCT_CATEGORIES} element={<AdminRoute><ProductCategoryPage/></AdminRoute>}/>
+            <Route path={ROUTES.PRODUCTS} element={<PrivateRoute><ProductManagerPage/></PrivateRoute>}/>
 
-            {/* Catch all route for 404 */}
+            <Route path={ROUTES.PRODUCT_CATEGORIES} element={<AdminRoute><ProductCategoryManagerPage/></AdminRoute>}/>
+
             <Route path={ROUTES.NOT_FOUND} element={<NotFoundPage/>}/>
         </Routes>
     );

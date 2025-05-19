@@ -48,3 +48,16 @@ export interface CreateProductCategoryRequest {
 export interface UpdateProductCategoryRequest extends CreateProductCategoryRequest {
     id: string;
 }
+
+export interface CreateProductRequest {
+    name: string;
+    description: string;
+    price: number;
+    stock: number;
+    imageUrl: string;
+    categoryId: string;
+}
+
+export interface UpdateProductRequest extends CreateProductRequest {
+    id: string;
+}
