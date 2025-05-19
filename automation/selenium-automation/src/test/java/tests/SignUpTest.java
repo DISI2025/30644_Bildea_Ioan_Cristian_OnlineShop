@@ -4,8 +4,10 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import pages.HomePage;
 import pages.SignUpPage;
 import utils.TestData;
@@ -57,7 +59,6 @@ public class SignUpTest {
         }
     }
 
-    // TODO keep only if usernames must be unique
     @Test
     public void testSignupWithExistingUsername() {
         signupPage.signUp(
@@ -66,11 +67,9 @@ public class SignUpTest {
                 TestData.SignUp.PASSWORD,
                 TestData.SignUp.PASSWORD);
 
-        // TODO check for error message
         assertTrue(signupPage.isSignUpPageDisplayed(), TestData.Messages.ERROR_INVALID_CREDENTIALS);
     }
 
-    // TODO keep only if emails must be unique
     @Test
     public void testSignupWithExistingEmail() {
         signupPage.signUp(
@@ -79,7 +78,6 @@ public class SignUpTest {
                 TestData.SignUp.PASSWORD,
                 TestData.SignUp.PASSWORD);
 
-        // TODO check for error message
         assertTrue(signupPage.isSignUpPageDisplayed(), TestData.Messages.ERROR_INVALID_CREDENTIALS);
     }
 
@@ -87,11 +85,11 @@ public class SignUpTest {
     public void testSignupWithIllegalEmail() {
         signupPage.signUp(
                 TestData.SignUp.NEW_USERNAME,
-                TestData.SignUp.EXISTING_EMAIL,
+                TestData.SignUp.ILLEGAL_EMAIL,
                 TestData.SignUp.PASSWORD,
                 TestData.SignUp.PASSWORD);
 
-        // TODO check for error message
+        assertTrue(signupPage.isEmailError());
         assertTrue(signupPage.isSignUpPageDisplayed(), TestData.Messages.ERROR_INVALID_CREDENTIALS);
     }
 
@@ -103,7 +101,7 @@ public class SignUpTest {
                 TestData.SignUp.PASSWORD,
                 TestData.SignUp.INVALID_PASSWORD);
 
-        // TODO check for error message
+        assertTrue(signupPage.isConfirmPasswordError());
         assertTrue(signupPage.isSignUpPageDisplayed(), TestData.Messages.ERROR_INVALID_CREDENTIALS);
     }
 
@@ -111,6 +109,10 @@ public class SignUpTest {
     public void testSignupWithEmptyCredentials() {
         signupPage.signUp("", "", "", "");
 
+        assertTrue(signupPage.isUsernameError());
+        assertTrue(signupPage.isEmailError());
+        assertTrue(signupPage.isPasswordError());
+        assertTrue(signupPage.isConfirmPasswordError());
         assertTrue(signupPage.isSignUpPageDisplayed());
     }
 

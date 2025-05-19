@@ -32,6 +32,7 @@ public class TestData {
 
         public static final String NEW_USERNAME = "New_User";
         public static final String NEW_EMAIL = "new.mail@email.com";
+        public static final String ILLEGAL_EMAIL = "wrong.mail.com";
 
         public static final String PASSWORD = "mypass";
         public static final String INVALID_PASSWORD = "invalid_password";

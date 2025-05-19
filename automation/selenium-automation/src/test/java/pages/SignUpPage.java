@@ -10,6 +10,12 @@ public class SignUpPage extends BasePage {
     private final By emailField = By.id("email");
     private final By passwordField = By.id("password");
     private final By confirmPasswordField = By.id("confirmPassword");
+
+    private final By usernameError = By.id("username_help");
+    private final By emailError = By.id("email_help");
+    private final By passwordError = By.id("password_help");
+    private final By confirmPasswordError = By.id("confirmPassword_help");
+
     private final By signUpButton = By.cssSelector("button[type='submit']");
     private final By errorMessage = By.cssSelector("[data-test='error']");
 
@@ -39,6 +45,26 @@ public class SignUpPage extends BasePage {
         this.sendKeys(passwordElement, password);
         this.sendKeys(confirmPasswordElement, confirmPassword);
         this.click(signUpElement);
+    }
+
+    public boolean isUsernameError(){
+        WebElement errorElement = wait.until(ExpectedConditions.visibilityOfElementLocated(this.usernameError));
+        return true;
+    }
+
+    public boolean isEmailError(){
+        WebElement errorElement = wait.until(ExpectedConditions.visibilityOfElementLocated(this.emailError));
+        return true;
+    }
+
+    public boolean isPasswordError(){
+        WebElement errorElement = wait.until(ExpectedConditions.visibilityOfElementLocated(this.passwordError));
+        return true;
+    }
+
+    public boolean isConfirmPasswordError(){
+        WebElement errorElement = wait.until(ExpectedConditions.visibilityOfElementLocated(this.confirmPasswordError));
+        return true;
     }
 
     public String getErrorMessage() {
