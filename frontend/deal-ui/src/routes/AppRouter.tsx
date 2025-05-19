@@ -8,7 +8,6 @@ import ResetPasswordPage from "../pages/ResetPasswordPage.tsx";
 import PrivateRoute from "./ProtectedRoute.tsx";
 import AdminRoute from "./AdminRoute.tsx";
 import ProductCategoryManagerPage from "../pages/ProductCategoryManagerPage.tsx";
-import {JSX} from "react";
 import ProductManagerPage from "../pages/ProductManagerPage.tsx";
 
 export const ROUTES = {
@@ -25,20 +24,21 @@ export const ROUTES = {
     NOT_FOUND: "*"
 } as const;
 
-export default function AppRouter(routes: JSX.Element = <><Routes>
-    <Route path={ROUTES.REGISTER} element={<RegisterPage/>}/>
-    <Route path={ROUTES.LOGIN} element={<LoginPage/>}/>
-    <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPasswordPage/>}/>
-    <Route path={ROUTES.RESET_PASSWORD} element={<ResetPasswordPage/>}/>
+export default function AppRouter() {
+    return (
+        <Routes>
+            <Route path={ROUTES.REGISTER} element={<RegisterPage/>}/>
+            <Route path={ROUTES.LOGIN} element={<LoginPage/>}/>
+            <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPasswordPage/>}/>
+            <Route path={ROUTES.RESET_PASSWORD} element={<ResetPasswordPage/>}/>
 
-    <Route path={ROUTES.HOME} element={<PrivateRoute><HomePage/></PrivateRoute>}/>
-    <Route path={ROUTES.INDEX} element={<PrivateRoute><HomePage/></PrivateRoute>}/>
-    <Route path={ROUTES.INDEX} element={<PrivateRoute><ProductManagerPage/></PrivateRoute>}/>
+            <Route path={ROUTES.HOME} element={<PrivateRoute><HomePage/></PrivateRoute>}/>
+            <Route path={ROUTES.INDEX} element={<PrivateRoute><HomePage/></PrivateRoute>}/>
+            <Route path={ROUTES.PRODUCTS} element={<PrivateRoute><ProductManagerPage/></PrivateRoute>}/>
 
-    <Route path={ROUTES.PRODUCT_CATEGORIES} element={<AdminRoute><ProductCategoryManagerPage/></AdminRoute>}/>
+            <Route path={ROUTES.PRODUCT_CATEGORIES} element={<AdminRoute><ProductCategoryManagerPage/></AdminRoute>}/>
 
-    <Route path={ROUTES.NOT_FOUND} element={<NotFoundPage/>}/>
-</Routes></>) {
-
-    return routes;
+            <Route path={ROUTES.NOT_FOUND} element={<NotFoundPage/>}/>
+        </Routes>
+    );
 }
