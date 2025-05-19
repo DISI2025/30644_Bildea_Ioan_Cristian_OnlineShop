@@ -4,7 +4,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {useSnackbar} from "../context/SnackbarContext";
 import {Navbar} from "../components/common/Navbar";
 import {Product} from "../types/entities";
-import {BaseResponse, CreateProductRequest, UpdateProductRequest} from "../types/transfer";
+import {BaseResponse, CreateProductRequest, ProductFormData, UpdateProductRequest} from "../types/transfer";
 import {
     useCreateProductMutation,
     useDeleteProductMutation,
@@ -79,7 +79,10 @@ export default function ProductManagerPage() {
 
     const startEditProduct = (product: Product): void => {
         dispatch(setEditingProductId(product.id));
-        updateForm.setFieldsValue(product);
+        updateForm.setFieldsValue({
+            ...product,
+            categories: product.categories.map(cat => cat.categoryName)
+        });
     };
 
     const cancelEditProduct = (): void => {
@@ -108,7 +111,7 @@ export default function ProductManagerPage() {
         });
     };
 
-    const handleAddProduct = async (values: any): Promise<void> => {
+    const handleAddProduct = async (values: ProductFormData): Promise<void> => {
         const productData: CreateProductRequest = {
             title: values.title,
             description: values.description,
@@ -131,6 +134,7 @@ export default function ProductManagerPage() {
 
     const filteredProducts = useMemo(() => {
         const products = productsResponse?.payload || [];
+
         let results = [...products];
 
         if (searchText) {
@@ -141,7 +145,7 @@ export default function ProductManagerPage() {
 
         if (selectedCategoryId) {
             results = results.filter((product) =>
-                product.categories.includes(selectedCategoryId)
+                product.categories.some(cat => cat.id === selectedCategoryId)
             );
         }
 

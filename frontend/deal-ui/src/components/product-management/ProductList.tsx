@@ -22,14 +22,14 @@ import {
 import {DeleteOutlined, EditOutlined, EyeOutlined, PlusOutlined, SaveOutlined} from '@ant-design/icons';
 import {Product, ProductCategory} from '../../types/entities';
 import {FormInstance} from 'antd/lib/form';
-import {UpdateProductRequest} from '../../types/transfer';
-import { 
-    productTitleRules, 
-    productDescriptionRules, 
-    productPriceRules, 
-    productStockRules, 
-    productCategoryRules, 
-    imageUrlRules 
+import {ProductFormData, UpdateProductRequest} from '../../types/transfer';
+import {
+    imageUrlRules,
+    productCategoryRules,
+    productDescriptionRules,
+    productPriceRules,
+    productStockRules,
+    productTitleRules
 } from '../../utils/validators';
 import ImageUpload from '../common/ImageUpload';
 
@@ -46,7 +46,7 @@ interface ProductListProps {
     onStartEdit: (product: Product) => void;
     onCancelEdit: () => void;
     updateForm: FormInstance;
-    onAdd?: (values: Omit<Product, 'id'>) => Promise<void>;
+    onAdd?: (values: ProductFormData) => Promise<void>;
     form?: FormInstance;
 }
 
@@ -60,7 +60,6 @@ const ProductList: React.FC<ProductListProps> = ({
                                                      onCancelEdit,
                                                      updateForm,
                                                      onAdd,
-                                                     form
                                                  }) => {
     const {token} = useToken();
     const [loadingImages, setLoadingImages] = useState<Record<string, boolean>>({});
@@ -114,7 +113,7 @@ const ProductList: React.FC<ProductListProps> = ({
         addForm.resetFields();
     };
 
-    const handleAddSubmit = async (values: any) => {
+    const handleAddSubmit = async (values: ProductFormData) => {
         if (onAdd) {
             try {
                 await onAdd(values);
@@ -129,28 +128,35 @@ const ProductList: React.FC<ProductListProps> = ({
     };
 
     const handleEditSubmit = async (values: UpdateProductRequest) => {
-        await onUpdate(values);
+        // Ensure sellerId is included in the request
+        const updatedValues = {
+            ...values,
+            sellerId: selectedProduct?.sellerId || ''
+        };
+        await onUpdate(updatedValues);
         setEditModalVisible(false);
     };
 
-    const getCategoryName = (categoryId: string) => {
+    const getCategoryName = (categoryId: string): string => {
         const category = productCategories.find(c => c.id === categoryId);
-        return category?.categoryName || 'Unknown Category';
+        return category ? category.categoryName : 'Unknown';
     };
 
-    const getCategoryColor = (categoryId: string) => {
-        const colorMap: Record<string, string> = {
-            smartphones: 'blue',
-            tv: 'purple',
-            audio: 'volcano',
-            kitchen: 'green',
-            computers: 'geekblue',
-            wearables: 'magenta',
-            accessories: 'gold',
-            default: 'default'
-        };
+    const getCategoryColor = (categoryId: string): string => {
+        const colors = [
+            'magenta', 'red', 'volcano', 'orange', 'gold',
+            'lime', 'green', 'cyan', 'blue', 'geekblue', 'purple'
+        ];
         
-        return colorMap[categoryId] || colorMap.default;
+        // Get index based on category position in the array, or hash the ID if not found
+        const index = productCategories.findIndex(c => c.id === categoryId);
+        if (index >= 0) {
+            return colors[index % colors.length];
+        }
+        
+        // Fallback to hash-based color
+        const hash = categoryId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        return colors[hash % colors.length];
     };
 
     const renderEditForm = (product: Product) => (
@@ -158,9 +164,15 @@ const ProductList: React.FC<ProductListProps> = ({
             form={updateForm}
             onFinish={handleEditSubmit}
             layout="vertical"
-            initialValues={product}
+            initialValues={{
+                ...product,
+                categories: product.categories.map(cat => cat.categoryName)
+            }}
         >
-            <Form.Item name="id" hidden>
+            <Form.Item
+                name="id"
+                hidden
+            >
                 <Input/>
             </Form.Item>
 
@@ -203,7 +215,7 @@ const ProductList: React.FC<ProductListProps> = ({
             >
                 <Select mode="multiple">
                     {productCategories.map(category => (
-                        <Select.Option key={category.id} value={category.id}>
+                        <Select.Option key={category.id} value={category.categoryName}>
                             {category.categoryName}
                         </Select.Option>
                     ))}
@@ -215,7 +227,7 @@ const ProductList: React.FC<ProductListProps> = ({
                 label="Product Image"
                 rules={imageUrlRules}
             >
-                <ImageUpload placeholder="Upload Product Image" />
+                <ImageUpload placeholder="Upload Product Image"/>
             </Form.Item>
         </Form>
     );
@@ -269,7 +281,7 @@ const ProductList: React.FC<ProductListProps> = ({
             >
                 <Select mode="multiple">
                     {productCategories.map(category => (
-                        <Select.Option key={category.id} value={category.id}>
+                        <Select.Option key={category.id} value={category.categoryName}>
                             {category.categoryName}
                         </Select.Option>
                     ))}
@@ -281,7 +293,7 @@ const ProductList: React.FC<ProductListProps> = ({
                 label="Product Image"
                 rules={imageUrlRules}
             >
-                <ImageUpload placeholder="Upload Product Image" />
+                <ImageUpload placeholder="Upload Product Image"/>
             </Form.Item>
         </Form>
     );
@@ -295,21 +307,21 @@ const ProductList: React.FC<ProductListProps> = ({
         }
 
         const isLoading = loadingImages[product.id];
-        const stockStatus = product.stock > 0 
+        const stockStatus = product.stock > 0
             ? (product.stock < 10 ? 'low' : 'in')
             : 'out';
 
         return (
-            <Badge.Ribbon 
-                text={product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'} 
+            <Badge.Ribbon
+                text={product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
                 color={stockStatus === 'out' ? 'red' : stockStatus === 'low' ? 'orange' : 'green'}
             >
                 <Card
                     key={product.id}
                     hoverable
-                    style={{ 
+                    style={{
                         height: '100%',
-                        display: 'flex', 
+                        display: 'flex',
                         flexDirection: 'column',
                         overflow: 'hidden',
                         borderRadius: 8,
@@ -318,8 +330,8 @@ const ProductList: React.FC<ProductListProps> = ({
                         color: token.colorText
                     }}
                     cover={
-                        <div 
-                            style={{ 
+                        <div
+                            style={{
                                 paddingTop: '75%', // 4:3 aspect ratio
                                 position: 'relative',
                                 backgroundColor: token.colorBgContainer,
@@ -327,23 +339,23 @@ const ProductList: React.FC<ProductListProps> = ({
                             }}
                         >
                             {isLoading && (
-                                <div style={{ 
-                                    position: 'absolute', 
-                                    top: 0, 
-                                    left: 0, 
-                                    width: '100%', 
-                                    height: '100%', 
-                                    display: 'flex', 
-                                    alignItems: 'center', 
-                                    justifyContent: 'center' 
+                                <div style={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    width: '100%',
+                                    height: '100%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
                                 }}>
                                     <Skeleton.Image active style={{width: '100%', height: '100%'}}/>
                                 </div>
                             )}
-                            <img 
+                            <img
                                 alt={product.title}
                                 src={product.imageUrl}
-                                style={{ 
+                                style={{
                                     position: 'absolute',
                                     top: 0,
                                     left: 0,
@@ -356,21 +368,21 @@ const ProductList: React.FC<ProductListProps> = ({
                                 onLoad={() => handleImageLoad(product.id)}
                                 onError={() => handleImageError(product.id)}
                             />
-                            <div style={{ 
-                                position: 'absolute', 
-                                top: 0, 
-                                right: 0, 
-                                display: 'flex', 
+                            <div style={{
+                                position: 'absolute',
+                                top: 0,
+                                right: 0,
+                                display: 'flex',
                                 flexDirection: 'column',
                                 padding: 16,
                                 gap: 8
                             }}>
                                 <Tooltip title="View details">
-                                    <Button 
-                                        type="primary" 
-                                        shape="circle" 
-                                        icon={<EyeOutlined/>} 
-                                        size="middle" 
+                                    <Button
+                                        type="primary"
+                                        shape="circle"
+                                        icon={<EyeOutlined/>}
+                                        size="middle"
                                         style={{
                                             backgroundColor: 'rgba(255, 255, 255, 0.9)',
                                             color: token.colorPrimary,
@@ -382,7 +394,7 @@ const ProductList: React.FC<ProductListProps> = ({
                             </div>
                         </div>
                     }
-                    bodyStyle={{ 
+                    bodyStyle={{
                         padding: 16,
                         display: 'flex',
                         flexDirection: 'column',
@@ -392,33 +404,33 @@ const ProductList: React.FC<ProductListProps> = ({
                         color: token.colorText
                     }}
                 >
-                    <div style={{ 
-                        display: 'flex', 
-                        flexDirection: 'column', 
+                    <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
                         height: '100%',
                         color: token.colorText
                     }}>
-                        <div style={{ 
-                            display: 'flex', 
+                        <div style={{
+                            display: 'flex',
                             flexWrap: 'wrap',
                             gap: 4,
-                            marginBottom: 8 
+                            marginBottom: 8
                         }}>
-                            {product.categories.map(catId => (
-                                <Tag 
-                                    key={catId}
-                                    color={getCategoryColor(catId)}
+                            {product.categories.map(cat => (
+                                <Tag
+                                    key={cat.id}
+                                    color={getCategoryColor(cat.id)}
                                 >
-                                    {getCategoryName(catId)}
+                                    {cat.categoryName}
                                 </Tag>
                             ))}
                         </div>
-                        
-                        <Title 
-                            level={5} 
+
+                        <Title
+                            level={5}
                             ellipsis={{rows: 1}}
-                            style={{ 
-                                margin: 0, 
+                            style={{
+                                margin: 0,
                                 lineHeight: 1.4,
                                 color: token.colorText,
                                 marginBottom: 8
@@ -426,11 +438,11 @@ const ProductList: React.FC<ProductListProps> = ({
                         >
                             {product.title}
                         </Title>
-                        
-                        <Paragraph 
+
+                        <Paragraph
                             ellipsis={{rows: 2, expandable: false}}
-                            style={{ 
-                                fontSize: 14, 
+                            style={{
+                                fontSize: 14,
                                 color: token.colorTextSecondary,
                                 marginTop: 0,
                                 marginBottom: 16,
@@ -440,28 +452,28 @@ const ProductList: React.FC<ProductListProps> = ({
                         >
                             {product.description}
                         </Paragraph>
-                        
-                        <Text 
-                            style={{ 
-                                fontSize: 18, 
-                                fontWeight: 'bold', 
+
+                        <Text
+                            style={{
+                                fontSize: 18,
+                                fontWeight: 'bold',
                                 color: token.colorPrimary,
                                 marginBottom: 16
                             }}
                         >
                             ${product.price.toFixed(2)}
                         </Text>
-                        
-                        <div style={{ 
-                            display: 'flex', 
-                            justifyContent: 'space-between', 
+
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
                             gap: 8,
                             marginTop: 'auto'
                         }}>
                             <Button
                                 icon={<EditOutlined/>}
                                 onClick={() => showEditModal(product)}
-                                style={{ 
+                                style={{
                                     flex: 1,
                                     borderRadius: 4,
                                     height: 32
@@ -473,7 +485,7 @@ const ProductList: React.FC<ProductListProps> = ({
                                 icon={<DeleteOutlined/>}
                                 onClick={() => onDelete(product.id)}
                                 danger
-                                style={{ 
+                                style={{
                                     flex: 1,
                                     borderRadius: 4,
                                     height: 32
@@ -490,7 +502,7 @@ const ProductList: React.FC<ProductListProps> = ({
 
     const renderDetailsModal = () => {
         if (!selectedProduct) return null;
-        
+
         return (
             <Modal
                 title={<Title level={3}>{selectedProduct.title}</Title>}
@@ -501,7 +513,7 @@ const ProductList: React.FC<ProductListProps> = ({
             >
                 <Row gutter={[24, 24]}>
                     <Col span={12}>
-                        <div style={{ 
+                        <div style={{
                             width: '100%',
                             height: '300px',
                             overflow: 'hidden',
@@ -511,11 +523,11 @@ const ProductList: React.FC<ProductListProps> = ({
                             justifyContent: 'center',
                             alignItems: 'center'
                         }}>
-                            <img 
-                                src={selectedProduct.imageUrl} 
+                            <img
+                                src={selectedProduct.imageUrl}
                                 alt={selectedProduct.title}
-                                style={{ 
-                                    maxWidth: '100%', 
+                                style={{
+                                    maxWidth: '100%',
                                     maxHeight: '100%',
                                     objectFit: 'contain'
                                 }}
@@ -523,56 +535,56 @@ const ProductList: React.FC<ProductListProps> = ({
                         </div>
                     </Col>
                     <Col span={12}>
-                        <div style={{ 
-                            display: 'flex', 
+                        <div style={{
+                            display: 'flex',
                             flexWrap: 'wrap',
                             gap: 4,
-                            marginBottom: 8 
+                            marginBottom: 8
                         }}>
-                            {selectedProduct.categories.map(catId => (
-                                <Tag 
-                                    key={catId}
-                                    color={getCategoryColor(catId)}
+                            {selectedProduct.categories.map(cat => (
+                                <Tag
+                                    key={cat.id}
+                                    color={getCategoryColor(cat.id)}
                                 >
-                                    {getCategoryName(catId)}
+                                    {getCategoryName(cat.id)}
                                 </Tag>
                             ))}
                         </div>
-                        
+
                         <Title level={2} style={{margin: `${token.marginSM}px 0`}}>
                             {selectedProduct.title}
                         </Title>
-                        
+
                         <Title level={3} type="secondary" style={{color: token.colorPrimary}}>
                             ${selectedProduct.price.toFixed(2)}
                         </Title>
-                        
+
                         <div style={{margin: `${token.marginLG}px 0`}}>
-                            <Tag 
-                                color={selectedProduct.stock > 0 ? 
-                                    (selectedProduct.stock < 10 ? 'orange' : 'green') : 
+                            <Tag
+                                color={selectedProduct.stock > 0 ?
+                                    (selectedProduct.stock < 10 ? 'orange' : 'green') :
                                     'red'
                                 }
                                 style={{padding: '4px 8px', fontSize: token.fontSizeLG}}
                             >
-                                {selectedProduct.stock > 0 ? 
-                                    `${selectedProduct.stock} in stock` : 
+                                {selectedProduct.stock > 0 ?
+                                    `${selectedProduct.stock} in stock` :
                                     'Out of stock'
                                 }
                             </Tag>
                         </div>
-                        
+
                         <Divider orientation="left">Description</Divider>
-                        
+
                         <Paragraph style={{fontSize: token.fontSize}}>
                             {selectedProduct.description}
                         </Paragraph>
-                        
+
                         <Divider/>
-                        
+
                         <div style={{display: 'flex', justifyContent: 'space-between'}}>
-                            <Button 
-                                type="primary" 
+                            <Button
+                                type="primary"
                                 icon={<EditOutlined/>}
                                 onClick={() => {
                                     showEditModal(selectedProduct);
@@ -581,8 +593,8 @@ const ProductList: React.FC<ProductListProps> = ({
                             >
                                 Edit Product
                             </Button>
-                            <Button 
-                                danger 
+                            <Button
+                                danger
                                 icon={<DeleteOutlined/>}
                                 onClick={() => onDelete(selectedProduct.id)}
                             >
@@ -597,7 +609,7 @@ const ProductList: React.FC<ProductListProps> = ({
 
     const renderEditModal = () => {
         if (!selectedProduct) return null;
-        
+
         return (
             <Modal
                 title={<Title level={4}>Edit Product</Title>}
@@ -608,9 +620,9 @@ const ProductList: React.FC<ProductListProps> = ({
                     <Button key="cancel" onClick={closeEditModal}>
                         Cancel
                     </Button>,
-                    <Button 
-                        key="submit" 
-                        type="primary" 
+                    <Button
+                        key="submit"
+                        type="primary"
                         icon={<SaveOutlined/>}
                         onClick={() => updateForm.submit()}
                         loading={loading}
@@ -634,9 +646,9 @@ const ProductList: React.FC<ProductListProps> = ({
                 <Button key="cancel" onClick={closeAddModal}>
                     Cancel
                 </Button>,
-                <Button 
-                    key="submit" 
-                    type="primary" 
+                <Button
+                    key="submit"
+                    type="primary"
                     icon={<PlusOutlined/>}
                     onClick={() => addForm.submit()}
                     loading={loading}
@@ -652,10 +664,10 @@ const ProductList: React.FC<ProductListProps> = ({
     return (
         <div style={{width: '100%'}}>
             <div style={{marginBottom: 24}}>
-                <Button 
-                    type="primary" 
-                    icon={<PlusOutlined/>} 
-                    onClick={showAddModal} 
+                <Button
+                    type="primary"
+                    icon={<PlusOutlined/>}
+                    onClick={showAddModal}
                     size="large"
                 >
                     Add New Product
@@ -668,12 +680,12 @@ const ProductList: React.FC<ProductListProps> = ({
                 </Spin>
             ) : products.length === 0 ? (
                 <Card>
-                    <Empty 
-                        description="No products found" 
+                    <Empty
+                        description="No products found"
                         image={Empty.PRESENTED_IMAGE_SIMPLE}
                     >
-                        <Button 
-                            type="primary" 
+                        <Button
+                            type="primary"
                             icon={<PlusOutlined/>}
                             onClick={showAddModal}
                         >

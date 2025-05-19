@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, Button, Form, Input, InputNumber, Select, Typography } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { FormInstance } from 'antd/lib/form';
-import { CreateProductRequest } from '../../types/transfer';
+import { CreateProductRequest, ProductFormData } from '../../types/transfer';
 import { ProductCategory } from '../../types/entities';
 
 const { Title } = Typography;
@@ -10,7 +10,7 @@ const { Title } = Typography;
 interface ProductAddProps {
     isAddPanelOpen: boolean;
     toggleAddPanel: () => void;
-    onFinish: (values: CreateProductRequest) => Promise<void>;
+    onFinish: (values: ProductFormData) => Promise<void>;
     form: FormInstance;
     productCategories: ProductCategory[];
 }
@@ -99,7 +99,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                                 }
                             >
                                 {productCategories.map(category => (
-                                    <Select.Option key={category.id} value={category.id}>
+                                    <Select.Option key={category.id} value={category.categoryName}>
                                         {category.categoryName}
                                     </Select.Option>
                                 ))}

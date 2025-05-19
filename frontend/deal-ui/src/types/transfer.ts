@@ -16,8 +16,7 @@ export type DealError = {
 }
 
 //<---Auth--->
-export interface AuthData
-{
+export interface AuthData {
     accessToken: string;
     user: User;
 }
@@ -53,6 +52,16 @@ export interface UpdateProductCategoryRequest extends CreateProductCategoryReque
 }
 
 //<---Product--->
+
+export interface ProductFormData {
+    title: string;
+    description: string;
+    price: number;
+    stock: number;
+    imageUrl: string;
+    categories: string[];
+}
+
 export interface CreateProductRequest {
     title: string;
     description: string;
