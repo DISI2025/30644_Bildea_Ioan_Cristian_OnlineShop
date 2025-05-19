@@ -3,7 +3,7 @@ import {Flex, Layout, Menu, theme} from 'antd';
 import {useLocation, useNavigate} from 'react-router-dom';
 import {useTheme} from '../../context/ThemeContext.tsx';
 import {ROUTES} from '../../routes/AppRouter.tsx';
-import {HomeOutlined, ProductOutlined} from '@ant-design/icons';
+import {HomeOutlined, ProductOutlined, ShoppingOutlined} from '@ant-design/icons';
 import {Logo} from './Logo.tsx';
 import {NavbarController} from './NavbarController.tsx';
 import {AuthState, selectAuthState} from "../../store/slices/auth-slice.ts";
@@ -30,6 +30,15 @@ export const Navbar: React.FC = () => {
                 </div>
             ),
         },
+        {
+            key: ROUTES.PRODUCTS,
+            label: (
+                <div style={{display: 'flex', alignItems: 'center', gap: token.spacing.xs}}>
+                    <ShoppingOutlined style={{fontSize: token.customFontSize.md}}/>
+                    <span>Products</span>
+                </div>
+            ),
+        },
     ], [token]);
 
     const adminMenuItems = useMemo(() => [
@@ -51,6 +60,15 @@ export const Navbar: React.FC = () => {
                 </div>
             ),
         },
+        {
+            key: ROUTES.PRODUCTS,
+            label: (
+                <div style={{display: 'flex', alignItems: 'center', gap: token.spacing.xs}}>
+                    <ShoppingOutlined style={{fontSize: token.customFontSize.md}}/>
+                    <span>Products</span>
+                </div>
+            ),
+        },
     ], [token]);
 
 
@@ -67,12 +85,15 @@ export const Navbar: React.FC = () => {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 boxShadow: token.shadows.light.md,
-                position: 'sticky',
+                position: 'fixed',
                 top: 0,
-                zIndex: token.layout.headerHeight,
+                left: 0,
+                right: 0,
+                zIndex: 1000,
                 height: token.layout.headerHeight,
                 transition: 'all 0.3s ease',
                 backdropFilter: 'blur(10px)',
+                backgroundColor: `rgba(${token.colorBgContainer.replace(/[^\d,]/g, '')}, 0.95)`,
             }}
         >
             <Flex align="center" gap={token.spacing.lg}>
