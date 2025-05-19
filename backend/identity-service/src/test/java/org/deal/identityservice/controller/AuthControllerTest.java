@@ -1,6 +1,7 @@
 package org.deal.identityservice.controller;
 
 import org.deal.core.exception.DealError;
+import org.deal.core.request.auth.ValidateTokenRequest;
 import org.deal.core.request.password.ForgotPasswordRequest;
 import org.deal.core.request.password.ResetPasswordRequest;
 import org.deal.identityservice.service.AuthService;
@@ -21,6 +22,7 @@ import static org.deal.identityservice.util.TestUtils.ResponseUtils.assertThatRe
 import static org.deal.identityservice.util.TestUtils.ResponseUtils.assertThatResponseIsSuccessful;
 import static org.deal.identityservice.util.TestUtils.UserUtils.createUserRequest;
 import static org.deal.identityservice.util.TestUtils.UserUtils.randomUser;
+import static org.deal.identityservice.util.TestUtils.UserUtils.randomUserDTO;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.mockito.ArgumentMatchers.any;
@@ -121,5 +123,24 @@ class AuthControllerTest extends BaseUnitTest {
         var response = victim.resetPassword(request);
 
         assertThat(response.getStatus(), equalTo(HttpStatus.BAD_REQUEST));
+    }
+
+    @Test
+    void testValidateToken_shouldReturnSuccess() {
+        var user = randomUserDTO();
+        when(authService.validateToken(TOKEN)).thenReturn(Optional.of(user));
+
+        var response = victim.validateToken(new ValidateTokenRequest(TOKEN));
+
+        assertThatResponseIsSuccessful(response, user);
+    }
+
+    @Test
+    void testValidateToken_shouldReturnFailure() {
+        when(authService.validateToken(TOKEN)).thenReturn(Optional.empty());
+
+        var response = victim.validateToken(new ValidateTokenRequest(TOKEN));
+
+        assertThatResponseFailed(response, List.of(DealError.BAD_CREDENTIAL_EXCEPTION), HttpStatus.UNAUTHORIZED);
     }
 }

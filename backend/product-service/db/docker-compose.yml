@@ -1,0 +1,24 @@
+services:
+  # -------------------- Containers --------------------
+
+  ps_db:
+    env_file:
+      - path: ./local.env
+        required: false
+    image: postgres:latest
+    container_name: ps_db
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ps_db
+      PG_DATA: /var/lib/postgresql/data
+    ports:
+      - '5436:5432'
+    volumes:
+      - ps_db:/var/lib/postgresql/data
+    restart: always
+
+# ---------- Volumes ----------
+volumes:
+  ps_db:
+    driver: local

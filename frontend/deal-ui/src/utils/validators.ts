@@ -25,27 +25,13 @@ export const emailRules: Rule[] = [
   { max: 100, message: 'Email cannot exceed 100 characters' }
 ];
 
-// Seller Info validation rules
-export const sellerInfoRules = {
-  preferredLocations: [
-    { max: 200, message: 'Preferred locations cannot exceed 200 characters' }
-  ] as Rule[],
-  preferredCourier: [
-    { max: 100, message: 'Preferred courier cannot exceed 100 characters' }
-  ] as Rule[],
-  productCategories: [
-    { type: 'array', message: 'Please select valid product categories' }
-  ] as Rule[]
-};
 export const passwordRules: Rule[] = [
   { required: true, message: 'Please enter your password' },
-/*
-  { min: 8, message: 'Password must be at least 8 characters' },
-*/
-/*  {
-    pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
-    message: 'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character'
-  }*/
+    { min: 8, message: 'Password must be at least 8 characters' },
+    {
+      pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
+      message: 'Password must contain at least one uppercase letter, one lowercase letter, one number and one special character'
+    }
 ];
 
 // Buyer Info validation rules (for future implementation)
@@ -58,23 +44,12 @@ export const buyerInfoRules = {
     { required: true, message: 'Please select a payment method' }
   ] as Rule[]
 };
-export const confirmPasswordRules = (): Rule[] => [
-  { required: true, message: 'Please confirm your password' },
-  ({ getFieldValue }) => ({
-    validator(_, value) {
-      if (!value || getFieldValue('newPassword') === value) {
-        return Promise.resolve();
-      }
-      return Promise.reject(new Error('The two passwords do not match'));
-    },
-  }),
-];
 
-export const confirmPasswordRulesRegister = (): Rule[] => [
+export const confirmPasswordRules = (fieldName: string = "password"): Rule[] => [
   { required: true, message: 'Please confirm your password' },
   ({ getFieldValue }) => ({
     validator(_, value) {
-      if (!value || getFieldValue('password') === value) {
+      if (!value || getFieldValue(fieldName) === value) {
         return Promise.resolve();
       }
       return Promise.reject(new Error('The two passwords do not match'));

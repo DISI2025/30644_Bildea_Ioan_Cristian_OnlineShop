@@ -1,7 +1,7 @@
 import type {FormProps} from "antd";
 import {Button, Checkbox, Form, Input, theme, Typography} from "antd";
 import {useNavigate} from "react-router-dom";
-import {confirmPasswordRulesRegister, emailRules, passwordRules, usernameRules} from "../../utils/validators";
+import {confirmPasswordRules, emailRules, passwordRules, usernameRules} from "../../utils/validators";
 import {ROUTES} from "../../routes/AppRouter";
 import {CreateUserRequest} from "../../types/transfer";
 import {useState} from "react";
@@ -101,7 +101,7 @@ export const RegisterForm = ({onRegisterSuccess, onRegisterError}: RegisterFormP
             }}>Confirm Password</span>}
             name="confirmPassword"
             dependencies={['password']}
-            rules={confirmPasswordRulesRegister()}
+            rules={confirmPasswordRules()}
             hasFeedback
             style={{marginBottom: token.spacing.sm}}
          >

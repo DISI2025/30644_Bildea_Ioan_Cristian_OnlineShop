@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public enum DealService {
     IS("identity-service"),
+    PS("product-service"),
     ;
 
     private final String value;
