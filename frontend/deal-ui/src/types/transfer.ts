@@ -16,7 +16,7 @@ export type DealError = {
 
 export interface AuthData
 {
-    token: string;
+    accessToken: string;
     user: User;
 }
 
@@ -39,4 +39,12 @@ export interface ForgotPasswordRequest {
 export interface ResetPasswordRequest {
     newPassword: string;
     token: string;
+}
+
+export interface CreateProductCategoryRequest {
+    categoryName: string;
+}
+
+export interface UpdateProductCategoryRequest extends CreateProductCategoryRequest {
+    id: string;
 }

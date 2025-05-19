@@ -7,38 +7,36 @@ import ForgotPasswordPage from "../pages/ForgotPasswordPage.tsx";
 import ResetPasswordPage from "../pages/ResetPasswordPage.tsx";
 import PrivateRoute from "./ProtectedRoute.tsx";
 import AdminRoute from "./AdminRoute.tsx";
+import ProductCategoryPage from "../pages/ProductCategoryPage.tsx";
 
 export const ROUTES = {
-   HOME: "/home",
-   LOGIN: "/login",
-   REGISTER: "/register",
-   FORGOT_PASSWORD: "/forgot-password",
-   RESET_PASSWORD: "/reset-password",
-   PRODUCTS: "/products",
-   CATEGORIES: "/categories",
-   CART: "/cart",
-   // Todo: update this
-   ADMIN_ROUTE: "/admin",
-   NOT_FOUND: "*"
+    INDEX: "/",
+    HOME: "/home",
+    LOGIN: "/login",
+    REGISTER: "/register",
+    FORGOT_PASSWORD: "/forgot-password",
+    RESET_PASSWORD: "/reset-password",
+    PRODUCTS: "/products",
+    PRODUCT_CATEGORIES: "/product-categories",
+    CART: "/cart",
+    ADMIN_ROUTE: "/admin",
+    NOT_FOUND: "*"
 } as const;
 
 export default function AppRouter() {
-   return (
-      <Routes>
-         <Route path={ROUTES.REGISTER} element={<RegisterPage/>}/>
-         <Route path={ROUTES.LOGIN} element={<LoginPage/>}/>
-         <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPasswordPage/>}/>
-         <Route path={ROUTES.RESET_PASSWORD} element={<ResetPasswordPage/>}/>
+    return (
+        <Routes>
+            <Route path={ROUTES.REGISTER} element={<RegisterPage/>}/>
+            <Route path={ROUTES.LOGIN} element={<LoginPage/>}/>
+            <Route path={ROUTES.FORGOT_PASSWORD} element={<ForgotPasswordPage/>}/>
+            <Route path={ROUTES.RESET_PASSWORD} element={<ResetPasswordPage/>}/>
 
-         <Route path={ROUTES.HOME} element={<PrivateRoute><HomePage/></PrivateRoute>}/>
-         <Route path={ROUTES.ADMIN_ROUTE} element={
-            <AdminRoute>
-               <div>Respect, atmine</div>
-            </AdminRoute>
-         }/>
+            <Route path={ROUTES.HOME} element={<PrivateRoute><HomePage/></PrivateRoute>}/>
+            <Route path={ROUTES.INDEX} element={<PrivateRoute><HomePage/></PrivateRoute>}/>
+            <Route path={ROUTES.PRODUCT_CATEGORIES} element={<AdminRoute><ProductCategoryPage/></AdminRoute>}/>
 
-         {/* Catch all route for 404 */}
-         <Route path={ROUTES.NOT_FOUND} element={<NotFoundPage/>}/>
-      </Routes>
-   );
+            {/* Catch all route for 404 */}
+            <Route path={ROUTES.NOT_FOUND} element={<NotFoundPage/>}/>
+        </Routes>
+    );
 }
