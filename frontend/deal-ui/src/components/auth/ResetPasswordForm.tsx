@@ -71,7 +71,7 @@ export const ResetPasswordForm = ({token, onResetPasswordSuccess, onResetPasswor
                 }}>Confirm Password</span>}
                 name="confirmPassword"
                 dependencies={['newPassword']}
-                rules={confirmPasswordRules()}
+                rules={confirmPasswordRules("newPassword")}
                 hasFeedback
                 style={{marginBottom: themeToken.spacing.sm}}
             >

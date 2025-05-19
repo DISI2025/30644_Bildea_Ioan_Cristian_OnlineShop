@@ -12,3 +12,8 @@ export interface  User extends BaseEntity {
     username: string;
     role: UserRole;
 }
+
+export interface ProductCategory {
+    id: string;
+    categoryName: string;
+}
