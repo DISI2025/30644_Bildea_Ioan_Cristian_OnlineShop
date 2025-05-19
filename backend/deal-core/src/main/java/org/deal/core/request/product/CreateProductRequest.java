@@ -12,6 +12,7 @@ public record CreateProductRequest(
         @JsonProperty Double price,
         @JsonProperty Integer stock,
         @JsonProperty String imageUrl,
+        @JsonProperty String sellerId,
         @JsonProperty Set<String> categories
 ) {
 }

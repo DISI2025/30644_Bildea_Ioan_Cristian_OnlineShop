@@ -29,5 +29,7 @@ public class UpdateProductRequest {
     @JsonProperty
     private String imageUrl;
     @JsonProperty
+    private String sellerId;
+    @JsonProperty
     private Set<String> categories;
 }

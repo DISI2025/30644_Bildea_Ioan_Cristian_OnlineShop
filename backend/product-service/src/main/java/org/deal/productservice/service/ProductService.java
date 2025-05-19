@@ -45,6 +45,7 @@ public class ProductService {
                         .withStock(request.stock())
                         .withImageUrl(request.imageUrl())
                         .withCategories(productCategoryRepository.findAllByName(request.categories()))
+                        .withSellerId(UUID.fromString(request.sellerId()))
                         .build()
         );
 

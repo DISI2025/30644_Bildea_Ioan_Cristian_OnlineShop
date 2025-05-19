@@ -105,6 +105,7 @@ class ProductServiceTest extends BaseUnitTest {
         when(builderMock.withStock(expectedProduct.getStock())).thenReturn(builderMock);
         when(builderMock.withImageUrl(expectedProduct.getImageUrl())).thenReturn(builderMock);
         when(builderMock.withCategories(expectedProduct.getCategories())).thenReturn(builderMock);
+        when(builderMock.withSellerId(expectedProduct.getSellerId())).thenReturn(builderMock);
         when(builderMock.build()).thenReturn(expectedProduct);
 
         when(productRepository.save(expectedProduct)).thenReturn(expectedProduct);

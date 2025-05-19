@@ -93,6 +93,7 @@ public class TestUtils {
                     product.getPrice(),
                     product.getStock(),
                     product.getImageUrl(),
+                    product.getSellerId().toString(),
                     product.getCategories().stream().map(ProductCategory::getCategoryName).collect(Collectors.toSet())
             );
         }
@@ -105,6 +106,7 @@ public class TestUtils {
                     product.getPrice(),
                     product.getStock(),
                     product.getImageUrl(),
+                    product.getSellerId().toString(),
                     Objects.nonNull(product.getCategories()) ?
                     product.getCategories().stream().map(ProductCategory::getCategoryName).collect(Collectors.toSet()) :
                     Set.of()
