@@ -42,7 +42,7 @@ export default function ProductManagerPage() {
     const searchText = useSelector(selectSearchText);
     const sortOrder = useSelector(selectSortOrder);
     const selectedCategoryId = useSelector(selectSelectedCategoryId);
-    const isAddPanelOpen = useSelector(selectIsAddPanelOpen);
+    useSelector(selectIsAddPanelOpen);
     const editingProductId = useSelector(selectEditingProductId);
 
     const [form] = Form.useForm<CreateProductRequest>();
