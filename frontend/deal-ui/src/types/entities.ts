@@ -17,11 +17,11 @@ export interface ProductCategory extends BaseEntity {
 }
 
 export interface Product extends BaseEntity {
-    name: string;
+    title: string;
     description: string;
     price: number;
     stock: number;
     imageUrl: string;
-    categoryId: string;
+    categories: string[];
     sellerId: string;
 }

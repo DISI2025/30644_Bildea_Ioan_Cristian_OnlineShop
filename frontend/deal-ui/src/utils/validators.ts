@@ -42,7 +42,7 @@ export const fullNameRules: Rule[] = [
 ];
 
 // Product validation rules
-export const productNameRules: Rule[] = [
+export const productTitleRules: Rule[] = [
   { required: true, message: 'Please enter a product name' },
   { min: 3, message: 'Product name must be at least 3 characters' },
   { max: 100, message: 'Product name cannot exceed 100 characters' },
@@ -93,7 +93,15 @@ export const productStockRules: Rule[] = [
 ];
 
 export const productCategoryRules: Rule[] = [
-  { required: true, message: 'Please select a product category' }
+  { required: true, message: 'Please select at least one product category' },
+  { 
+    validator: (_, value) => {
+      if (!value || !Array.isArray(value) || value.length === 0) {
+        return Promise.reject(new Error('Please select at least one category'));
+      }
+      return Promise.resolve();
+    }
+  }
 ];
 
 export const imageUrlRules: Rule[] = [

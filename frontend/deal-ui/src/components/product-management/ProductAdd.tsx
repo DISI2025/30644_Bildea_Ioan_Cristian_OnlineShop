@@ -44,7 +44,7 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                         onFinish={onFinish}
                     >
                         <Form.Item
-                            name="name"
+                            name="title"
                             label="Product Name"
                             rules={[{ required: true, message: 'Please enter product name' }]}
                         >
@@ -86,11 +86,18 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                         </Form.Item>
                         
                         <Form.Item
-                            name="categoryId"
-                            label="Category"
-                            rules={[{ required: true, message: 'Please select a category' }]}
+                            name="categories"
+                            label="Categories"
+                            rules={[{ required: true, message: 'Please select at least one category' }]}
                         >
-                            <Select placeholder="Select a category">
+                            <Select 
+                                mode="multiple" 
+                                placeholder="Select categories" 
+                                showSearch
+                                filterOption={(input, option) => 
+                                    (option?.children as unknown as string).toLowerCase().includes(input.toLowerCase())
+                                }
+                            >
                                 {productCategories.map(category => (
                                     <Select.Option key={category.id} value={category.id}>
                                         {category.categoryName}

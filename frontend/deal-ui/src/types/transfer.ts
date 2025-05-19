@@ -1,5 +1,6 @@
 import {User, UserRole} from "./entities.ts";
 
+//<---BaseResponse--->
 export interface BaseResponse {
     status: number;
     message: string;
@@ -14,6 +15,7 @@ export type DealError = {
     message: string;
 }
 
+//<---Auth--->
 export interface AuthData
 {
     accessToken: string;
@@ -41,6 +43,7 @@ export interface ResetPasswordRequest {
     token: string;
 }
 
+//<---Product Category--->
 export interface CreateProductCategoryRequest {
     categoryName: string;
 }
@@ -49,13 +52,15 @@ export interface UpdateProductCategoryRequest extends CreateProductCategoryReque
     id: string;
 }
 
+//<---Product--->
 export interface CreateProductRequest {
-    name: string;
+    title: string;
     description: string;
     price: number;
     stock: number;
     imageUrl: string;
-    categoryId: string;
+    categories: string[];
+    sellerId: string;
 }
 
 export interface UpdateProductRequest extends CreateProductRequest {

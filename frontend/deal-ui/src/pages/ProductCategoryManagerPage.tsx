@@ -74,7 +74,7 @@ export default function ProductCategoryManagerPage() {
     };
 
     const handleAddCategory = async (values: CreateProductCategoryRequest): Promise<void> => {
-        await createProductCategory(values).unwrap()
+        createProductCategory(values).unwrap()
             .then(() => {
                 form.resetFields();
                 dispatch(closeAddPanel());

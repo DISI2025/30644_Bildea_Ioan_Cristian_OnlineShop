@@ -103,7 +103,7 @@ export const api = createApi({
             transformErrorResponse: (response) => response.data as BaseResponse
         }),
 
-        // Product endpoints -> //TODO Update the products api after merged be branch
+        // Product endpoints
         getProducts: builder.query<DealResponse<Product[]>, void>({
             query: () => DEAL_ENDPOINTS.PRODUCTS,
             transformErrorResponse: (response) => response.data as BaseResponse,
@@ -111,6 +111,11 @@ export const api = createApi({
 
         getProductById: builder.query<DealResponse<Product>, string>({
             query: (id) => `${DEAL_ENDPOINTS.PRODUCTS}/${id}`,
+            transformErrorResponse: (response) => response.data as BaseResponse,
+        }),
+
+        getProductsBySellerId: builder.query<DealResponse<Product[]>, string>({
+            query: (sellerId) => `${DEAL_ENDPOINTS.PRODUCTS}/seller?id=${sellerId}`,
             transformErrorResponse: (response) => response.data as BaseResponse,
         }),
 
@@ -154,6 +159,7 @@ export const {
     useDeleteProductCategoryMutation,
     useGetProductsQuery,
     useGetProductByIdQuery,
+    useGetProductsBySellerIdQuery,
     useCreateProductMutation,
     useUpdateProductMutation,
     useDeleteProductMutation

@@ -5,6 +5,7 @@ import {
     Card,
     Col,
     Divider,
+    Empty,
     Form,
     Input,
     InputNumber,
@@ -23,7 +24,7 @@ import {Product, ProductCategory} from '../../types/entities';
 import {FormInstance} from 'antd/lib/form';
 import {UpdateProductRequest} from '../../types/transfer';
 import { 
-    productNameRules, 
+    productTitleRules, 
     productDescriptionRules, 
     productPriceRules, 
     productStockRules, 
@@ -46,6 +47,7 @@ interface ProductListProps {
     onCancelEdit: () => void;
     updateForm: FormInstance;
     onAdd?: (values: Omit<Product, 'id'>) => Promise<void>;
+    form?: FormInstance;
 }
 
 const ProductList: React.FC<ProductListProps> = ({
@@ -58,6 +60,7 @@ const ProductList: React.FC<ProductListProps> = ({
                                                      onCancelEdit,
                                                      updateForm,
                                                      onAdd,
+                                                     form
                                                  }) => {
     const {token} = useToken();
     const [loadingImages, setLoadingImages] = useState<Record<string, boolean>>({});
@@ -113,23 +116,13 @@ const ProductList: React.FC<ProductListProps> = ({
 
     const handleAddSubmit = async (values: any) => {
         if (onAdd) {
-            // TODO: Implement product creation with API integration
-            // When BE is ready, uncomment and use the following code:
-            /*
             try {
                 await onAdd(values);
                 setAddModalVisible(false);
                 addForm.resetFields();
-                // Show success message
             } catch (error) {
-                // Handle error
                 console.error("Error adding product:", error);
             }
-            */
-            console.log('Create product functionality not yet implemented');
-            console.log('Would create product with values:', values);
-            setAddModalVisible(false);
-            addForm.resetFields();
         } else {
             console.warn('onAdd function is not provided to ProductList component');
         }
@@ -172,9 +165,9 @@ const ProductList: React.FC<ProductListProps> = ({
             </Form.Item>
 
             <Form.Item
-                name="name"
+                name="title"
                 label="Product Name"
-                rules={productNameRules}
+                rules={productTitleRules}
             >
                 <Input/>
             </Form.Item>
@@ -204,11 +197,11 @@ const ProductList: React.FC<ProductListProps> = ({
             </Form.Item>
 
             <Form.Item
-                name="categoryId"
-                label="Category"
+                name="categories"
+                label="Categories"
                 rules={productCategoryRules}
             >
-                <Select>
+                <Select mode="multiple">
                     {productCategories.map(category => (
                         <Select.Option key={category.id} value={category.id}>
                             {category.categoryName}
@@ -238,9 +231,9 @@ const ProductList: React.FC<ProductListProps> = ({
             }}
         >
             <Form.Item
-                name="name"
+                name="title"
                 label="Product Name"
-                rules={productNameRules}
+                rules={productTitleRules}
             >
                 <Input/>
             </Form.Item>
@@ -270,11 +263,11 @@ const ProductList: React.FC<ProductListProps> = ({
             </Form.Item>
 
             <Form.Item
-                name="categoryId"
-                label="Category"
+                name="categories"
+                label="Categories"
                 rules={productCategoryRules}
             >
-                <Select>
+                <Select mode="multiple">
                     {productCategories.map(category => (
                         <Select.Option key={category.id} value={category.id}>
                             {category.categoryName}
@@ -348,7 +341,7 @@ const ProductList: React.FC<ProductListProps> = ({
                                 </div>
                             )}
                             <img 
-                                alt={product.name}
+                                alt={product.title}
                                 src={product.imageUrl}
                                 style={{ 
                                     position: 'absolute',
@@ -405,15 +398,21 @@ const ProductList: React.FC<ProductListProps> = ({
                         height: '100%',
                         color: token.colorText
                     }}>
-                        <Tag 
-                            color={getCategoryColor(product.categoryId)}
-                            style={{ 
-                                alignSelf: 'flex-start', 
-                                marginBottom: 8
-                            }}
-                        >
-                            {getCategoryName(product.categoryId)}
-                        </Tag>
+                        <div style={{ 
+                            display: 'flex', 
+                            flexWrap: 'wrap',
+                            gap: 4,
+                            marginBottom: 8 
+                        }}>
+                            {product.categories.map(catId => (
+                                <Tag 
+                                    key={catId}
+                                    color={getCategoryColor(catId)}
+                                >
+                                    {getCategoryName(catId)}
+                                </Tag>
+                            ))}
+                        </div>
                         
                         <Title 
                             level={5} 
@@ -425,7 +424,7 @@ const ProductList: React.FC<ProductListProps> = ({
                                 marginBottom: 8
                             }}
                         >
-                            {product.name}
+                            {product.title}
                         </Title>
                         
                         <Paragraph 
@@ -494,7 +493,7 @@ const ProductList: React.FC<ProductListProps> = ({
         
         return (
             <Modal
-                title={<Title level={3}>{selectedProduct.name}</Title>}
+                title={<Title level={3}>{selectedProduct.title}</Title>}
                 open={detailsModalVisible}
                 onCancel={closeDetailsModal}
                 footer={null}
@@ -514,7 +513,7 @@ const ProductList: React.FC<ProductListProps> = ({
                         }}>
                             <img 
                                 src={selectedProduct.imageUrl} 
-                                alt={selectedProduct.name}
+                                alt={selectedProduct.title}
                                 style={{ 
                                     maxWidth: '100%', 
                                     maxHeight: '100%',
@@ -524,12 +523,24 @@ const ProductList: React.FC<ProductListProps> = ({
                         </div>
                     </Col>
                     <Col span={12}>
-                        <Tag color={getCategoryColor(selectedProduct.categoryId)}>
-                            {getCategoryName(selectedProduct.categoryId)}
-                        </Tag>
+                        <div style={{ 
+                            display: 'flex', 
+                            flexWrap: 'wrap',
+                            gap: 4,
+                            marginBottom: 8 
+                        }}>
+                            {selectedProduct.categories.map(catId => (
+                                <Tag 
+                                    key={catId}
+                                    color={getCategoryColor(catId)}
+                                >
+                                    {getCategoryName(catId)}
+                                </Tag>
+                            ))}
+                        </div>
                         
                         <Title level={2} style={{margin: `${token.marginSM}px 0`}}>
-                            {selectedProduct.name}
+                            {selectedProduct.title}
                         </Title>
                         
                         <Title level={3} type="secondary" style={{color: token.colorPrimary}}>
@@ -639,45 +650,47 @@ const ProductList: React.FC<ProductListProps> = ({
     );
 
     return (
-        <div style={{marginTop: token.marginMD}}>
-            <Card
-                title={<Title level={4}>Products</Title>}
-                extra={
-                    <Button
-                        type="primary"
-                        icon={<PlusOutlined/>}
-                        onClick={showAddModal}
-                    >
-                        Add Product
-                    </Button>
-                }
-            >
-                <Spin spinning={loading}>
-                    <Row gutter={[24, 24]}>
-                        {products.length > 0 ? (
-                            products.map(product => (
-                                <Col xs={24} sm={12} md={8} lg={6} xl={4} key={product.id}>
-                                    {renderProductCard(product)}
-                                </Col>
-                            ))
-                        ) : (
-                            <Col span={24}>
-                                <Card>
-                                    <div style={{textAlign: 'center', padding: `${token.paddingXL}px 0`}}>
-                                        <Title level={5}>No products found</Title>
-                                        <Text type="secondary" style={{display: 'block', marginBottom: token.marginMD}}>
-                                            Try adding some products to get started.
-                                        </Text>
-                                        <Button type="primary" onClick={showAddModal} icon={<PlusOutlined/>}>
-                                            Add Your First Product
-                                        </Button>
-                                    </div>
-                                </Card>
-                            </Col>
-                        )}
-                    </Row>
+        <div style={{width: '100%'}}>
+            <div style={{marginBottom: 24}}>
+                <Button 
+                    type="primary" 
+                    icon={<PlusOutlined/>} 
+                    onClick={showAddModal} 
+                    size="large"
+                >
+                    Add New Product
+                </Button>
+            </div>
+
+            {loading ? (
+                <Spin tip="Loading...">
+                    <div style={{padding: '50px', textAlign: 'center'}}/>
                 </Spin>
-            </Card>
+            ) : products.length === 0 ? (
+                <Card>
+                    <Empty 
+                        description="No products found" 
+                        image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    >
+                        <Button 
+                            type="primary" 
+                            icon={<PlusOutlined/>}
+                            onClick={showAddModal}
+                        >
+                            Add Product
+                        </Button>
+                    </Empty>
+                </Card>
+            ) : (
+                <Row gutter={[16, 16]}>
+                    {products.map(product => (
+                        <Col xs={24} sm={12} md={8} lg={6} key={product.id}>
+                            {renderProductCard(product)}
+                        </Col>
+                    ))}
+                </Row>
+            )}
+
             {renderDetailsModal()}
             {renderEditModal()}
             {renderAddModal()}
