@@ -194,4 +194,32 @@ class ProductServiceTest extends BaseUnitTest {
         verify(productRepository).deleteByIdReturning(product.getId());
         result.ifPresent(this::assertThatFails);
     }
+
+    @Test
+    void testFindAllBySellerId_productsFound_shouldReturnAllProducts() {
+        var product = Instancio.create(Product.class);
+        when(productRepository.findAllBySellerId(product.getSellerId())).thenReturn(List.of(product));
+
+        var result = victim.findAllBySellerId(product.getSellerId());
+
+        verify(productRepository).findAllBySellerId(product.getSellerId());
+        result.ifPresentOrElse(
+                productList -> assertThat(productList, hasItem(Mapper.mapTo(product, ProductDTO.class))),
+                this::assertThatFails
+        );
+    }
+
+    @Test
+    void testFindAllBySellerId_productsNotFound_shouldReturnEmptyData() {
+        UUID sellerId = UUID.randomUUID();
+        when(productRepository.findAllBySellerId(any())).thenReturn(List.of());
+
+        var result = victim.findAllBySellerId(sellerId);
+
+        verify(productRepository).findAllBySellerId(sellerId);
+        result.ifPresentOrElse(
+                productList -> assertThat(productList, equalTo(List.of())),
+                this::assertThatFails
+        );
+    }
 }

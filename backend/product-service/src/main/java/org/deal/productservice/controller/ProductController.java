@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -49,6 +50,15 @@ public class ProductController {
                 .orElse(DealResponse.failureResponse(
                         new DealError(notFound(ProductDTO.class, "id", id)),
                         NOT_FOUND));
+    }
+
+    @GetMapping("/seller")
+    public DealResponse<List<ProductDTO>> getProductsBySellerId(@RequestParam final UUID id){
+        return productService.findAllBySellerId(id)
+                .map(DealResponse::successResponse)
+                .orElse(DealResponse.failureResponse(
+                        new DealError(notFound(ProductDTO.class)),
+                        HttpStatus.NOT_FOUND));
     }
 
     @PostMapping

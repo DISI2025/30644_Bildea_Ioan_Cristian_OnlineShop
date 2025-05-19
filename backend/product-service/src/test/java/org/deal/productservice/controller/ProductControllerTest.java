@@ -150,4 +150,27 @@ class ProductControllerTest {
         verify(productService).deleteById(id);
         assertThatResponseFailed(response, List.of(new DealError(notFound(ProductDTO.class, "id", id))), HttpStatus.NOT_FOUND);
     }
+
+    @Test
+    void testGetProductsBySellerId_productFound_returnsSuccess() {
+        var expectedProducts = List.of(Instancio.create(Product.class), Instancio.create(Product.class));
+        var sellerId = UUID.randomUUID();
+        when(productService.findAllBySellerId(sellerId)).thenReturn(Optional.of(convertAll(expectedProducts, ProductDTO.class)));
+
+        var response = victim.getProductsBySellerId(sellerId);
+
+        verify(productService).findAllBySellerId(sellerId);
+        assertThatResponseIsSuccessful(response, convertAll(expectedProducts, ProductDTO.class));
+    }
+
+    @Test
+    void testGetProductsBySellerId_productsNotFound_returnsFailure() {
+        var sellerId = UUID.randomUUID();
+        when(productService.findAllBySellerId(sellerId)).thenReturn(Optional.empty());
+
+        var response = victim.getProductsBySellerId(sellerId);
+
+        verify(productService).findAllBySellerId(sellerId);
+        assertThatResponseFailed(response, List.of(new DealError(notFound(ProductDTO.class))), HttpStatus.NOT_FOUND);
+    }
 }
