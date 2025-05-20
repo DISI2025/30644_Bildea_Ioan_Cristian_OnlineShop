@@ -1,7 +1,9 @@
 package org.deal.identityservice.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.deal.core.dto.UserDTO;
 import org.deal.core.request.auth.LoginRequest;
+import org.deal.core.request.auth.ValidateTokenRequest;
 import org.deal.core.request.password.ForgotPasswordRequest;
 import org.deal.core.request.password.ResetPasswordRequest;
 import org.deal.core.request.user.CreateUserRequest;
@@ -53,5 +55,12 @@ public class AuthController {
         return authService.resetPassword(request.token(), request.newPassword()) ?
                DealResponse.successResponse(null) :
                DealResponse.failureResponse(PASSWORD_RESET_FAIL, BAD_REQUEST);
+    }
+
+    @PostMapping("/validate-token")
+    public DealResponse<UserDTO> validateToken(@RequestBody final ValidateTokenRequest request) {
+        return authService.validateToken(request.token())
+                .map(DealResponse::successResponse)
+                .orElse(DealResponse.failureResponse(BAD_CREDENTIAL_EXCEPTION, HttpStatus.UNAUTHORIZED));
     }
 }

@@ -17,6 +17,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.deal.identityservice.util.TestUtils.AuthUtils.loginRequest;
 import static org.deal.identityservice.util.TestUtils.AuthUtils.randomPasswordToken;
@@ -44,7 +45,7 @@ class AuthServiceTest extends BaseUnitTest {
     private AuthenticationManager authenticationManager;
 
     @Mock
-    private JwtServiceImpl jwtService;
+    private JwtService jwtService;
 
     @Mock
     private UserService userService;
@@ -189,4 +190,62 @@ class AuthServiceTest extends BaseUnitTest {
         verify(passwordTokenRepository, never()).delete(any());
     }
 
+    @Test
+    void testValidateToken_tokenIsValid_shouldReturnSuccess() {
+        var userDto = randomUserDTO();
+        when(jwtService.extractUserId(TOKEN)).thenReturn(Optional.of(userDto.id()));
+        when(userService.findById(userDto.id())).thenReturn(Optional.of(userDto));
+        when(jwtService.isValidToken(TOKEN, userDto.id(), userDto.username(), userDto.role())).thenReturn(true);
+
+        var result = victim.validateToken(TOKEN);
+
+        verify(jwtService).extractUserId(TOKEN);
+        verify(userService).findById(userDto.id());
+        verify(jwtService).isValidToken(TOKEN, userDto.id(), userDto.username(), userDto.role());
+        result.ifPresentOrElse(
+                validatedUser -> assertThat(validatedUser, equalTo(userDto)),
+                this::assertThatFails
+        );
+    }
+
+    @Test
+    void testValidateToken_malformedToken_shouldReturnFailure() {
+        when(jwtService.extractUserId(TOKEN)).thenReturn(Optional.empty());
+
+        var result = victim.validateToken(TOKEN);
+
+        verify(jwtService).extractUserId(TOKEN);
+        verify(userService, never()).findById(any());
+        verify(jwtService, never()).isValidToken(eq(TOKEN), any(), anyString(), any());
+        result.ifPresent(this::assertThatFails);
+    }
+
+    @Test
+    void testValidateToken_userNotFound_shouldReturnFailure() {
+        var id = UUID.randomUUID();
+        when(jwtService.extractUserId(TOKEN)).thenReturn(Optional.of(id));
+        when(userService.findById(id)).thenReturn(Optional.empty());
+
+        var result = victim.validateToken(TOKEN);
+
+        verify(jwtService).extractUserId(TOKEN);
+        verify(userService).findById(id);
+        verify(jwtService, never()).isValidToken(eq(TOKEN), any(), anyString(), any());
+        result.ifPresent(this::assertThatFails);
+    }
+
+    @Test
+    void testValidateToken_invalidToken_shouldReturnFailure() {
+        var userDto = randomUserDTO();
+        when(jwtService.extractUserId(TOKEN)).thenReturn(Optional.of(userDto.id()));
+        when(userService.findById(userDto.id())).thenReturn(Optional.of(userDto));
+        when(jwtService.isValidToken(TOKEN, userDto.id(), userDto.username(), userDto.role())).thenReturn(false);
+
+        var result = victim.validateToken(TOKEN);
+
+        verify(jwtService).extractUserId(TOKEN);
+        verify(userService).findById(userDto.id());
+        verify(jwtService).isValidToken(TOKEN, userDto.id(), userDto.username(), userDto.role());
+        result.ifPresent(this::assertThatFails);
+    }
 }
