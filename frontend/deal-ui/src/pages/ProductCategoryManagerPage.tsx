@@ -148,7 +148,6 @@ export default function ProductCategoryManagerPage() {
 
     return (
         <Layout>
-            <Navbar/>
             <Content style={{
                 padding: "2rem", 
                 marginTop: `calc(${token.layout.headerHeight}px + 2rem)`
@@ -161,7 +160,7 @@ export default function ProductCategoryManagerPage() {
 
                 <div style={{display: "flex"}}>
                     <div style={{width: "250px"}}>
-                        <Card title="Filters" bordered={false} style={{marginBottom: '1rem'}}>
+                        <Card title="Filters" variant="borderless" style={{marginBottom: '1rem'}}>
                             <ProductCategoryFilter onSortChange={handleSortChange}/>
                         </Card>
                     </div>

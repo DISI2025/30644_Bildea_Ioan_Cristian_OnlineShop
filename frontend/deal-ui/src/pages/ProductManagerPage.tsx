@@ -166,7 +166,6 @@ export default function ProductManagerPage() {
 
     return (
         <Layout>
-            <Navbar/>
             <Content style={{
                 padding: "2rem",
                 marginTop: `calc(${token.layout.headerHeight}px + 2rem)`
@@ -179,7 +178,7 @@ export default function ProductManagerPage() {
 
                 <div style={{display: "flex"}}>
                     <div style={{width: "250px"}}>
-                        <Card title="Filters" bordered={false} style={{marginBottom: '1rem'}}>
+                        <Card title="Filters" variant="borderless" style={{marginBottom: '1rem'}}>
                             {isLoadingCategories ? (
                                 <Skeleton active/>
                             ) : (

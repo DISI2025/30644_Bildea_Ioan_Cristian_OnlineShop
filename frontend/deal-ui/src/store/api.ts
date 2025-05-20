@@ -13,7 +13,7 @@ import {
     ResetPasswordRequest, UpdateProductCategoryRequest,
     UpdateProductRequest
 } from "../types/transfer.ts";
-import { Product, ProductCategory } from "../types/entities.ts";
+import {Product, ProductCategory, User} from "../types/entities.ts";
 
 const appBaseQuery = fetchBaseQuery({
     baseUrl: DEAL_ENDPOINTS.BASE, prepareHeaders: (headers: Headers /*{getState}*/) => {
@@ -28,7 +28,7 @@ const appBaseQuery = fetchBaseQuery({
 export const api = createApi({
     reducerPath: 'api',
     baseQuery: appBaseQuery,
-    tagTypes: ['ProductCategories', 'Products'],
+    tagTypes: ['ProductCategories', 'Products', 'Users'],
     endpoints: (builder) => ({
         // Auth endpoints
         login: builder.mutation<DealResponse<AuthData>, AuthRequest>({
@@ -64,6 +64,19 @@ export const api = createApi({
                 body: request
             }),
             transformErrorResponse: (response) => response.data as BaseResponse,
+        }),
+
+        // User endpoints
+        getUsers: builder.query<DealResponse<User[]>, void>({
+            query: () => DEAL_ENDPOINTS.USERS,
+            transformErrorResponse: (response) => response.data as BaseResponse,
+            providesTags: ['Users']
+        }),
+
+        getUserById: builder.query<DealResponse<User>, string>({
+            query: (id) => `${DEAL_ENDPOINTS.USERS}/${id}`,
+            transformErrorResponse: (response) => response.data as BaseResponse,
+            providesTags: (result, error, id) => [{ type: 'Users', id }]
         }),
 
         // Product Category endpoints
@@ -152,6 +165,8 @@ export const {
     useRegisterMutation,
     useForgotPasswordMutation,
     useResetPasswordMutation,
+    useGetUsersQuery,
+    useGetUserByIdQuery,
     useGetProductCategoriesQuery,
     useGetProductCategoryByIdQuery,
     useCreateProductCategoryMutation,

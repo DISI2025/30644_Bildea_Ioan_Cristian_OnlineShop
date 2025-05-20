@@ -1,5 +1,5 @@
 import React, {useMemo} from 'react';
-import {Flex, Layout, Menu, theme} from 'antd';
+import {Badge, Flex, Layout, Menu, theme} from 'antd';
 import {useLocation, useNavigate} from 'react-router-dom';
 import {useTheme} from '../../context/ThemeContext.tsx';
 import {ROUTES} from '../../routes/AppRouter.tsx';
@@ -76,15 +76,12 @@ export const Navbar: React.FC = () => {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 boxShadow: token.shadows.light.md,
-                position: 'fixed',
+                position: 'sticky',
                 top: 0,
-                left: 0,
-                right: 0,
-                zIndex: 1000,
+                zIndex: 100,
                 height: token.layout.headerHeight,
                 transition: 'all 0.3s ease',
                 backdropFilter: 'blur(10px)',
-                backgroundColor: `rgba(${token.colorBgContainer.replace(/[^\d,]/g, '')}, 0.95)`,
             }}
         >
             <Flex align="center" gap={token.spacing.lg}>
