@@ -70,7 +70,7 @@ public class UserController {
 
     @PatchMapping("/user-categories")
     public DealResponse<UserDTO> updateUserCategories(@RequestBody final AssignProductCategoryRequest request) {
-        return userService.assignProductCategory(request)
+        return userService.assignProductCategories(request)
                 .map(DealResponse::successResponse)
                 .orElse(DealResponse.failureResponse(
                         new DealError(notFound(UserDTO.class, "id", request.userId())),

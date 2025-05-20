@@ -163,7 +163,7 @@ class UserServiceTest extends BaseUnitTest {
     }
 
     @Test
-    void testAssignProductCategory_userFound_shouldUpdateAndReturnUserDTO() {
+    void testAssignProductCategories_userFound_shouldUpdateAndReturnUserDTO() {
         // Arrange
         var user = randomUser();
         var categoryId = UUID.randomUUID();
@@ -174,7 +174,7 @@ class UserServiceTest extends BaseUnitTest {
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
 
         // Act
-        var result = victim.assignProductCategory(request);
+        var result = victim.assignProductCategories(request);
 
         // Assert
         verify(userRepository).findById(user.getId());
@@ -192,14 +192,14 @@ class UserServiceTest extends BaseUnitTest {
 
 
     @Test
-    void testAssignProductCategory_userNotFound_returnsEmptyOptional() {
+    void testAssignProductCategories_userNotFound_returnsEmptyOptional() {
         // Arrange
         var request = new AssignProductCategoryRequest(UUID.randomUUID(), List.of(UUID.randomUUID()));
 
         when(userRepository.findById(request.userId())).thenReturn(Optional.empty());
 
         // Act
-        var result = victim.assignProductCategory(request);
+        var result = victim.assignProductCategories(request);
 
         // Assert
         verify(userRepository).findById(request.userId());

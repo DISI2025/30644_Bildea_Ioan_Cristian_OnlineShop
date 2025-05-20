@@ -13,8 +13,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -55,10 +58,16 @@ public class UserService implements UserDetailsService {
                 });
     }
 
-    public Optional<UserDTO> assignProductCategory(final AssignProductCategoryRequest request) {
+    public Optional<UserDTO> assignProductCategories(final AssignProductCategoryRequest request) {
         return userRepository.findById(request.userId())
                 .map(user -> {
-                    user.setProductCategoryIds(request.productCategoryIds());
+                    List<UUID> existingIds = Optional.ofNullable(user.getProductCategoryIds())
+                            .orElse(new ArrayList<>());
+
+                    Set<UUID> merged = new HashSet<>(existingIds);
+                    merged.addAll(request.productCategoryIds());
+
+                    user.setProductCategoryIds(new ArrayList<>(merged));
                     userRepository.save(user);
 
                     return mapToDTO(user);

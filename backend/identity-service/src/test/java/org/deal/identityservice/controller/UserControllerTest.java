@@ -136,13 +136,13 @@ class UserControllerTest extends BaseUnitTest {
         var expectedDto = Mapper.mapTo(user, UserDTO.class);
         var request = new AssignProductCategoryRequest(user.getId(), user.getProductCategoryIds());
 
-        when(userService.assignProductCategory(request)).thenReturn(Optional.of(expectedDto));
+        when(userService.assignProductCategories(request)).thenReturn(Optional.of(expectedDto));
 
         // Act
-        var response = victim.updateCategories(request);
+        var response = victim.updateUserCategories(request);
 
         // Assert
-        verify(userService).assignProductCategory(request);
+        verify(userService).assignProductCategories(request);
         assertThatResponseIsSuccessful(response, expectedDto);
     }
 
@@ -151,13 +151,13 @@ class UserControllerTest extends BaseUnitTest {
         // Arrange
         var request = new AssignProductCategoryRequest(UUID.randomUUID(), List.of(UUID.randomUUID()));
 
-        when(userService.assignProductCategory(request)).thenReturn(Optional.empty());
+        when(userService.assignProductCategories(request)).thenReturn(Optional.empty());
 
         // Act
-        var response = victim.updateCategories(request);
+        var response = victim.updateUserCategories(request);
 
         // Assert
-        verify(userService).assignProductCategory(request);
+        verify(userService).assignProductCategories(request);
         assertThatResponseFailed(
                 response,
                 List.of(new DealError(notFound(UserDTO.class, "id", request.userId()))),
