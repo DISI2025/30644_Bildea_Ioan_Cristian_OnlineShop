@@ -34,7 +34,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
 
     if (loading || !product) {
         return (
-            <Card bordered={false} style={{height: '100%'}}>
+            <Card variant="borderless" style={{height: '100%'}}>
                 <Skeleton active paragraph={{rows: 6}}/>
             </Card>
         );
@@ -42,7 +42,7 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
 
     return (
         <Card
-            bordered={false}
+            variant="borderless"
             style={{
                 height: '100%',
                 borderRadius: 12,
