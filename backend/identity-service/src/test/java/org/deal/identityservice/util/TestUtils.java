@@ -115,17 +115,6 @@ public class TestUtils {
             );
         }
 
-        static UserProfileResponse randomUserProfileResponse(User user, String categoryName) {
-            return UserProfileResponse.builder()
-                    .withId(user.getId())
-                    .withUsername(user.getUsername())
-                    .withEmail(user.getEmail())
-                    .withRole(user.getRole())
-                    .withCreatedAt(user.getCreatedAt())
-                    .withProductCategoryIds(user.getProductCategoryIds())
-                    .build();
-        }
-
 
         static Timestamp truncateNanos(final Timestamp timestamp) {
             return Timestamp.valueOf(timestamp.toLocalDateTime().withNano(0));
