@@ -1,6 +1,7 @@
 package org.deal.identityservice.service;
 
 import org.deal.core.dto.UserDTO;
+import org.deal.core.request.user.AssignProductCategoryRequest;
 import org.deal.core.util.Mapper;
 import org.deal.identityservice.entity.User;
 import org.deal.identityservice.repository.UserRepository;
@@ -12,7 +13,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -24,7 +27,9 @@ import static org.deal.identityservice.util.TestUtils.randomString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -42,6 +47,9 @@ class UserServiceTest extends BaseUnitTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private RestTemplate restTemplate;
 
     @InjectMocks
     private UserService victim;
@@ -130,6 +138,7 @@ class UserServiceTest extends BaseUnitTest {
         var updatedUser = randomUser();
         updatedUser.setId(initialUser.getId());
         updatedUser.setPassword(initialUser.getPassword());
+        updatedUser.setProductCategoryIds(initialUser.getProductCategoryIds());
         when(userRepository.findById(initialUser.getId())).thenReturn(Optional.of(initialUser));
 
         var result = victim.update(updateUserRequest(updatedUser));
@@ -152,6 +161,53 @@ class UserServiceTest extends BaseUnitTest {
         verify(userRepository, never()).save(any());
         result.ifPresent(this::assertThatFails);
     }
+
+    @Test
+    void testAssignProductCategory_userFound_shouldUpdateAndReturnUserDTO() {
+        // Arrange
+        var user = randomUser();
+        var categoryId = UUID.randomUUID();
+        var request = new AssignProductCategoryRequest(user.getId(), List.of(categoryId));
+
+        user.setProductCategoryIds(new ArrayList<>());
+
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+
+        // Act
+        var result = victim.assignProductCategory(request);
+
+        // Assert
+        verify(userRepository).findById(user.getId());
+        verify(userRepository).save(user);
+
+        result.ifPresentOrElse(
+                dto -> {
+                    assertEquals(user.getId(), dto.id());
+                    assertTrue(dto.productCategoryIds().contains(categoryId));
+                    assertEquals(1, dto.productCategoryIds().size());
+                },
+                this::assertThatFails
+        );
+    }
+
+
+    @Test
+    void testAssignProductCategory_userNotFound_returnsEmptyOptional() {
+        // Arrange
+        var request = new AssignProductCategoryRequest(UUID.randomUUID(), List.of(UUID.randomUUID()));
+
+        when(userRepository.findById(request.userId())).thenReturn(Optional.empty());
+
+        // Act
+        var result = victim.assignProductCategory(request);
+
+        // Assert
+        verify(userRepository).findById(request.userId());
+        verify(userRepository, never()).save(any());
+
+        assertTrue(result.isEmpty());
+    }
+
 
     @Test
     void testDelete_userIsFound_shouldReturnDeletedUser() {

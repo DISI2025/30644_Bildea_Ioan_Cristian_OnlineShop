@@ -2,6 +2,7 @@ package org.deal.identityservice.service;
 
 import lombok.RequiredArgsConstructor;
 import org.deal.core.dto.UserDTO;
+import org.deal.core.request.user.AssignProductCategoryRequest;
 import org.deal.core.request.user.CreateUserRequest;
 import org.deal.core.request.user.UpdateUserRequest;
 import org.deal.core.util.Mapper;
@@ -48,6 +49,16 @@ public class UserService implements UserDetailsService {
         return userRepository.findById(request.id())
                 .map(user -> {
                     Mapper.updateValues(user, request);
+                    userRepository.save(user);
+
+                    return mapToDTO(user);
+                });
+    }
+
+    public Optional<UserDTO> assignProductCategory(final AssignProductCategoryRequest request) {
+        return userRepository.findById(request.userId())
+                .map(user -> {
+                    user.setProductCategoryIds(request.productCategoryIds());
                     userRepository.save(user);
 
                     return mapToDTO(user);

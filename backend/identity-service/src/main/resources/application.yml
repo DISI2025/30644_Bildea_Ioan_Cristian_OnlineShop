@@ -40,3 +40,6 @@ reset-password-url: http://localhost:5173/reset-password
 reset-password-email-title: 'Password reset email - DEAL'
 reset-password-email-body: 'Reset your password using: '
 deal-mail: no-reply@deal.com
+
+product-category-service:
+  url: 'localhost:8082'

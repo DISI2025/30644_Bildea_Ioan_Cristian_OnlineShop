@@ -26,5 +26,3 @@ VALUES ('3e5b1f29-d4e8-4972-b64a-cc103086bd91',
         '2024-10-30 03:11:55.611171',
         '$2a$10$qrhtUUjXYabYsDmPyA2L5.voCKeX3jFwGSVsn5UzCidFZYgxaoM26',
         'USER');
-
--- parola de test este 'mypass'

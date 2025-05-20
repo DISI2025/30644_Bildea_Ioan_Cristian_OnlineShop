@@ -3,6 +3,7 @@ package org.deal.identityservice.controller;
 import lombok.RequiredArgsConstructor;
 import org.deal.core.dto.UserDTO;
 import org.deal.core.exception.DealError;
+import org.deal.core.request.user.AssignProductCategoryRequest;
 import org.deal.core.request.user.CreateUserRequest;
 import org.deal.core.request.user.UpdateUserRequest;
 import org.deal.core.response.DealResponse;
@@ -66,6 +67,16 @@ public class UserController {
                         new DealError(notFound(UserDTO.class, "id", request.id())),
                         NOT_FOUND));
     }
+
+    @PatchMapping("/user-categories")
+    public DealResponse<UserDTO> updateUserCategories(@RequestBody final AssignProductCategoryRequest request) {
+        return userService.assignProductCategory(request)
+                .map(DealResponse::successResponse)
+                .orElse(DealResponse.failureResponse(
+                        new DealError(notFound(UserDTO.class, "id", request.userId())),
+                        HttpStatus.NOT_FOUND));
+    }
+
 
     @DeleteMapping("/{id}")
     public DealResponse<UserDTO> deleteUserById(@PathVariable final UUID id) {

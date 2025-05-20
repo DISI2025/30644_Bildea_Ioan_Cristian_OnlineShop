@@ -23,6 +23,10 @@ public class ProductCategoryService {
         return Optional.of(productCategoryRepository.findAll().stream().map(this::mapToDTO).toList());
     }
 
+    public Optional<List<ProductCategoryDTO>> findAllCategoriesByIds(final List<UUID> ids) {
+        return Optional.of(productCategoryRepository.findAllByIdIn(ids).stream().map(this::mapToDTO).toList());
+    }
+
     public Optional<ProductCategoryDTO> findById(final UUID id) {
         return productCategoryRepository.findById(id).map(this::mapToDTO);
     }

@@ -7,6 +7,7 @@ import org.deal.core.request.user.CreateUserRequest;
 import org.deal.core.request.user.UpdateUserRequest;
 import org.deal.core.response.DealResponse;
 import org.deal.core.response.auth.AuthResponse;
+import org.deal.core.response.user.UserProfileResponse;
 import org.deal.core.util.Mapper;
 import org.deal.core.util.Role;
 import org.deal.identityservice.entity.PasswordToken;
@@ -82,7 +83,8 @@ public class TestUtils {
                     randomString(),
                     truncateNanos(Timestamp.from(Instant.now())),
                     randomString(),
-                    Role.USER);
+                    Role.USER,
+                    List.of(UUID.randomUUID(), UUID.randomUUID()));
         }
 
         static UserDTO randomUserDTO() {
@@ -112,6 +114,18 @@ public class TestUtils {
                     user.getRole()
             );
         }
+
+        static UserProfileResponse randomUserProfileResponse(User user, String categoryName) {
+            return UserProfileResponse.builder()
+                    .withId(user.getId())
+                    .withUsername(user.getUsername())
+                    .withEmail(user.getEmail())
+                    .withRole(user.getRole())
+                    .withCreatedAt(user.getCreatedAt())
+                    .withProductCategoryIds(user.getProductCategoryIds())
+                    .build();
+        }
+
 
         static Timestamp truncateNanos(final Timestamp timestamp) {
             return Timestamp.valueOf(timestamp.toLocalDateTime().withNano(0));

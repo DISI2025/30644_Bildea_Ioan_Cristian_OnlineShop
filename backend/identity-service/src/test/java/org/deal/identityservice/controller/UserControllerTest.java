@@ -2,6 +2,7 @@ package org.deal.identityservice.controller;
 
 import org.deal.core.dto.UserDTO;
 import org.deal.core.exception.DealError;
+import org.deal.core.request.user.AssignProductCategoryRequest;
 import org.deal.core.util.Mapper;
 import org.deal.identityservice.service.UserService;
 import org.deal.identityservice.util.BaseUnitTest;
@@ -127,6 +128,44 @@ class UserControllerTest extends BaseUnitTest {
         verify(userService).update(request);
         assertThatResponseFailed(response, List.of(new DealError(notFound(UserDTO.class, "id", request.id()))), HttpStatus.NOT_FOUND);
     }
+
+    @Test
+    void testUpdateCategories_userUpdated_returnsSuccess() {
+        // Arrange
+        var user = randomUser();
+        var expectedDto = Mapper.mapTo(user, UserDTO.class);
+        var request = new AssignProductCategoryRequest(user.getId(), user.getProductCategoryIds());
+
+        when(userService.assignProductCategory(request)).thenReturn(Optional.of(expectedDto));
+
+        // Act
+        var response = victim.updateCategories(request);
+
+        // Assert
+        verify(userService).assignProductCategory(request);
+        assertThatResponseIsSuccessful(response, expectedDto);
+    }
+
+    @Test
+    void testUpdateCategories_userNotFound_returnsFailure() {
+        // Arrange
+        var request = new AssignProductCategoryRequest(UUID.randomUUID(), List.of(UUID.randomUUID()));
+
+        when(userService.assignProductCategory(request)).thenReturn(Optional.empty());
+
+        // Act
+        var response = victim.updateCategories(request);
+
+        // Assert
+        verify(userService).assignProductCategory(request);
+        assertThatResponseFailed(
+                response,
+                List.of(new DealError(notFound(UserDTO.class, "id", request.userId()))),
+                HttpStatus.NOT_FOUND
+        );
+    }
+
+
 
     @Test
     void testDeleteUserById_userDeleted_shouldReturnSuccess() {
