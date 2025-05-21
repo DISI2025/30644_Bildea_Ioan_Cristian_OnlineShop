@@ -75,3 +75,15 @@ export interface CreateProductRequest {
 export interface UpdateProductRequest extends CreateProductRequest {
     id: string;
 }
+
+//<---Order--->
+
+export interface CreateOrderRequest {
+    buyerId: string;
+    items: CreateOrderItemRequest[];
+}
+
+export interface CreateOrderItemRequest {
+    quantity: number;
+    productId: string;
+}

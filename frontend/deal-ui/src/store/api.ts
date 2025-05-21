@@ -5,7 +5,7 @@ import Cookies from 'js-cookie';
 import {
     AuthData,
     AuthRequest,
-    BaseResponse, CreateProductCategoryRequest,
+    BaseResponse, CreateOrderRequest, CreateProductCategoryRequest,
     CreateProductRequest,
     CreateUserRequest,
     DealResponse,
@@ -13,7 +13,7 @@ import {
     ResetPasswordRequest, UpdateProductCategoryRequest,
     UpdateProductRequest
 } from "../types/transfer.ts";
-import {Product, ProductCategory, User} from "../types/entities.ts";
+import {Order, Product, ProductCategory, User} from "../types/entities.ts";
 
 const appBaseQuery = fetchBaseQuery({
     baseUrl: DEAL_ENDPOINTS.BASE, prepareHeaders: (headers: Headers /*{getState}*/) => {
@@ -76,7 +76,6 @@ export const api = createApi({
         getUserById: builder.query<DealResponse<User>, string>({
             query: (id) => `${DEAL_ENDPOINTS.USERS}/${id}`,
             transformErrorResponse: (response) => response.data as BaseResponse,
-            providesTags: (result, error, id) => [{ type: 'Users', id }]
         }),
 
         // Product Category endpoints
@@ -153,6 +152,36 @@ export const api = createApi({
         deleteProduct: builder.mutation<DealResponse<Product>, string>({
             query: (id) => ({
                 url: `${DEAL_ENDPOINTS.PRODUCTS}/${id}`,
+                method: HTTP_METHOD.DELETE,
+            }),
+            transformErrorResponse: (response) => response.data as BaseResponse,
+        }),
+
+        // Order endpoints
+        getOrders: builder.query<DealResponse<Order[]>, void>({
+            query: () => DEAL_ENDPOINTS.ORDERS,
+            transformErrorResponse: (response) => response.data as BaseResponse,
+        }),
+
+        getOrdersByBuyerId: builder.query<DealResponse<Order>, string>({
+            query: (id) => `${DEAL_ENDPOINTS.ORDERS}/${id}`,
+            transformErrorResponse: (response) => response.data as BaseResponse,
+        }),
+        getOrderById: builder.query<DealResponse<Order>, string>({
+            query: (id) => `${DEAL_ENDPOINTS.ORDERS}/${id}`,
+            transformErrorResponse: (response) => response.data as BaseResponse,
+        }),
+        createOrder: builder.mutation<DealResponse<Order>, CreateOrderRequest>({
+            query: (request) => ({
+                url: DEAL_ENDPOINTS.ORDERS,
+                method: HTTP_METHOD.POST,
+                body: request,
+            }),
+            transformErrorResponse: (response) => response.data as BaseResponse,
+        }),
+        deleteOrder: builder.mutation<DealResponse<Order>, string>({
+            query: (id) => ({
+                url: `${DEAL_ENDPOINTS.ORDERS}/${id}`,
                 method: HTTP_METHOD.DELETE,
             }),
             transformErrorResponse: (response) => response.data as BaseResponse,

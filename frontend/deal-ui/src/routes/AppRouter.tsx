@@ -11,6 +11,7 @@ import ProductCategoryManagerPage from "../pages/ProductCategoryManagerPage.tsx"
 import ProductManagerPage from "../pages/ProductManagerPage.tsx";
 import ProductDetailPage from "../pages/ProductDetailPage.tsx";
 import CartPage from "../pages/CartPage.tsx";
+import CheckoutPage from "../pages/CheckoutPage.tsx";
 
 export const ROUTES = {
     INDEX: "/",
@@ -23,6 +24,7 @@ export const ROUTES = {
     PRODUCT_CATEGORIES: "/product-categories",
     PRODUCT_DETAILS: "/products/:id",
     CART: "/cart",
+    CHECKOUT: "/checkout",
     ADMIN_ROUTE: "/admin",
     NOT_FOUND: "*"
 } as const;
@@ -40,6 +42,7 @@ export default function AppRouter() {
             <Route path={ROUTES.PRODUCTS} element={<PrivateRoute><ProductManagerPage/></PrivateRoute>}/>
             <Route path={ROUTES.PRODUCT_DETAILS} element={<PrivateRoute><ProductDetailPage/></PrivateRoute>}/>
             <Route path={ROUTES.CART} element={<PrivateRoute><CartPage/></PrivateRoute>}/>
+            <Route path={ROUTES.CHECKOUT} element={<PrivateRoute><CheckoutPage/></PrivateRoute>}/>
 
             <Route path={ROUTES.PRODUCT_CATEGORIES} element={<AdminRoute><ProductCategoryManagerPage/></AdminRoute>}/>
 
