@@ -25,6 +25,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -59,7 +60,7 @@ public class User implements UserDetails {
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "user_product_categories", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "product_category_id", nullable = false)
-    private List<UUID> productCategoryIds;
+    private Set<UUID> productCategoryIds;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

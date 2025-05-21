@@ -24,12 +24,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -57,8 +57,8 @@ public class UserService implements UserDetailsService {
         String jwtToken = extractJwtFromContext();
 
         try {
-            List<UUID> categoryIds = userDTO.get().productCategoryIds();
-            List<ProductCategoryDTO> productCategories = null;
+            Set<UUID> categoryIds = userDTO.get().productCategoryIds();
+            Set<ProductCategoryDTO> productCategories = null;
 
             if (categoryIds != null && !categoryIds.isEmpty()) {
                 GetProductCategoriesRequest requestBody = new GetProductCategoriesRequest(categoryIds);
@@ -68,18 +68,18 @@ public class UserService implements UserDetailsService {
                         .add("Content-Type", "application/json")
                         .build();
 
-                List<?> rawList = dealClient.call(
+                Set<?> rawSet = dealClient.call(
                         DealService.PS,
                         "/product-categories/by-ids",
                         HttpMethod.POST,
                         requestBody,
                         headers,
-                        List.class
+                        Set.class
                 );
 
-                productCategories = rawList.stream()
+                productCategories = rawSet.stream()
                         .map(item -> Mapper.mapTo(item, ProductCategoryDTO.class))
-                        .toList();
+                        .collect(Collectors.toSet());
             }
 
             UserDTO user = userDTO.get();
@@ -94,7 +94,6 @@ public class UserService implements UserDetailsService {
             return Optional.of(userProfileResponse);
 
         } catch (DealException e) {
-            log.error("[UserProfile] Failed to fetch product categories: {}", e.getMessage(), e);
             return Optional.empty();
         }
     }
@@ -136,15 +135,13 @@ public class UserService implements UserDetailsService {
     public Optional<UserDTO> assignProductCategories(final AssignProductCategoryRequest request) {
         return userRepository.findById(request.userId())
                 .map(user -> {
-                    List<UUID> existingIds = Optional.ofNullable(user.getProductCategoryIds())
-                            .orElse(new ArrayList<>());
+                    Set<UUID> existingIds = Optional.ofNullable(user.getProductCategoryIds())
+                            .orElse(new HashSet<>());
 
-                    Set<UUID> merged = new HashSet<>(existingIds);
-                    merged.addAll(request.productCategoryIds());
+                    existingIds.addAll(request.productCategoryIds());
+                    user.setProductCategoryIds(existingIds);
 
-                    user.setProductCategoryIds(new ArrayList<>(merged));
                     userRepository.save(user);
-
                     return mapToDTO(user);
                 });
     }

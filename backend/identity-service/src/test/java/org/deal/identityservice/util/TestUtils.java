@@ -20,6 +20,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.deal.core.util.Constants.FAILURE;
@@ -84,7 +85,7 @@ public class TestUtils {
                     truncateNanos(Timestamp.from(Instant.now())),
                     randomString(),
                     Role.USER,
-                    List.of(UUID.randomUUID(), UUID.randomUUID()));
+                    Set.of(UUID.randomUUID(), UUID.randomUUID()));
         }
 
         static UserDTO randomUserDTO() {

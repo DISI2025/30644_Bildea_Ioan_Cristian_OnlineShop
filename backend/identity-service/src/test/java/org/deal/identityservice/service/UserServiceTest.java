@@ -1,11 +1,8 @@
 package org.deal.identityservice.service;
 
-import okhttp3.Headers;
 import org.deal.core.client.DealClient;
-import org.deal.core.client.DealService;
 import org.deal.core.dto.ProductCategoryDTO;
 import org.deal.core.dto.UserDTO;
-import org.deal.core.request.productcategory.GetProductCategoriesRequest;
 import org.deal.core.request.user.AssignProductCategoryRequest;
 import org.deal.core.util.Mapper;
 import org.deal.identityservice.entity.User;
@@ -21,11 +18,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.deal.identityservice.util.TestUtils.UserUtils.createUserRequest;
@@ -38,7 +35,6 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Answers.CALLS_REAL_METHODS;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -127,8 +123,8 @@ class UserServiceTest extends BaseUnitTest {
                 eq(HttpMethod.POST),
                 any(),
                 any(),
-                eq(List.class)
-        )).thenReturn(List.of(category));
+                eq(Set.class)
+        )).thenReturn(Set.of(category));
 
         var auth = new UsernamePasswordAuthenticationToken(user.getUsername(), jwt);
         SecurityContextHolder.getContext().setAuthentication(auth);
@@ -217,9 +213,9 @@ class UserServiceTest extends BaseUnitTest {
         // Arrange
         var user = randomUser();
         var categoryId = UUID.randomUUID();
-        var request = new AssignProductCategoryRequest(user.getId(), List.of(categoryId));
+        var request = new AssignProductCategoryRequest(user.getId(), Set.of(categoryId));
 
-        user.setProductCategoryIds(new ArrayList<>());
+        user.setProductCategoryIds(new HashSet<>());
 
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
 
@@ -244,7 +240,7 @@ class UserServiceTest extends BaseUnitTest {
     @Test
     void testAssignProductCategories_userNotFound_returnsEmptyOptional() {
         // Arrange
-        var request = new AssignProductCategoryRequest(UUID.randomUUID(), List.of(UUID.randomUUID()));
+        var request = new AssignProductCategoryRequest(UUID.randomUUID(), Set.of(UUID.randomUUID()));
 
         when(userRepository.findById(request.userId())).thenReturn(Optional.empty());
 

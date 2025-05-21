@@ -7,7 +7,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -19,8 +18,7 @@ public interface ProductCategoryRepository extends JpaRepository<ProductCategory
     @Query(value = "delete from ProductCategory u where u.id=:id")
     Integer deleteByIdReturning(final UUID id);
 
-    List<ProductCategory> findAllByIdIn(List<UUID> ids);
-
+    Set<ProductCategory> findAllByIdIn(Set<UUID> ids);
 
 
     @Query(value = "select pc from ProductCategory pc where pc.categoryName in :names")

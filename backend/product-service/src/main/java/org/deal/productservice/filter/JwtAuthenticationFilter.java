@@ -56,9 +56,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String jwtToken = getJwtFromHeader(authHeader);
+
         try {
             UserDTO principal = dealClient.call(DealService.IS, "/auth/validate-token", HttpMethod.POST, new ValidateTokenRequest(jwtToken), UserDTO.class);
             dealContext.setUser(principal);
+            dealContext.setToken(jwtToken);
         } catch (DealException e) {
             log.error("[AuthFilter] {}", e.getMessage());
             handleInvalidAuth(response, DealError.BAD_CREDENTIAL_EXCEPTION, HttpServletResponse.SC_UNAUTHORIZED);

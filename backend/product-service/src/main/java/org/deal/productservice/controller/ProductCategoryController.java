@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.deal.core.util.Constants.ReturnMessages.failedToSave;
@@ -36,7 +36,7 @@ public class ProductCategoryController {
     private final ProductCategoryService productCategoryService;
 
     @GetMapping
-    public DealResponse<List<ProductCategoryDTO>> getProductCategories() {
+    public DealResponse<Set<ProductCategoryDTO>> getProductCategories() {
         return productCategoryService.findAll()
                 .map(DealResponse::successResponse)
                 .orElse(DealResponse.failureResponse(
@@ -54,7 +54,7 @@ public class ProductCategoryController {
     }
 
     @PostMapping("/by-ids")
-    public DealResponse<List<ProductCategoryDTO>> getAllCategoriesByIds(final @RequestBody GetProductCategoriesRequest request) {
+    public DealResponse<Set<ProductCategoryDTO>> getAllCategoriesByIds(final @RequestBody GetProductCategoriesRequest request) {
         return productCategoryService.findAllCategoriesByIds(request.productCategoryIds())
                 .map(DealResponse::successResponse)
                 .orElse(DealResponse.failureResponse(

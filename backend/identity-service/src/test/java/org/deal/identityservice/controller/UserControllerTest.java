@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.deal.core.util.Constants.ReturnMessages.failedToSave;
@@ -93,7 +94,7 @@ class UserControllerTest extends BaseUnitTest {
                 .withUsername(user.getUsername())
                 .withRole(user.getRole())
                 .withCreatedAt(user.getCreatedAt())
-                .withProductCategories(List.of(new ProductCategoryDTO(user.getProductCategoryIds().getFirst(), randomString())))
+                .withProductCategories(Set.of(new ProductCategoryDTO(user.getProductCategoryIds().stream().toList().getFirst(), randomString())))
                 .build();
 
         when(userService.findProfileById(user.getId())).thenReturn(Optional.of(expectedProfile));
@@ -188,7 +189,7 @@ class UserControllerTest extends BaseUnitTest {
     @Test
     void testUpdateCategories_userNotFound_returnsFailure() {
         // Arrange
-        var request = new AssignProductCategoryRequest(UUID.randomUUID(), List.of(UUID.randomUUID()));
+        var request = new AssignProductCategoryRequest(UUID.randomUUID(), Set.of(UUID.randomUUID()));
 
         when(userService.assignProductCategories(request)).thenReturn(Optional.empty());
 

@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.deal.productservice.util.TestUtils.ProductCategoryUtils.createProductCategoryRequest;
@@ -60,7 +61,7 @@ class ProductCategoryServiceTest extends BaseUnitTest {
 
         verify(productCategoryRepository).findAll();
         result.ifPresentOrElse(
-                productCategories -> assertThat(productCategories, equalTo(List.of())),
+                productCategories -> assertThat(productCategories, equalTo(Set.of())),
                 this::assertThatFails
         );
     }
