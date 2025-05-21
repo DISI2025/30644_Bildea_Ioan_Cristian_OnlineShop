@@ -50,7 +50,7 @@ export const authSlice = createSlice({
       startSession: (state, action: PayloadAction<AuthData>) => {
          state.user = action.payload.user;
          state.loggedIn = true;
-         Cookies.set(TOKEN_KEY, action.payload.token, { expires: 1, secure: true });
+         Cookies.set(TOKEN_KEY, action.payload.accessToken, { expires: 1, secure: true });
          localStorage.setItem(USER_KEY, JSON.stringify(state.user));
       },
 
