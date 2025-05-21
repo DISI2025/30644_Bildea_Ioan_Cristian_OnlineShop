@@ -7,6 +7,7 @@ import org.deal.core.request.user.AssignProductCategoryRequest;
 import org.deal.core.request.user.CreateUserRequest;
 import org.deal.core.request.user.UpdateUserRequest;
 import org.deal.core.response.DealResponse;
+import org.deal.core.response.user.UserProfileResponse;
 import org.deal.identityservice.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -50,6 +51,15 @@ public class UserController {
                         NOT_FOUND));
     }
 
+    @GetMapping("/profile/{id}")
+    public DealResponse<UserProfileResponse> getUserProfileById(@PathVariable final UUID id) {
+        return userService.findProfileById(id)
+                .map(DealResponse::successResponse)
+                .orElse(DealResponse.failureResponse(
+                        new DealError(notFound(UserProfileResponse.class, "id", id)),
+                        NOT_FOUND));
+    }
+
     @PostMapping
     public DealResponse<UserDTO> create(@RequestBody final CreateUserRequest request) {
         return userService.create(request)
@@ -76,7 +86,6 @@ public class UserController {
                         new DealError(notFound(UserDTO.class, "id", request.userId())),
                         HttpStatus.NOT_FOUND));
     }
-
 
     @DeleteMapping("/{id}")
     public DealResponse<UserDTO> deleteUserById(@PathVariable final UUID id) {

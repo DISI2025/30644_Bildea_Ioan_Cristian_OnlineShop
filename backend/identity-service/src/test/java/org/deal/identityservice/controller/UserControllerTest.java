@@ -1,8 +1,10 @@
 package org.deal.identityservice.controller;
 
+import org.deal.core.dto.ProductCategoryDTO;
 import org.deal.core.dto.UserDTO;
 import org.deal.core.exception.DealError;
 import org.deal.core.request.user.AssignProductCategoryRequest;
+import org.deal.core.response.user.UserProfileResponse;
 import org.deal.core.util.Mapper;
 import org.deal.identityservice.service.UserService;
 import org.deal.identityservice.util.BaseUnitTest;
@@ -25,6 +27,7 @@ import static org.deal.identityservice.util.TestUtils.UserUtils.createUserReques
 import static org.deal.identityservice.util.TestUtils.UserUtils.randomUser;
 import static org.deal.identityservice.util.TestUtils.UserUtils.updateUserRequest;
 import static org.deal.identityservice.util.TestUtils.convertAll;
+import static org.deal.identityservice.util.TestUtils.randomString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -81,6 +84,42 @@ class UserControllerTest extends BaseUnitTest {
         verify(userService).findById(id);
         assertThatResponseFailed(response, List.of(new DealError(notFound(UserDTO.class, "id", id))), HttpStatus.NOT_FOUND);
     }
+
+    @Test
+    void testGetUserProfileById_userFound_returnsSuccess() {
+        var user = randomUser();
+        var expectedProfile = UserProfileResponse.builder()
+                .withEmail(user.getEmail())
+                .withUsername(user.getUsername())
+                .withRole(user.getRole())
+                .withCreatedAt(user.getCreatedAt())
+                .withProductCategories(List.of(new ProductCategoryDTO(user.getProductCategoryIds().getFirst(), randomString())))
+                .build();
+
+        when(userService.findProfileById(user.getId())).thenReturn(Optional.of(expectedProfile));
+
+        var response = victim.getUserProfileById(user.getId());
+
+        verify(userService).findProfileById(user.getId());
+        assertThatResponseIsSuccessful(response, expectedProfile);
+    }
+
+    @Test
+    void testGetUserProfileById_userNotFound_returnsFailure() {
+        var id = UUID.randomUUID();
+
+        when(userService.findProfileById(id)).thenReturn(Optional.empty());
+
+        var response = victim.getUserProfileById(id);
+
+        verify(userService).findProfileById(id);
+        assertThatResponseFailed(
+                response,
+                List.of(new DealError(notFound(UserProfileResponse.class, "id", id))),
+                HttpStatus.NOT_FOUND
+        );
+    }
+
 
     @Test
     void testCreate_userIsCreated_shouldReturnSuccess() {

@@ -1,6 +1,11 @@
 package org.deal.identityservice.service;
 
+import okhttp3.Headers;
+import org.deal.core.client.DealClient;
+import org.deal.core.client.DealService;
+import org.deal.core.dto.ProductCategoryDTO;
 import org.deal.core.dto.UserDTO;
+import org.deal.core.request.productcategory.GetProductCategoriesRequest;
 import org.deal.core.request.user.AssignProductCategoryRequest;
 import org.deal.core.util.Mapper;
 import org.deal.identityservice.entity.User;
@@ -11,6 +16,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.client.RestTemplate;
@@ -30,6 +38,7 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Answers.CALLS_REAL_METHODS;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -49,7 +58,7 @@ class UserServiceTest extends BaseUnitTest {
     private PasswordEncoder passwordEncoder;
 
     @Mock
-    private RestTemplate restTemplate;
+    private DealClient dealClient;
 
     @InjectMocks
     private UserService victim;
@@ -104,6 +113,47 @@ class UserServiceTest extends BaseUnitTest {
         verify(userRepository).findById(any());
         result.ifPresent(this::assertThatFails);
     }
+
+    @Test
+    void testFindProfileById_userFound_returnsUserProfileWithCategories() throws Exception {
+        var user = randomUser();
+        var jwt = "Bearer test.jwt.token";
+        var category = new ProductCategoryDTO(UUID.randomUUID(), "Fruits");
+
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+        when(dealClient.call(
+                any(),
+                anyString(),
+                eq(HttpMethod.POST),
+                any(),
+                any(),
+                eq(List.class)
+        )).thenReturn(List.of(category));
+
+        var auth = new UsernamePasswordAuthenticationToken(user.getUsername(), jwt);
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        var result = victim.findProfileById(user.getId());
+
+        verify(userRepository).findById(user.getId());
+        assertTrue(result.isPresent());
+        var profile = result.get();
+        assertThat(profile.email(), equalTo(user.getEmail()));
+        assertThat(profile.productCategories(), hasItem(category));
+    }
+
+    @Test
+    void testFindProfileById_userNotFound_returnsEmpty() {
+        var id = UUID.randomUUID();
+
+        when(userRepository.findById(id)).thenReturn(Optional.empty());
+
+        var result = victim.findProfileById(id);
+
+        verify(userRepository).findById(id);
+        assertTrue(result.isEmpty());
+    }
+
 
     @Test
     void testCreate_userIsCreated_shouldReturnCreatedUser() {
@@ -279,4 +329,15 @@ class UserServiceTest extends BaseUnitTest {
         verify(passwordEncoder).encode(newPassword);
         assertThat(result, equalTo(true));
     }
+
+    @Test
+    void testMapToDTO_shouldReturnMappedDTO() {
+        var user = randomUser();
+        var expectedDTO = Mapper.mapTo(user, UserDTO.class);
+
+        var result = victim.mapToDTO(user);
+
+        assertThat(result, equalTo(expectedDTO));
+    }
+
 }

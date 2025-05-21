@@ -2,6 +2,8 @@ package org.deal.core.response.user;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Builder;
+import lombok.Setter;
+import org.deal.core.dto.ProductCategoryDTO;
 import org.deal.core.util.Role;
 
 import java.io.Serializable;
@@ -17,7 +19,7 @@ public record UserProfileResponse (
         String email,
         Timestamp createdAt,
         Role role,
-        List<UUID> productCategoryIds
+        List<ProductCategoryDTO> productCategories
 ) implements Serializable {
 }
 
