@@ -1,12 +1,14 @@
 import React from 'react';
-import {Button, Space, Switch, theme, Dropdown, Avatar} from 'antd';
+import {Button, Space, Switch, theme, Dropdown, Avatar, Badge} from 'antd';
 import {ROUTES} from "../../routes/AppRouter.tsx";
 import {useSelector} from "react-redux";
 import {selectAuthState} from "../../store/slices/auth-slice";
 import {useDispatch} from "react-redux";
 import {endSession} from "../../store/slices/auth-slice";
-import {UserOutlined, LogoutOutlined} from '@ant-design/icons';
+import {UserOutlined, LogoutOutlined, ShoppingCartOutlined} from '@ant-design/icons';
 import type {MenuProps} from 'antd';
+import {selectCartTotalItems} from "../../store/slices/cart-slice";
+import {UserRole} from "../../types/entities";
 
 const {useToken} = theme;
 
@@ -22,6 +24,7 @@ export const NavbarController: React.FC<NavbarActionsProps> = ({
     const {token} = useToken();
     const dispatch = useDispatch();
     const {loggedIn, user} = useSelector(selectAuthState);
+    const cartItemsCount = useSelector(selectCartTotalItems);
 
     const handleLogout = () => {
         dispatch(endSession());
@@ -44,15 +47,23 @@ export const NavbarController: React.FC<NavbarActionsProps> = ({
     ];
 
     return (
-        <Space size="middle" align="center">
-            <Switch
-                onChange={onThemeChange}
-                checkedChildren="🌙"
-                unCheckedChildren="☀️"
-                style={{
-                    background: token.colorPrimary,
-                }}
-            />
+        <Space size="middle" align="center" style={{ height: '100%' }}>
+            {loggedIn && user?.role !== UserRole.ADMIN && (
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <Badge count={cartItemsCount} size="small">
+                        <ShoppingCartOutlined 
+                            style={{ 
+                                fontSize: 24, 
+                                cursor: 'pointer',
+                                color: token.colorText,
+                                display: 'flex',
+                                alignItems: 'center'
+                            }} 
+                            onClick={() => onNavigate(ROUTES.CART)}
+                        />
+                    </Badge>
+                </div>
+            )}
 
             {loggedIn ? (
                 <Dropdown menu={{ items: profileItems }} placement="bottomRight">
@@ -96,6 +107,15 @@ export const NavbarController: React.FC<NavbarActionsProps> = ({
                     </Button>
                 </Space>
             )}
+
+            <Switch
+                onChange={onThemeChange}
+                checkedChildren="🌙"
+                unCheckedChildren="☀️"
+                style={{
+                    background: token.colorPrimary,
+                }}
+            />
         </Space>
     );
 }; 

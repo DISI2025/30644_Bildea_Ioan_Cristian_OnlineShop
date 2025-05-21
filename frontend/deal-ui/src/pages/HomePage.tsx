@@ -15,7 +15,8 @@ export const HomePage: React.FC = () => {
             <Content style={{
                 padding: token.spacing.lg,
                 backgroundColor: token.colorBgLayout,
-                minHeight: `calc(100vh - ${token.layout.headerHeight} - ${token.layout.footerHeight})`
+                minHeight: `calc(100vh - ${token.layout.headerHeight}px - ${token.layout.footerHeight}px)`,
+                marginTop: `calc(${token.layout.headerHeight}px + 2rem)`
             }}>
             </Content>
 

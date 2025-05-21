@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Repository
@@ -21,4 +22,7 @@ public interface ProductCategoryRepository extends JpaRepository<ProductCategory
     List<ProductCategory> findAllByIdIn(List<UUID> ids);
 
 
+
+    @Query(value = "select pc from ProductCategory pc where pc.categoryName in :names")
+    Set<ProductCategory> findAllByName(final Set<String> names);
 }

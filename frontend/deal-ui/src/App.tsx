@@ -1,21 +1,18 @@
-import { ConfigProvider } from 'antd';
+import {MainLayout} from './components/common/Layout';
 import AppRouter from './routes/AppRouter.tsx';
-import { useTheme } from './context/ThemeContext';
-import { Layout } from 'antd';
-
-const { Content } = Layout;
+import {ConfigProvider} from "antd";
+import {useTheme} from "./context/ThemeContext.tsx";
 
 function App() {
     const { theme } = useTheme();
 
     return (
         <ConfigProvider theme={theme}>
-            <Layout style={{ minHeight: '100vh' }}>
-                <Content>
-                    <AppRouter/>
-                </Content>
-            </Layout>
+            <MainLayout>
+                <AppRouter/>
+            </MainLayout>
         </ConfigProvider>
+
     );
 }
 

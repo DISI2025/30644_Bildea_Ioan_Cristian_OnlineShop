@@ -2,17 +2,23 @@ package org.deal.productservice.util;
 
 import org.deal.core.dto.ProductCategoryDTO;
 import org.deal.core.exception.DealError;
+import org.deal.core.request.product.CreateProductRequest;
+import org.deal.core.request.product.UpdateProductRequest;
 import org.deal.core.request.productcategory.CreateProductCategoryRequest;
 import org.deal.core.request.productcategory.UpdateProductCategoryRequest;
 import org.deal.core.response.DealResponse;
 import org.deal.core.util.Mapper;
+import org.deal.productservice.entity.Product;
 import org.deal.productservice.entity.ProductCategory;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.deal.core.util.Constants.FAILURE;
 import static org.deal.core.util.Constants.SUCCESS;
@@ -77,6 +83,34 @@ public class TestUtils {
                     productCategory.getCategoryName()
             );
         }
+    }
 
+    public interface ProductUtils {
+        static CreateProductRequest createProductRequest(final Product product) {
+            return new CreateProductRequest(
+                    product.getTitle(),
+                    product.getDescription(),
+                    product.getPrice(),
+                    product.getStock(),
+                    product.getImageUrl(),
+                    product.getSellerId().toString(),
+                    product.getCategories().stream().map(ProductCategory::getCategoryName).collect(Collectors.toSet())
+            );
+        }
+
+        static UpdateProductRequest updateProductRequest(final Product product) {
+            return new UpdateProductRequest(
+                    product.getId(),
+                    product.getTitle(),
+                    product.getDescription(),
+                    product.getPrice(),
+                    product.getStock(),
+                    product.getImageUrl(),
+                    product.getSellerId().toString(),
+                    Objects.nonNull(product.getCategories()) ?
+                    product.getCategories().stream().map(ProductCategory::getCategoryName).collect(Collectors.toSet()) :
+                    Set.of()
+            );
+        }
     }
 }
