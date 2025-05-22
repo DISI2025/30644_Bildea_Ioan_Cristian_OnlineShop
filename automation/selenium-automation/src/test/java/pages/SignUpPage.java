@@ -16,8 +16,10 @@ public class SignUpPage extends BasePage {
     private final By passwordError = By.id("password_help");
     private final By confirmPasswordError = By.id("confirmPassword_help");
 
+    private final By agreeCheck = By.id("agreeToTerms");
     private final By signUpButton = By.cssSelector("button[type='submit']");
-    private final By errorMessage = By.cssSelector("[data-test='error']");
+//    private final By errorMessage = By.cssSelector("[data-test='error']");
+    private final By errorMessage = By.className("ant-notification-notice-message");
 
     // constructors
     public SignUpPage(WebDriver driver) {
@@ -30,7 +32,9 @@ public class SignUpPage extends BasePage {
     }
 
     public boolean isSignUpPageDisplayed() {
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(signUpButton)).isDisplayed();
+        WebElement signUpElement = wait.until(ExpectedConditions.visibilityOfElementLocated(signUpButton));
+        String text = signUpElement.getText();
+        return text.contains("Create Account");
     }
 
     public void signUp(String username, String email, String password, String confirmPassword) {
@@ -39,32 +43,34 @@ public class SignUpPage extends BasePage {
         WebElement passwordElement = wait.until(ExpectedConditions.visibilityOfElementLocated(passwordField));
         WebElement confirmPasswordElement = wait.until(ExpectedConditions.visibilityOfElementLocated(confirmPasswordField));
         WebElement signUpElement = wait.until(ExpectedConditions.elementToBeClickable(signUpButton));
+        WebElement agreeElement = driver.findElement(this.agreeCheck);
 
         this.sendKeys(usernameElement, username);
         this.sendKeys(emailElement, email);
         this.sendKeys(passwordElement, password);
         this.sendKeys(confirmPasswordElement, confirmPassword);
+        agreeElement.click();
         this.click(signUpElement);
     }
 
-    public boolean isUsernameError(){
+    public String getUsernameError() {
         WebElement errorElement = wait.until(ExpectedConditions.visibilityOfElementLocated(this.usernameError));
-        return true;
+        return errorElement.getText();
     }
 
-    public boolean isEmailError(){
+    public String getEmailError() {
         WebElement errorElement = wait.until(ExpectedConditions.visibilityOfElementLocated(this.emailError));
-        return true;
+        return errorElement.getText();
     }
 
-    public boolean isPasswordError(){
+    public String getPasswordError(){
         WebElement errorElement = wait.until(ExpectedConditions.visibilityOfElementLocated(this.passwordError));
-        return true;
+        return errorElement.getText();
     }
 
-    public boolean isConfirmPasswordError(){
+    public String getConfirmPasswordError(){
         WebElement errorElement = wait.until(ExpectedConditions.visibilityOfElementLocated(this.confirmPasswordError));
-        return true;
+        return errorElement.getText();
     }
 
     public String getErrorMessage() {

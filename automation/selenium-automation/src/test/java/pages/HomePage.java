@@ -6,8 +6,8 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 
 public class HomePage extends BasePage {
-//    private final By bigDiv = By.id("root");
-    private final By header = By.tagName("header");
+//    private final By header = By.tagName("header");
+    private final By deal = By.tagName("span");
 
     // constructors
     public HomePage(WebDriver driver) {
@@ -20,6 +20,8 @@ public class HomePage extends BasePage {
     }
 
     public boolean isHomePageDisplayed() {
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(header)).isDisplayed();
+        WebElement element = wait.until(ExpectedConditions.visibilityOfElementLocated(deal));
+        String text = element.getText();
+        return text.contains("DEAL");
     }
 }

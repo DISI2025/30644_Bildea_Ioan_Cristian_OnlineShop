@@ -16,6 +16,7 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SignUpTest {
@@ -63,67 +64,103 @@ public class SignUpTest {
     public void testSignupWithExistingUsername() {
         signupPage.signUp(
                 TestData.SignUp.EXISTING_USERNAME,
-                TestData.SignUp.NEW_EMAIL,
+                TestData.SignUp.generateEmail(),
                 TestData.SignUp.PASSWORD,
                 TestData.SignUp.PASSWORD);
 
-        assertTrue(signupPage.isSignUpPageDisplayed(), TestData.Messages.ERROR_INVALID_CREDENTIALS);
+        String errorMessage = signupPage.getErrorMessage();
+        boolean ok = errorMessage.contains("Something went wrong");
+
+        assertTrue(ok);
+        assertTrue(signupPage.isSignUpPageDisplayed());
     }
 
     @Test
     public void testSignupWithExistingEmail() {
         signupPage.signUp(
-                TestData.SignUp.NEW_USERNAME,
+                TestData.SignUp.generateUsername(),
                 TestData.SignUp.EXISTING_EMAIL,
                 TestData.SignUp.PASSWORD,
                 TestData.SignUp.PASSWORD);
 
-        assertTrue(signupPage.isSignUpPageDisplayed(), TestData.Messages.ERROR_INVALID_CREDENTIALS);
+        String errorMessage = signupPage.getErrorMessage();
+        boolean ok = errorMessage.contains("Something went wrong");
+
+        assertTrue(ok);
+        assertTrue(signupPage.isSignUpPageDisplayed());
     }
 
     @Test
     public void testSignupWithIllegalEmail() {
         signupPage.signUp(
-                TestData.SignUp.NEW_USERNAME,
+                TestData.SignUp.generateUsername(),
                 TestData.SignUp.ILLEGAL_EMAIL,
                 TestData.SignUp.PASSWORD,
                 TestData.SignUp.PASSWORD);
 
-        assertTrue(signupPage.isEmailError());
-        assertTrue(signupPage.isSignUpPageDisplayed(), TestData.Messages.ERROR_INVALID_CREDENTIALS);
+        String text = signupPage.getEmailError();
+        boolean okText = text.contains("valid email");
+
+        assertTrue(okText);
+        assertTrue(signupPage.isSignUpPageDisplayed());
     }
 
     @Test
     public void testSignupWithDifferentPasswords() {
         signupPage.signUp(
-                TestData.SignUp.NEW_USERNAME,
-                TestData.SignUp.NEW_EMAIL,
+                TestData.SignUp.generateUsername(),
+                TestData.SignUp.generateEmail(),
                 TestData.SignUp.PASSWORD,
                 TestData.SignUp.INVALID_PASSWORD);
 
-        assertTrue(signupPage.isConfirmPasswordError());
-        assertTrue(signupPage.isSignUpPageDisplayed(), TestData.Messages.ERROR_INVALID_CREDENTIALS);
+        String text = signupPage.getConfirmPasswordError();
+        boolean okText = text.contains("passwords do not match");
+
+        assertTrue(okText);
+        assertTrue(signupPage.isSignUpPageDisplayed());
     }
 
     @Test
     public void testSignupWithEmptyCredentials() {
         signupPage.signUp("", "", "", "");
 
-        assertTrue(signupPage.isUsernameError());
-        assertTrue(signupPage.isEmailError());
-        assertTrue(signupPage.isPasswordError());
-        assertTrue(signupPage.isConfirmPasswordError());
+        String usernameError = signupPage.getUsernameError();
+        boolean okUsername = usernameError.contains("enter your username");
+
+        String emailError = signupPage.getEmailError();
+        boolean okEmail = emailError.contains("enter your email");
+
+        String passwordError = signupPage.getPasswordError();
+        boolean okPassword = passwordError.contains("enter your password");
+
+        String confirmError = signupPage.getConfirmPasswordError();
+        boolean okConfirm = confirmError.contains("confirm your password");
+
+        assertTrue(okUsername);
+        assertTrue(okEmail);
+        assertTrue(okPassword);
+        assertTrue(okConfirm);
         assertTrue(signupPage.isSignUpPageDisplayed());
     }
 
     @Test
     public void testSuccessfulSignup() {
+        String username = TestData.SignUp.generateUsername();
+        String email = TestData.SignUp.generateEmail();
+
         signupPage.signUp(
-                TestData.SignUp.NEW_USERNAME,
-                TestData.SignUp.NEW_EMAIL,
+                username,
+                email,
                 TestData.SignUp.PASSWORD,
                 TestData.SignUp.PASSWORD);
 
-        assertTrue(homePage.isHomePageDisplayed(), TestData.Messages.HOME_PAGE_DISPLAYED);
+        try {
+            // Must wait for the Home Page to load!
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+        assertTrue(homePage.isHomePageDisplayed());
     }
 }
