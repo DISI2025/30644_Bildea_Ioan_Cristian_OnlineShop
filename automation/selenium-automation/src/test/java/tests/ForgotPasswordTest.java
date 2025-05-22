@@ -10,6 +10,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import pages.ForgotPasswordPage;
 import pages.HomePage;
+import pages.LogInPage;
 import utils.TestData;
 
 import java.time.Duration;
@@ -22,6 +23,7 @@ public class ForgotPasswordTest {
     private WebDriver driver;
     private ForgotPasswordPage forgotPasswordPage;
     private HomePage homePage;
+    private LogInPage logInPage;
 
     @BeforeEach
     public void setUp() {
@@ -33,6 +35,7 @@ public class ForgotPasswordTest {
 
         forgotPasswordPage = new ForgotPasswordPage(driver);
         homePage = new HomePage(driver);
+        logInPage = new LogInPage(driver);
 
         forgotPasswordPage.navigateToForgotPasswordPage();
     }
@@ -63,15 +66,21 @@ public class ForgotPasswordTest {
     public void testSignupWithIllegalEmail() {
         forgotPasswordPage.send(TestData.ForgotPassword.ILLEGAL_EMAIL);
 
-        assertTrue(forgotPasswordPage.isEmailError());
-        assertTrue(forgotPasswordPage.isForgotPasswordPageDisplayed(), TestData.Messages.ERROR_INVALID_CREDENTIALS);
+        String errorMessage = forgotPasswordPage.getEmailError();
+        boolean ok = errorMessage.contains("valid email");
+
+        assertTrue(ok);
+        assertTrue(forgotPasswordPage.isForgotPasswordPageDisplayed());
     }
 
     @Test
     public void testSendWithEmptyCredentials() {
         forgotPasswordPage.send("");
 
-        assertTrue(forgotPasswordPage.isEmailError());
+        String errorMessage = forgotPasswordPage.getEmailError();
+        boolean ok = errorMessage.contains("enter your email");
+
+        assertTrue(ok);
         assertTrue(forgotPasswordPage.isForgotPasswordPageDisplayed());
     }
 
@@ -79,6 +88,6 @@ public class ForgotPasswordTest {
     public void testSuccessfulSend() {
         forgotPasswordPage.send(TestData.ForgotPassword.EMAIL);
 
-        assertTrue(homePage.isHomePageDisplayed(), TestData.Messages.HOME_PAGE_DISPLAYED);
+        assertTrue(logInPage.isLogInPageDisplayed());
     }
 }

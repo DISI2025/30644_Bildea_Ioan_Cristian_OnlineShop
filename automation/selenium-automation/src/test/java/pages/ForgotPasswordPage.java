@@ -11,7 +11,8 @@ public class ForgotPasswordPage extends BasePage{
     private final By emailError = By.id("email_help");
 
     private final By sendButton = By.cssSelector("button[type='submit']");
-    private final By errorMessage = By.cssSelector("[data-test='error']");
+//    private final By errorMessage = By.cssSelector("[data-test='error']");
+    private final By errorMessage = By.className("TODO");
 
     // constructors
     public ForgotPasswordPage(WebDriver driver) {
@@ -24,7 +25,9 @@ public class ForgotPasswordPage extends BasePage{
     }
 
     public boolean isForgotPasswordPageDisplayed() {
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(sendButton)).isDisplayed();
+        WebElement sendElement = wait.until(ExpectedConditions.visibilityOfElementLocated(sendButton));
+        String text = sendElement.getText();
+        return text.contains("Send reset link");
     }
 
     public void send(String email) {
@@ -35,9 +38,9 @@ public class ForgotPasswordPage extends BasePage{
         this.click(sendElement);
     }
 
-    public boolean isEmailError(){
+    public String getEmailError(){
         WebElement errorElement = wait.until(ExpectedConditions.visibilityOfElementLocated(this.emailError));
-        return true;
+        return errorElement.getText();
     }
 
     public String getErrorMessage() {
