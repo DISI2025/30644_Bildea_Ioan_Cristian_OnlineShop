@@ -44,6 +44,6 @@ public class TestData {
 
     public static class ForgotPassword {
         public static final String EMAIL = "ristiristi@gmail.com";
-        public static final String ILLEGAL_EMAIL = "wrong.mail.com";
+        public static final String ILLEGAL_EMAIL = "illegal@.com";
     }
 }

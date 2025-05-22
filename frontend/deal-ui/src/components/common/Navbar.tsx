@@ -1,9 +1,9 @@
 import React, {useMemo} from 'react';
-import {Flex, Layout, Menu, theme} from 'antd';
+import {Badge, Flex, Layout, Menu, theme} from 'antd';
 import {useLocation, useNavigate} from 'react-router-dom';
 import {useTheme} from '../../context/ThemeContext.tsx';
 import {ROUTES} from '../../routes/AppRouter.tsx';
-import {HomeOutlined, ProductOutlined} from '@ant-design/icons';
+import {HomeOutlined, ProductOutlined, ShoppingOutlined} from '@ant-design/icons';
 import {Logo} from './Logo.tsx';
 import {NavbarController} from './NavbarController.tsx';
 import {AuthState, selectAuthState} from "../../store/slices/auth-slice.ts";
@@ -30,6 +30,15 @@ export const Navbar: React.FC = () => {
                 </div>
             ),
         },
+        {
+            key: ROUTES.PRODUCTS,
+            label: (
+                <div style={{display: 'flex', alignItems: 'center', gap: token.spacing.xs}}>
+                    <ShoppingOutlined style={{fontSize: token.customFontSize.md}}/>
+                    <span>Products Manager</span>
+                </div>
+            ),
+        },
     ], [token]);
 
     const adminMenuItems = useMemo(() => [
@@ -47,7 +56,7 @@ export const Navbar: React.FC = () => {
             label: (
                 <div style={{display: 'flex', alignItems: 'center', gap: token.spacing.xs}}>
                     <ProductOutlined style={{fontSize: token.customFontSize.md}}/>
-                    <span>Product Category</span>
+                    <span>Product Category Manager</span>
                 </div>
             ),
         },
@@ -69,7 +78,7 @@ export const Navbar: React.FC = () => {
                 boxShadow: token.shadows.light.md,
                 position: 'sticky',
                 top: 0,
-                zIndex: token.layout.headerHeight,
+                zIndex: 100,
                 height: token.layout.headerHeight,
                 transition: 'all 0.3s ease',
                 backdropFilter: 'blur(10px)',

@@ -1,5 +1,6 @@
 import React from 'react';
 import {theme} from 'antd';
+import logoImage from '../../assets/logo.png';
 
 const {useToken} = theme;
 
@@ -11,17 +12,22 @@ export const Logo: React.FC<LogoProps> = ({onClick}) => {
     const {token} = useToken();
 
     return (
-        <span
+        <div
             onClick={onClick}
             style={{
-                color: token.colorPrimary,
+                display: 'flex',
+                alignItems: 'center',
                 cursor: 'pointer',
-                fontSize: token.customFontSize.xl,
-                fontWeight: token.fontWeightStrong,
                 marginRight: token.spacing.xl,
             }}
         >
-      DEAL
-    </span>
+            <img 
+                src={logoImage} 
+                alt="Deal Logo" 
+                style={{ 
+                    height: '64px'
+                }} 
+            />
+        </div>
     );
 }; 
