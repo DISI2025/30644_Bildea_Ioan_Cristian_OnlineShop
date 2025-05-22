@@ -17,20 +17,30 @@ import org.deal.core.exception.DealException;
 import org.deal.core.request.auth.ValidateTokenRequest;
 import org.deal.core.response.DealResponse;
 import org.deal.productservice.security.DealContext;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.server.PathContainer;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.pattern.PathPatternParser;
+
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    @Value("${whitelisted-paths}")
+    private List<String> whitelistedPaths;
+
     private final ObjectMapper objectMapper;
     private final DealClient dealClient;
     private final DealContext dealContext;
+    private final PathPatternParser pathPatternParser;
 
     @SneakyThrows
     @Override
@@ -74,5 +84,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         response.setStatus(status);
         response.getWriter().write(objectMapper.writeValueAsString(res.getBody()));
         response.getWriter().flush();
+    }
+
+    @Override
+    protected boolean shouldNotFilter(@NotNull final HttpServletRequest request) {
+        return whitelistedPaths.stream()
+                .map(pathPatternParser::parse)
+                .anyMatch(pattern -> pattern.matches(PathContainer.parsePath(request.getRequestURI())));
     }
 }
