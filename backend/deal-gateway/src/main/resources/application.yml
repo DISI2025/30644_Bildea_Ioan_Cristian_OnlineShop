@@ -18,6 +18,10 @@ spring:
           uri: lb://identity-service
           predicates:
             - Path=/is/**
+        - id: ps
+          uri: lb://product-service
+          predicates:
+            - Path=/ps/**
       default-filters:
         - AddRequestHeader=proxied, true
         - StripPrefix=1

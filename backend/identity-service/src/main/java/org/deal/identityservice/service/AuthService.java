@@ -25,7 +25,7 @@ import java.util.UUID;
 public class AuthService {
 
     private final AuthenticationManager authenticationManager;
-    private final JwtServiceImpl jwtService;
+    private final JwtService jwtService;
     private final UserService userService;
     private final EmailService emailService;
     private final PasswordTokenRepository passwordTokenRepository;
@@ -79,5 +79,11 @@ public class AuthService {
                     return false;
                 })
                 .orElse(false);
+    }
+
+    public Optional<UserDTO> validateToken(final String token) {
+        return jwtService.extractUserId(token)
+                .flatMap(userService::findById)
+                .filter(userDto -> jwtService.isValidToken(token, userDto.id(), userDto.username(), userDto.role()));
     }
 }
