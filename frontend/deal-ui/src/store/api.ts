@@ -3,6 +3,7 @@ import {fetchBaseQuery} from '@reduxjs/toolkit/query';
 import {AUTH_HEADER, buildAuthHeader, DEAL_ENDPOINTS, HTTP_METHOD, TOKEN_KEY} from "../utils/constants.ts";
 import Cookies from 'js-cookie';
 import {
+    AssignProductCategoryRequest,
     AuthData,
     AuthRequest,
     BaseResponse, CreateProductCategoryRequest,
@@ -11,9 +12,11 @@ import {
     DealResponse,
     ForgotPasswordRequest,
     ResetPasswordRequest, UpdateProductCategoryRequest,
-    UpdateProductRequest
+    UpdateProductRequest,
+    UpdateUserRequest,
+    UserProfileUpdateRequest
 } from "../types/transfer.ts";
-import {Product, ProductCategory, User} from "../types/entities.ts";
+import {Product, ProductCategory, MainUser} from "../types/entities.ts";
 
 const appBaseQuery = fetchBaseQuery({
     baseUrl: DEAL_ENDPOINTS.BASE, prepareHeaders: (headers: Headers /*{getState}*/) => {
@@ -67,16 +70,39 @@ export const api = createApi({
         }),
 
         // User endpoints
-        getUsers: builder.query<DealResponse<User[]>, void>({
+        getUsers: builder.query<DealResponse<MainUser[]>, void>({
             query: () => DEAL_ENDPOINTS.USERS,
             transformErrorResponse: (response) => response.data as BaseResponse,
-            providesTags: ['Users']
         }),
 
-        getUserById: builder.query<DealResponse<User>, string>({
+        getUserById: builder.query<DealResponse<MainUser>, string>({
             query: (id) => `${DEAL_ENDPOINTS.USERS}/${id}`,
             transformErrorResponse: (response) => response.data as BaseResponse,
-            providesTags: (result, error, id) => [{ type: 'Users', id }]
+        }),
+
+        getUserProfile: builder.query<DealResponse<MainUser>, string>({
+            query: (id) => `${DEAL_ENDPOINTS.USERS}/profile/${id}`,
+            transformErrorResponse: (response) => response.data as BaseResponse,
+            providesTags: ['Users'],
+        }),
+
+        updateUserProfile: builder.mutation<DealResponse<MainUser>, UserProfileUpdateRequest & UpdateUserRequest>({
+            query: ({ id, username, email, role, ...profileData }) => ({
+                url: `${DEAL_ENDPOINTS.USERS}?${new URLSearchParams(Object.entries(profileData).filter(([_, v]) => v != null)).toString()}`,
+                method: HTTP_METHOD.PATCH,
+                body: { id, username, email, role },
+            }),
+            transformErrorResponse: (response) => response.data as BaseResponse,
+            invalidatesTags: ['Users'],
+        }),
+
+        assignUserCategories: builder.mutation<DealResponse<MainUser>, AssignProductCategoryRequest>({
+            query: (request) => ({
+                url: `${DEAL_ENDPOINTS.USERS}/user-categories`,
+                method: HTTP_METHOD.PATCH,
+                body: request,
+            }),
+            transformErrorResponse: (response) => response.data as BaseResponse,
         }),
 
         // Product Category endpoints
@@ -167,6 +193,9 @@ export const {
     useResetPasswordMutation,
     useGetUsersQuery,
     useGetUserByIdQuery,
+    useGetUserProfileQuery,
+    useUpdateUserProfileMutation,
+    useAssignUserCategoriesMutation,
     useGetProductCategoriesQuery,
     useGetProductCategoryByIdQuery,
     useCreateProductCategoryMutation,

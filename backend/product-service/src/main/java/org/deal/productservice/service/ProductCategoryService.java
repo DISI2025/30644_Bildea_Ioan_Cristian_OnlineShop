@@ -9,9 +9,10 @@ import org.deal.productservice.entity.ProductCategory;
 import org.deal.productservice.repository.ProductCategoryRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,8 +20,12 @@ public class ProductCategoryService {
 
     private final ProductCategoryRepository productCategoryRepository;
 
-    public Optional<List<ProductCategoryDTO>> findAll() {
-        return Optional.of(productCategoryRepository.findAll().stream().map(this::mapToDTO).toList());
+    public Optional<Set<ProductCategoryDTO>> findAll() {
+        return Optional.of(productCategoryRepository.findAll().stream().map(this::mapToDTO).collect(Collectors.toSet()));
+    }
+
+    public Optional<Set<ProductCategoryDTO>> findAllCategoriesByIds(final Set<UUID> ids) {
+        return Optional.of(productCategoryRepository.findAllByIdIn(ids).stream().map(this::mapToDTO).collect(Collectors.toSet()));
     }
 
     public Optional<ProductCategoryDTO> findById(final UUID id) {

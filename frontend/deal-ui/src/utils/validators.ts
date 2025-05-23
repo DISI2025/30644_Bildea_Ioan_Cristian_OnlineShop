@@ -1,5 +1,17 @@
 import { Rule } from 'antd/es/form';
 
+export const basicInfoRules = {
+  username: [
+    { required: true, message: 'Please enter your username' },
+    { min: 3, message: 'Username must be at least 3 characters' },
+    { max: 50, message: 'Username cannot exceed 50 characters' }
+  ] as Rule[],
+  email: [
+    { required: true, message: 'Please enter your email' },
+    { type: 'email', message: 'Please enter a valid email' }
+  ] as Rule[]
+};
+
 export const usernameRules: Rule[] = [
   { required: true, message: 'Please enter your username' },
   { min: 3, message: 'Username must be at least 3 characters' },
@@ -22,6 +34,16 @@ export const passwordRules: Rule[] = [
     }
 ];
 
+export const buyerInfoRules = {
+  shippingAddress: [
+    { required: true, message: 'Please enter your shipping address' },
+    { max: 300, message: 'Shipping address cannot exceed 300 characters' }
+  ] as Rule[],
+  paymentMethod: [
+    { required: true, message: 'Please select a payment method' }
+  ] as Rule[]
+};
+
 export const confirmPasswordRules = (fieldName: string = "password"): Rule[] => [
   { required: true, message: 'Please confirm your password' },
   ({ getFieldValue }) => ({
@@ -41,6 +63,15 @@ export const fullNameRules: Rule[] = [
   { pattern: /^[a-zA-Z\s'-]+$/, message: 'Full name can only contain letters, spaces, hyphens and apostrophes' }
 ];
 
+export const adminInfoRules = {
+  accessLevel: [
+    { required: true, message: 'Please select an access level' }
+  ] as Rule[],
+  permissions: [
+    { type: 'array', message: 'Please select valid permissions' }
+  ] as Rule[]
+};
+
 // Product validation rules
 export const productTitleRules: Rule[] = [
   { required: true, message: 'Please enter a product name' },
@@ -58,7 +89,7 @@ export const productDescriptionRules: Rule[] = [
 
 export const productPriceRules: Rule[] = [
   { required: true, message: 'Please enter a product price' },
-  { 
+  {
     validator: (_, value) => {
       if (value === undefined || value === null) {
         return Promise.reject(new Error('Please enter a price'));
@@ -76,7 +107,7 @@ export const productPriceRules: Rule[] = [
 
 export const productStockRules: Rule[] = [
   { required: true, message: 'Please enter product stock quantity' },
-  { 
+  {
     validator: (_, value) => {
       if (value === undefined || value === null) {
         return Promise.reject(new Error('Please enter stock quantity'));
@@ -94,7 +125,7 @@ export const productStockRules: Rule[] = [
 
 export const productCategoryRules: Rule[] = [
   { required: true, message: 'Please select at least one product category' },
-  { 
+  {
     validator: (_, value) => {
       if (!value || !Array.isArray(value) || value.length === 0) {
         return Promise.reject(new Error('Please select at least one category'));

@@ -1,5 +1,5 @@
 import {useMemo} from "react";
-import {Card, Form, Layout, Skeleton, theme, Typography} from "antd";
+import {Card, Form, Layout, Skeleton, theme, Typography, Alert, Button, Space} from "antd";
 import {useDispatch, useSelector} from "react-redux";
 import {useSnackbar} from "../context/SnackbarContext";
 import {Navbar} from "../components/common/Navbar";
@@ -28,6 +28,8 @@ import ProductSearch from "../components/product-management/ProductSearch";
 import ProductFilter from "../components/product-management/ProductFilter";
 import ProductList from "../components/product-management/ProductList";
 import {selectAuthState} from "../store/slices/auth-slice";
+import { useNavigate } from "react-router-dom";
+import { ShopOutlined, SettingOutlined } from '@ant-design/icons';
 
 const {Title} = Typography;
 const {Content} = Layout;
@@ -36,8 +38,10 @@ export default function ProductManagerPage() {
     const {token} = theme.useToken();
     const {showSuccess, showDealErrors} = useSnackbar();
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const authState = useSelector(selectAuthState);
     const userId = authState.user?.id || '';
+    const isSeller = authState.isSeller;
 
     const searchText = useSelector(selectSearchText);
     const sortOrder = useSelector(selectSortOrder);
@@ -163,6 +167,55 @@ export default function ProductManagerPage() {
     const availableCategories = useMemo(() => {
         return categoriesResponse?.payload || [];
     }, [categoriesResponse?.payload]);
+
+    const handleGoToProfile = () => {
+        const username = authState.user?.username;
+        if (username) {
+            navigate(`/profile/${username}`);
+        }
+    };
+
+    // If user is not a seller, show message to set up store
+    if (!isSeller) {
+        return (
+            <Layout>
+                <Content style={{
+                    padding: "2rem",
+                    marginTop: `calc(${token.layout.headerHeight}px + 2rem)`
+                }}>
+                    <Title level={2} style={{textAlign: "center", marginBottom: "2rem"}}>
+                        Manage Products
+                    </Title>
+
+                    <Card style={{ maxWidth: 600, margin: '0 auto' }}>
+                        <Alert
+                            message="Store Address Required"
+                            description={
+                                <Space direction="vertical" style={{ width: '100%' }}>
+                                    <div>
+                                        To manage and sell products, you need to set up your store address in your profile.
+                                        This helps customers know where your products are coming from.
+                                    </div>
+                                    <Button 
+                                        type="primary" 
+                                        icon={<SettingOutlined />}
+                                        onClick={handleGoToProfile}
+                                        size="large"
+                                    >
+                                        Set Up Store Address
+                                    </Button>
+                                </Space>
+                            }
+                            type="info"
+                            showIcon
+                            icon={<ShopOutlined />}
+                            style={{ textAlign: 'left' }}
+                        />
+                    </Card>
+                </Content>
+            </Layout>
+        );
+    }
 
     return (
         <Layout>

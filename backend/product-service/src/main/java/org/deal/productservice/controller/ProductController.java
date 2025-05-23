@@ -6,6 +6,7 @@ import org.deal.core.exception.DealError;
 import org.deal.core.request.product.CreateProductRequest;
 import org.deal.core.request.product.UpdateProductRequest;
 import org.deal.core.response.DealResponse;
+import org.deal.core.response.product.ProductDetailsResponse;
 import org.deal.productservice.service.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -36,6 +37,15 @@ public class ProductController {
     @GetMapping("/{id}")
     public DealResponse<ProductDTO> getProductById(@PathVariable final UUID id) {
         return productService.findById(id)
+                .map(DealResponse::successResponse)
+                .orElse(DealResponse.failureResponse(
+                        new DealError(notFound(ProductDTO.class, "id", id)),
+                        NOT_FOUND));
+    }
+
+    @GetMapping("/details/{id}")
+    public DealResponse<ProductDetailsResponse> getProductDetailsById(@PathVariable final UUID id) {
+        return productService.findDetailsById(id)
                 .map(DealResponse::successResponse)
                 .orElse(DealResponse.failureResponse(
                         new DealError(notFound(ProductDTO.class, "id", id)),

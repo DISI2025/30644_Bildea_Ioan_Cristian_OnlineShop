@@ -14,7 +14,9 @@ import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.deal.core.util.Constants.ReturnMessages.failedToSave;
 import static org.deal.core.util.Constants.ReturnMessages.notFound;
@@ -39,13 +41,15 @@ class ProductCategoryControllerTest extends BaseUnitTest {
 
     @Test
     void testGetProductCategories_shouldReturnSuccess() {
-        var expectedProductCategories = List.of(randomProductCategory(), randomProductCategory());
-        when(productCategoryService.findAll()).thenReturn(Optional.of(convertAll(expectedProductCategories, ProductCategoryDTO.class)));
+        var expectedProductCategories = Set.of(randomProductCategory(), randomProductCategory());
+        var expectedDTOs = convertAll(expectedProductCategories, ProductCategoryDTO.class).stream().collect(Collectors.toSet());
+
+        when(productCategoryService.findAll()).thenReturn(Optional.of(expectedDTOs));
 
         var response = victim.getProductCategories();
 
         verify(productCategoryService).findAll();
-        assertThatResponseIsSuccessful(response, convertAll(expectedProductCategories, ProductCategoryDTO.class));
+        assertThatResponseIsSuccessful(response, expectedDTOs);
     }
 
     @Test

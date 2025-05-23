@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.deal.core.dto.ProductCategoryDTO;
 import org.deal.core.exception.DealError;
 import org.deal.core.request.productcategory.CreateProductCategoryRequest;
+import org.deal.core.request.productcategory.GetProductCategoriesRequest;
 import org.deal.core.request.productcategory.UpdateProductCategoryRequest;
 import org.deal.core.response.DealResponse;
 import org.deal.productservice.service.ProductCategoryService;
@@ -18,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.deal.core.util.Constants.ReturnMessages.failedToSave;
@@ -35,7 +36,7 @@ public class ProductCategoryController {
     private final ProductCategoryService productCategoryService;
 
     @GetMapping
-    public DealResponse<List<ProductCategoryDTO>> getProductCategories() {
+    public DealResponse<Set<ProductCategoryDTO>> getProductCategories() {
         return productCategoryService.findAll()
                 .map(DealResponse::successResponse)
                 .orElse(DealResponse.failureResponse(
@@ -50,6 +51,14 @@ public class ProductCategoryController {
                 .orElse(DealResponse.failureResponse(
                         new DealError(notFound(ProductCategoryDTO.class, "id", id)),
                         NOT_FOUND));
+    }
+
+    @PostMapping("/by-ids")
+    public DealResponse<Set<ProductCategoryDTO>> getAllCategoriesByIds(final @RequestBody GetProductCategoriesRequest request) {
+        return productCategoryService.findAllCategoriesByIds(request.productCategoryIds())
+                .map(DealResponse::successResponse)
+                .orElse(DealResponse.failureResponse(
+                        new DealError("No categories found"), HttpStatus.NOT_FOUND));
     }
 
     @PostMapping
