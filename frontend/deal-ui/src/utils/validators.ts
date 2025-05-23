@@ -1,6 +1,5 @@
 import { Rule } from 'antd/es/form';
 
-// Basic Info validation rules
 export const basicInfoRules = {
   username: [
     { required: true, message: 'Please enter your username' },
@@ -12,6 +11,7 @@ export const basicInfoRules = {
     { type: 'email', message: 'Please enter a valid email' }
   ] as Rule[]
 };
+
 export const usernameRules: Rule[] = [
   { required: true, message: 'Please enter your username' },
   { min: 3, message: 'Username must be at least 3 characters' },
@@ -34,7 +34,6 @@ export const passwordRules: Rule[] = [
     }
 ];
 
-// Buyer Info validation rules (for future implementation)
 export const buyerInfoRules = {
   shippingAddress: [
     { required: true, message: 'Please enter your shipping address' },
@@ -64,7 +63,6 @@ export const fullNameRules: Rule[] = [
   { pattern: /^[a-zA-Z\s'-]+$/, message: 'Full name can only contain letters, spaces, hyphens and apostrophes' }
 ];
 
-// Admin Info validation rules (for future implementation)
 export const adminInfoRules = {
   accessLevel: [
     { required: true, message: 'Please select an access level' }
@@ -73,3 +71,72 @@ export const adminInfoRules = {
     { type: 'array', message: 'Please select valid permissions' }
   ] as Rule[]
 };
+
+// Product validation rules
+export const productTitleRules: Rule[] = [
+  { required: true, message: 'Please enter a product name' },
+  { min: 3, message: 'Product name must be at least 3 characters' },
+  { max: 100, message: 'Product name cannot exceed 100 characters' },
+  { whitespace: true, message: 'Product name cannot be empty spaces' }
+];
+
+export const productDescriptionRules: Rule[] = [
+  { required: true, message: 'Please enter a product description' },
+  { min: 10, message: 'Description must be at least 10 characters' },
+  { max: 1000, message: 'Description cannot exceed 1000 characters' },
+  { whitespace: true, message: 'Description cannot be empty spaces' }
+];
+
+export const productPriceRules: Rule[] = [
+  { required: true, message: 'Please enter a product price' },
+  {
+    validator: (_, value) => {
+      if (value === undefined || value === null) {
+        return Promise.reject(new Error('Please enter a price'));
+      }
+      if (isNaN(value) || value <= 0) {
+        return Promise.reject(new Error('Price must be greater than zero'));
+      }
+      if (value > 99999.99) {
+        return Promise.reject(new Error('Price cannot exceed 99,999.99'));
+      }
+      return Promise.resolve();
+    }
+  }
+];
+
+export const productStockRules: Rule[] = [
+  { required: true, message: 'Please enter product stock quantity' },
+  {
+    validator: (_, value) => {
+      if (value === undefined || value === null) {
+        return Promise.reject(new Error('Please enter stock quantity'));
+      }
+      if (isNaN(value) || value < 0 || !Number.isInteger(Number(value))) {
+        return Promise.reject(new Error('Stock must be a non-negative whole number'));
+      }
+      if (value > 999999) {
+        return Promise.reject(new Error('Stock cannot exceed 999,999 units'));
+      }
+      return Promise.resolve();
+    }
+  }
+];
+
+export const productCategoryRules: Rule[] = [
+  { required: true, message: 'Please select at least one product category' },
+  {
+    validator: (_, value) => {
+      if (!value || !Array.isArray(value) || value.length === 0) {
+        return Promise.reject(new Error('Please select at least one category'));
+      }
+      return Promise.resolve();
+    }
+  }
+];
+
+export const imageUrlRules: Rule[] = [
+  { required: true, message: 'Please upload a product image or enter an image URL' },
+  { type: 'url', message: 'Please enter a valid URL' },
+  { max: 1000, message: 'URL cannot exceed 1000 characters' }
+];

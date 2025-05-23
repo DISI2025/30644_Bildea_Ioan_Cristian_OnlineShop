@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -184,4 +185,71 @@ class JwtAuthenticationFilterTest {
         verify(writer).write(WROTE_OBJ);
         verify(writer).flush();
     }
+
+    @Test
+    void testGetJwtFromHeader_shouldReturnTokenWithoutBearerPrefix() {
+        var header = "Bearer abc.def.ghi";
+
+        String token = ReflectionTestUtils.invokeMethod(victim, "getJwtFromHeader", header);
+
+        assertThat(token, equalTo("abc.def.ghi"));
+    }
+
+    @Test
+    void testIsValidHeader_validHeader_returnsTrue() {
+        var header = "Bearer token.jwt.value";
+
+        boolean result = ReflectionTestUtils.invokeMethod(victim, "isValidHeader", header);
+
+        assertThat(result, equalTo(true));
+    }
+
+    @Test
+    void testIsValidHeader_invalidHeader_returnsFalse() {
+        var header = "InvalidHeader";
+
+        boolean result = ReflectionTestUtils.invokeMethod(victim, "isValidHeader", header);
+
+        assertThat(result, equalTo(false));
+    }
+
+    @Test
+    void testIsValidHeader_nullHeader_returnsFalse() {
+        boolean result = ReflectionTestUtils.invokeMethod(victim, "isValidHeader", (String) null);
+
+        assertThat(result, equalTo(false));
+    }
+
+    @Test
+    void testIsAuthenticated_matchingUsername_returnsTrue() {
+        var username = "john";
+        var auth = new UsernamePasswordAuthenticationToken(username, "jwt");
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        boolean result = ReflectionTestUtils.invokeMethod(victim, "isAuthenticated", username);
+
+        assertThat(result, equalTo(true));
+    }
+
+    @Test
+    void testIsAuthenticated_differentUsername_returnsFalse() {
+        var auth = new UsernamePasswordAuthenticationToken("other", "jwt");
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        boolean result = ReflectionTestUtils.invokeMethod(victim, "isAuthenticated", "john");
+
+        assertThat(result, equalTo(false));
+    }
+
+    @Test
+    void testIsAuthenticated_noAuthentication_returnsFalse() {
+        SecurityContextHolder.clearContext();
+
+        boolean result = ReflectionTestUtils.invokeMethod(victim, "isAuthenticated", "john");
+
+        assertThat(result, equalTo(false));
+    }
+
+
+
 }

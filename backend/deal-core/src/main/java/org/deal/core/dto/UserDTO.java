@@ -5,6 +5,7 @@ import org.deal.core.util.Role;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.Set;
 import java.util.UUID;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -13,6 +14,15 @@ public record UserDTO(
         String username,
         String email,
         Timestamp createdAt,
-        Role role
+        Role role,
+        Set<UUID> productCategoryIds,
+        String fullName,
+        String address,
+        String city,
+        String country,
+        String postalCode,
+        String phoneNumber,
+        String profileUrl,
+        String storeAddress
 ) implements Serializable {
 }

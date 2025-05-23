@@ -3,15 +3,18 @@ import {fetchBaseQuery} from '@reduxjs/toolkit/query';
 import {AUTH_HEADER, buildAuthHeader, DEAL_ENDPOINTS, HTTP_METHOD, TOKEN_KEY} from "../utils/constants.ts";
 import Cookies from 'js-cookie';
 import {
+    AssignProductCategoryRequest,
     AuthData,
     AuthRequest,
     BaseResponse, CreateProductCategoryRequest,
+    CreateProductRequest,
     CreateUserRequest,
     DealResponse,
     ForgotPasswordRequest,
-    ResetPasswordRequest, UpdateProductCategoryRequest
+    ResetPasswordRequest, UpdateProductCategoryRequest,
+    UpdateProductRequest
 } from "../types/transfer.ts";
-import { ProductCategory } from "../types/entities.ts";
+import {Product, ProductCategory, BaseUser, MainUser} from "../types/entities.ts";
 
 const appBaseQuery = fetchBaseQuery({
     baseUrl: DEAL_ENDPOINTS.BASE, prepareHeaders: (headers: Headers /*{getState}*/) => {
@@ -26,7 +29,7 @@ const appBaseQuery = fetchBaseQuery({
 export const api = createApi({
     reducerPath: 'api',
     baseQuery: appBaseQuery,
-    tagTypes: ['ProductCategories'],
+    tagTypes: ['ProductCategories', 'Products', 'Users'],
     endpoints: (builder) => ({
         // Auth endpoints
         login: builder.mutation<DealResponse<AuthData>, AuthRequest>({
@@ -60,6 +63,26 @@ export const api = createApi({
                 url: `${DEAL_ENDPOINTS.AUTH}/reset-password`,
                 method: HTTP_METHOD.POST,
                 body: request
+            }),
+            transformErrorResponse: (response) => response.data as BaseResponse,
+        }),
+
+        // User endpoints
+        getUsers: builder.query<DealResponse<MainUser[]>, void>({
+            query: () => DEAL_ENDPOINTS.USERS,
+            transformErrorResponse: (response) => response.data as BaseResponse,
+        }),
+
+        getUserById: builder.query<DealResponse<MainUser>, string>({
+            query: (id) => `${DEAL_ENDPOINTS.USERS}/${id}`,
+            transformErrorResponse: (response) => response.data as BaseResponse,
+        }),
+
+        assignUserCategories: builder.mutation<DealResponse<MainUser>, AssignProductCategoryRequest>({
+            query: (request) => ({
+                url: `${DEAL_ENDPOINTS.USERS}/user-categories`,
+                method: HTTP_METHOD.PATCH,
+                body: request,
             }),
             transformErrorResponse: (response) => response.data as BaseResponse,
         }),
@@ -100,6 +123,48 @@ export const api = createApi({
             }),
             transformErrorResponse: (response) => response.data as BaseResponse
         }),
+
+        // Product endpoints
+        getProducts: builder.query<DealResponse<Product[]>, void>({
+            query: () => DEAL_ENDPOINTS.PRODUCTS,
+            transformErrorResponse: (response) => response.data as BaseResponse,
+        }),
+
+        getProductById: builder.query<DealResponse<Product>, string>({
+            query: (id) => `${DEAL_ENDPOINTS.PRODUCTS}/${id}`,
+            transformErrorResponse: (response) => response.data as BaseResponse,
+        }),
+
+        getProductsBySellerId: builder.query<DealResponse<Product[]>, string>({
+            query: (sellerId) => `${DEAL_ENDPOINTS.PRODUCTS}/seller?id=${sellerId}`,
+            transformErrorResponse: (response) => response.data as BaseResponse,
+        }),
+
+        createProduct: builder.mutation<DealResponse<Product>, CreateProductRequest>({
+            query: (request) => ({
+                url: DEAL_ENDPOINTS.PRODUCTS,
+                method: HTTP_METHOD.POST,
+                body: request,
+            }),
+            transformErrorResponse: (response) => response.data as BaseResponse,
+        }),
+
+        updateProduct: builder.mutation<DealResponse<Product>, UpdateProductRequest>({
+            query: (request) => ({
+                url: DEAL_ENDPOINTS.PRODUCTS,
+                method: HTTP_METHOD.PATCH,
+                body: request,
+            }),
+            transformErrorResponse: (response) => response.data as BaseResponse,
+        }),
+
+        deleteProduct: builder.mutation<DealResponse<Product>, string>({
+            query: (id) => ({
+                url: `${DEAL_ENDPOINTS.PRODUCTS}/${id}`,
+                method: HTTP_METHOD.DELETE,
+            }),
+            transformErrorResponse: (response) => response.data as BaseResponse,
+        }),
     }),
 });
 
@@ -108,9 +173,18 @@ export const {
     useRegisterMutation,
     useForgotPasswordMutation,
     useResetPasswordMutation,
+    useGetUsersQuery,
+    useGetUserByIdQuery,
+    useAssignUserCategoriesMutation,
     useGetProductCategoriesQuery,
     useGetProductCategoryByIdQuery,
     useCreateProductCategoryMutation,
     useUpdateProductCategoryMutation,
-    useDeleteProductCategoryMutation
+    useDeleteProductCategoryMutation,
+    useGetProductsQuery,
+    useGetProductByIdQuery,
+    useGetProductsBySellerIdQuery,
+    useCreateProductMutation,
+    useUpdateProductMutation,
+    useDeleteProductMutation
 } = api;

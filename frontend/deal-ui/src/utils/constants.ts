@@ -2,7 +2,9 @@ export const DEAL_ENDPOINTS = {
     BASE: "/api",
     IS: "/is",
     PS: "/ps",
+    USERS: "/is/users",
     PRODUCT_CATEGORIES: "/ps/product-categories",
+    PRODUCTS: "/ps/products",
     AUTH: "/is/auth"
 }
 

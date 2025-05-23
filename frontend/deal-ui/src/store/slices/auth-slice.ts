@@ -1,4 +1,4 @@
-import { User } from "../../types/entities";
+import { BaseUser } from "../../types/entities";
 import {TOKEN_KEY, USER_KEY} from "../../utils/constants.ts";
 import Cookies from 'js-cookie';
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
@@ -6,15 +6,15 @@ import { AuthData } from "../../types/transfer.ts";
 import {RootState} from "../index.ts";
 
 export interface AuthState {
-   user: User | null;
+   user: BaseUser | null;
    token: string | null;
    loggedIn: boolean;
 }
 
-const getInitialUser = (): User | null => {
+const getInitialUser = (): BaseUser | null => {
    const storedUser = localStorage.getItem(USER_KEY);
    if (storedUser) {
-      return JSON.parse(storedUser) as User;
+      return JSON.parse(storedUser) as BaseUser;
    }
 
    return null;

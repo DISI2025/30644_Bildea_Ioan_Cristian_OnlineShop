@@ -429,7 +429,6 @@ const ProfilePage: React.FC = () => {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Navbar />
       <Content style={{ padding: token.spacing.lg }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <Tabs
