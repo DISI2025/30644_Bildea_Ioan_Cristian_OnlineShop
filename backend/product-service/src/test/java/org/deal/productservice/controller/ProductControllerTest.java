@@ -2,6 +2,7 @@ package org.deal.productservice.controller;
 
 import org.deal.core.dto.ProductDTO;
 import org.deal.core.exception.DealError;
+import org.deal.core.response.product.ProductDetailsResponse;
 import org.deal.core.util.Mapper;
 import org.deal.productservice.entity.Product;
 import org.deal.productservice.service.ProductService;
@@ -25,6 +26,7 @@ import static org.deal.productservice.util.TestUtils.ResponseUtils.assertThatRes
 import static org.deal.productservice.util.TestUtils.ResponseUtils.assertThatResponseIsSuccessful;
 import static org.deal.productservice.util.TestUtils.convertAll;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -173,4 +175,35 @@ class ProductControllerTest {
         verify(productService).findAllBySellerId(sellerId);
         assertThatResponseFailed(response, List.of(new DealError(notFound(ProductDTO.class))), HttpStatus.NOT_FOUND);
     }
+
+    @Test
+    void testGetProductDetailsById_productFound_returnsSuccess() {
+        var productId = UUID.randomUUID();
+        var expectedDetails = mock(ProductDetailsResponse.class);
+
+        when(productService.findDetailsById(productId)).thenReturn(Optional.of(expectedDetails));
+
+        var response = victim.getProductDetailsById(productId);
+
+        verify(productService).findDetailsById(productId);
+        assertThatResponseIsSuccessful(response, expectedDetails);
+    }
+
+    @Test
+    void testGetProductDetailsById_productNotFound_returnsFailure() {
+        var id = UUID.randomUUID();
+
+        when(productService.findDetailsById(id)).thenReturn(Optional.empty());
+
+        var response = victim.getProductDetailsById(id);
+
+        verify(productService).findDetailsById(id);
+        assertThatResponseFailed(
+                response,
+                List.of(new DealError(notFound(ProductDTO.class, "id", id))),
+                HttpStatus.NOT_FOUND
+        );
+    }
+
+
 }

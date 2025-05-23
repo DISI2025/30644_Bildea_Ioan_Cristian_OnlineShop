@@ -24,10 +24,10 @@ export const HomePage: React.FC = () => {
                 <div style={{maxWidth: 1200, margin: '0 auto'}}>
                     <Title level={2}>Featured Products</Title>
                     <Divider />
-                    
-                    <ProductGrid 
-                        products={products} 
-                        loading={isLoading} 
+
+                    <ProductGrid
+                        products={products}
+                        loading={isLoading}
                         columns={4}
                     />
 

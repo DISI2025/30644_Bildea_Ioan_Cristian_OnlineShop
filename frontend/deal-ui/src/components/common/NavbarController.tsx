@@ -9,12 +9,13 @@ import {UserOutlined, LogoutOutlined, ShoppingCartOutlined} from '@ant-design/ic
 import type {MenuProps} from 'antd';
 import {selectCartTotalItems} from "../../store/slices/cart-slice";
 import {UserRole} from "../../types/entities";
+import { useGetUserProfileQuery } from '../../store/api';
 
 const {useToken} = theme;
 
 interface NavbarActionsProps {
-    onThemeChange: () => void;
-    onNavigate: (path: string) => void;
+   onThemeChange: () => void;
+   onNavigate: (path: string) => void;
 }
 
 export const NavbarController: React.FC<NavbarActionsProps> = ({
@@ -26,39 +27,57 @@ export const NavbarController: React.FC<NavbarActionsProps> = ({
     const {loggedIn, user} = useSelector(selectAuthState);
     const cartItemsCount = useSelector(selectCartTotalItems);
 
-    const handleLogout = () => {
-        dispatch(endSession());
-        onNavigate(ROUTES.HOME);
+    const {
+        data: profileResponse
+    } = useGetUserProfileQuery(user?.id || '', {
+        skip: !user?.id || !loggedIn
+    });
+
+    const userProfile = profileResponse?.payload;
+
+   const handleLogout = () => {
+      setTimeout(() => {
+         dispatch(endSession());
+         onNavigate(ROUTES.HOME);
+      }, 500);
+   };
+
+   const profileItems: MenuProps['items'] = [
+      {
+         key: 'profile',
+         label: 'Profile',
+         icon: <UserOutlined/>,
+         onClick: () => onNavigate(ROUTES.PROFILE.replace(':username', user?.username || '')),
+      },
+      {
+         key: 'logout',
+         label: 'Logout',
+         icon: <LogoutOutlined/>,
+         onClick: handleLogout,
+      },
+   ];
+
+    const getAvatarSrc = () => {
+        return userProfile?.profileUrl || null;
     };
 
-    const profileItems: MenuProps['items'] = [
-        {
-            key: 'profile',
-            label: 'Profile',
-            icon: <UserOutlined />,
-            onClick: () => onNavigate('/profile'),
-        },
-        {
-            key: 'logout',
-            label: 'Logout',
-            icon: <LogoutOutlined />,
-            onClick: handleLogout,
-        },
-    ];
+    const getAvatarFallback = () => {
+        return user?.username?.[0]?.toUpperCase() || 'U';
+    };
 
     return (
         <Space size="middle" align="center" style={{ height: '100%' }}>
             {loggedIn && user?.role !== UserRole.ADMIN && (
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     <Badge count={cartItemsCount} size="small">
-                        <ShoppingCartOutlined 
-                            style={{ 
-                                fontSize: 24, 
+                        <ShoppingCartOutlined
+                            style={{
+                                fontSize: 24,
                                 cursor: 'pointer',
                                 color: token.colorText,
                                 display: 'flex',
                                 alignItems: 'center'
-                            }} 
+                            }}
                             onClick={() => onNavigate(ROUTES.CART)}
                         />
                     </Badge>
@@ -69,12 +88,15 @@ export const NavbarController: React.FC<NavbarActionsProps> = ({
                 <Dropdown menu={{ items: profileItems }} placement="bottomRight">
                     <Space style={{ cursor: 'pointer' }}>
                         <Avatar 
+                            src={getAvatarSrc()}
                             style={{ 
-                                backgroundColor: token.colorPrimary,
+                                backgroundColor: !getAvatarSrc() ? token.colorPrimary : undefined,
                                 verticalAlign: 'middle',
+                                border: getAvatarSrc() ? `2px solid ${token.colorBorder}` : 'none'
                             }}
+                            icon={!getAvatarSrc() ? <UserOutlined /> : undefined}
                         >
-                            {user?.username?.[0]?.toUpperCase() || 'U'}
+                            {!getAvatarSrc() ? getAvatarFallback() : null}
                         </Avatar>
                         <span style={{ color: token.colorText }}>{user?.username}</span>
                     </Space>

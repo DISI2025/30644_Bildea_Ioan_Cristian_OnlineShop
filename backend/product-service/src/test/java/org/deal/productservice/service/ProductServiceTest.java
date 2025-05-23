@@ -1,10 +1,15 @@
 package org.deal.productservice.service;
 
+import org.deal.core.client.DealClient;
+import org.deal.core.client.DealService;
 import org.deal.core.dto.ProductDTO;
+import org.deal.core.dto.UserDTO;
+import org.deal.core.request.auth.ValidateTokenRequest;
 import org.deal.core.util.Mapper;
 import org.deal.productservice.entity.Product;
 import org.deal.productservice.repository.ProductCategoryRepository;
 import org.deal.productservice.repository.ProductRepository;
+import org.deal.productservice.security.DealContext;
 import org.deal.productservice.util.BaseUnitTest;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.Test;
@@ -12,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpMethod;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +29,7 @@ import static org.deal.productservice.util.TestUtils.ProductUtils.updateProductR
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.mock;
@@ -42,6 +49,13 @@ class ProductServiceTest extends BaseUnitTest {
 
     @InjectMocks
     private ProductService victim;
+
+    @Mock
+    private DealClient dealClient;
+
+    @Mock
+    private DealContext dealContext;
+
 
     @Test
     void testFindAll_shouldReturnValidProductData() {
@@ -223,4 +237,65 @@ class ProductServiceTest extends BaseUnitTest {
                 this::assertThatFails
         );
     }
+
+    @Test
+    void testFindDetailsById_productFound_returnsProductDetailsResponse() {
+        // Arrange
+        var product = Instancio.create(Product.class);
+        var productDTO = Mapper.mapTo(product, ProductDTO.class);
+        var jwtToken = "Bearer token.jwt.test";
+
+        var userDTO = Instancio.create(UserDTO.class);
+
+        when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
+        when(dealContext.getToken()).thenReturn(jwtToken);
+        when(dealClient.call(
+                DealService.IS,
+                "/auth/validate-token",
+                HttpMethod.POST,
+                new ValidateTokenRequest(jwtToken),
+                UserDTO.class
+        )).thenReturn(userDTO);
+
+        // Act
+        var result = victim.findDetailsById(product.getId());
+
+        // Assert
+        verify(productRepository).findById(product.getId());
+        verify(dealContext).getToken();
+        verify(dealClient).call(
+                DealService.IS,
+                "/auth/validate-token",
+                HttpMethod.POST,
+                new ValidateTokenRequest(jwtToken),
+                UserDTO.class
+        );
+
+        result.ifPresentOrElse(
+                details -> {
+                    assertThat(details.id(), equalTo(productDTO.id()));
+                    assertThat(details.title(), equalTo(productDTO.title()));
+                    assertThat(details.sellerDTO(), equalTo(userDTO));
+                },
+                this::assertThatFails
+        );
+    }
+
+    @Test
+    void testFindDetailsById_productNotFound_returnsEmptyOptional() {
+        // Arrange
+        var id = UUID.randomUUID();
+        when(productRepository.findById(id)).thenReturn(Optional.empty());
+
+        // Act
+        var result = victim.findDetailsById(id);
+
+        // Assert
+        verify(productRepository).findById(id);
+        verify(dealContext, never()).getToken();
+        verify(dealClient, never()).call(any(), any(), any(), any(), any());
+
+        assertTrue(result.isEmpty());
+    }
+
 }
