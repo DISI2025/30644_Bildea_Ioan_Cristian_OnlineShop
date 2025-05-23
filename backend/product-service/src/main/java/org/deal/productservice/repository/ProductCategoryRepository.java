@@ -18,6 +18,8 @@ public interface ProductCategoryRepository extends JpaRepository<ProductCategory
     @Query(value = "delete from ProductCategory u where u.id=:id")
     Integer deleteByIdReturning(final UUID id);
 
+    Set<ProductCategory> findAllByIdIn(Set<UUID> ids);
+
 
     @Query(value = "select pc from ProductCategory pc where pc.categoryName in :names")
     Set<ProductCategory> findAllByName(final Set<String> names);

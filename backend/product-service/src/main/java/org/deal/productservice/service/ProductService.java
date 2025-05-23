@@ -1,14 +1,22 @@
 package org.deal.productservice.service;
 
 import lombok.RequiredArgsConstructor;
+import org.deal.core.client.DealClient;
+import org.deal.core.client.DealService;
 import org.deal.core.dto.ProductDTO;
+import org.deal.core.dto.UserDTO;
+import org.deal.core.exception.DealException;
+import org.deal.core.request.auth.ValidateTokenRequest;
 import org.deal.core.request.product.CreateProductRequest;
 import org.deal.core.request.product.UpdateProductRequest;
+import org.deal.core.response.product.ProductDetailsResponse;
 import org.deal.core.util.Mapper;
 import org.deal.productservice.entity.Product;
 import org.deal.productservice.entity.ProductCategory;
 import org.deal.productservice.repository.ProductCategoryRepository;
 import org.deal.productservice.repository.ProductRepository;
+import org.deal.productservice.security.DealContext;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,6 +31,8 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final ProductCategoryRepository productCategoryRepository;
+    private final DealClient dealClient;
+    private final DealContext dealContext;
 
     public Optional<List<ProductDTO>> findAll() {
         return Optional.of(productRepository.findAll().stream().map(this::mapToDTO).toList());
@@ -34,6 +44,36 @@ public class ProductService {
 
     public Optional<ProductDTO> findById(final UUID id) {
         return productRepository.findById(id).map(this::mapToDTO);
+    }
+
+    public Optional<ProductDetailsResponse> findDetailsById(final UUID id) {
+        Optional<ProductDTO> productDTO = productRepository.findById(id).map(this::mapToDTO);
+        if(productDTO.isEmpty()) {
+            return Optional.empty();
+        }
+
+        String jwtToken = dealContext.getToken();
+
+        try {
+            UserDTO userDTO = dealClient.call(DealService.IS, "/auth/validate-token", HttpMethod.POST, new ValidateTokenRequest(jwtToken), UserDTO.class);
+
+            ProductDetailsResponse productDetailsResponse = ProductDetailsResponse.builder()
+                    .withId(productDTO.get().id())
+                    .withTitle(productDTO.get().title())
+                    .withDescription(productDTO.get().description())
+                    .withPrice(productDTO.get().price())
+                    .withStock(productDTO.get().stock())
+                    .withImageUrl(productDTO.get().imageUrl())
+                    .withCategories(productDTO.get().categories())
+                    .withCreatedAt(productDTO.get().createdAt())
+                    .withSellerDTO(userDTO)
+                    .build();
+
+            return Optional.of(productDetailsResponse);
+
+        } catch (DealException e) {
+          return Optional.empty();
+        }
     }
 
     public Optional<ProductDTO> create(final CreateProductRequest request) {

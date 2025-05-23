@@ -1,12 +1,16 @@
 package org.deal.identityservice.entity;
 
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,6 +25,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -51,6 +56,29 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "user_product_categories", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "product_category_id", nullable = false)
+    private Set<UUID> productCategoryIds;
+
+    @Column
+    String fullName;
+
+    @Column
+    String address;
+
+    @Column
+    String city;
+
+    @Column
+    String country;
+
+    @Column
+    String postalCode;
+
+    @Column
+    String phoneNumber;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

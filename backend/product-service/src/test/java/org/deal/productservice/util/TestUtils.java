@@ -34,6 +34,9 @@ public class TestUtils {
     public static <T, U> List<U> convertAll(final List<T> data, final Class<U> clazz) {
         return data.stream().map(element -> Mapper.mapTo(element, clazz)).toList();
     }
+    public static <T, U> Set<U> convertAll(final Set<T> data, final Class<U> clazz) {
+        return data.stream().map(element -> Mapper.mapTo(element, clazz)).collect(Collectors.toSet());
+    }
 
     public interface ResponseUtils {
         static <T> void assertThatResponseIsSuccessful(final DealResponse<T> response, final T expectedData) {

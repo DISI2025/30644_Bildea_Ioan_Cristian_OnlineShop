@@ -1,7 +1,10 @@
 package org.deal.identityservice.controller;
 
+import org.deal.core.dto.ProductCategoryDTO;
 import org.deal.core.dto.UserDTO;
 import org.deal.core.exception.DealError;
+import org.deal.core.request.user.AssignProductCategoryRequest;
+import org.deal.core.response.user.UserProfileResponse;
 import org.deal.core.util.Mapper;
 import org.deal.identityservice.service.UserService;
 import org.deal.identityservice.util.BaseUnitTest;
@@ -14,6 +17,7 @@ import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.deal.core.util.Constants.ReturnMessages.failedToSave;
@@ -24,6 +28,7 @@ import static org.deal.identityservice.util.TestUtils.UserUtils.createUserReques
 import static org.deal.identityservice.util.TestUtils.UserUtils.randomUser;
 import static org.deal.identityservice.util.TestUtils.UserUtils.updateUserRequest;
 import static org.deal.identityservice.util.TestUtils.convertAll;
+import static org.deal.identityservice.util.TestUtils.randomString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -82,6 +87,42 @@ class UserControllerTest extends BaseUnitTest {
     }
 
     @Test
+    void testGetUserProfileById_userFound_returnsSuccess() {
+        var user = randomUser();
+        var expectedProfile = UserProfileResponse.builder()
+                .withEmail(user.getEmail())
+                .withUsername(user.getUsername())
+                .withRole(user.getRole())
+                .withCreatedAt(user.getCreatedAt())
+                .withProductCategories(Set.of(new ProductCategoryDTO(user.getProductCategoryIds().stream().toList().getFirst(), randomString())))
+                .build();
+
+        when(userService.findProfileById(user.getId())).thenReturn(Optional.of(expectedProfile));
+
+        var response = victim.getUserProfileById(user.getId());
+
+        verify(userService).findProfileById(user.getId());
+        assertThatResponseIsSuccessful(response, expectedProfile);
+    }
+
+    @Test
+    void testGetUserProfileById_userNotFound_returnsFailure() {
+        var id = UUID.randomUUID();
+
+        when(userService.findProfileById(id)).thenReturn(Optional.empty());
+
+        var response = victim.getUserProfileById(id);
+
+        verify(userService).findProfileById(id);
+        assertThatResponseFailed(
+                response,
+                List.of(new DealError(notFound(UserProfileResponse.class, "id", id))),
+                HttpStatus.NOT_FOUND
+        );
+    }
+
+
+    @Test
     void testCreate_userIsCreated_shouldReturnSuccess() {
         var createdUser = randomUser();
         var request = createUserRequest(createdUser);
@@ -109,24 +150,62 @@ class UserControllerTest extends BaseUnitTest {
         var updatedUser = randomUser();
         var request = updateUserRequest(updatedUser);
         var expectedData = Mapper.mapTo(updatedUser, UserDTO.class);
-        when(userService.update(request)).thenReturn(Optional.of(expectedData));
+        when(userService.update(request, updatedUser.getFullName(), updatedUser.getAddress(), updatedUser.getCity(), updatedUser.getCountry(), updatedUser.getPostalCode(), updatedUser.getPhoneNumber())).thenReturn(Optional.of(expectedData));
 
-        var response = victim.update(request);
+        var response = victim.update(request, updatedUser.getFullName(), updatedUser.getAddress(), updatedUser.getCity(), updatedUser.getCountry(), updatedUser.getPostalCode(), updatedUser.getPhoneNumber());
 
-        verify(userService).update(request);
+        verify(userService).update(request, updatedUser.getFullName(), updatedUser.getAddress(), updatedUser.getCity(), updatedUser.getCountry(), updatedUser.getPostalCode(), updatedUser.getPhoneNumber());
         assertThatResponseIsSuccessful(response, expectedData);
     }
 
     @Test
     void testUpdate_userNotUpdated_returnsFailure() {
         var request = updateUserRequest(randomUser());
-        when(userService.update(request)).thenReturn(Optional.empty());
+        when(userService.update(request, null, null, null, null, null, null)).thenReturn(Optional.empty());
 
-        var response = victim.update(request);
+        var response = victim.update(request, null, null, null, null, null, null);
 
-        verify(userService).update(request);
+        verify(userService).update(request, null, null, null, null, null, null);
         assertThatResponseFailed(response, List.of(new DealError(notFound(UserDTO.class, "id", request.id()))), HttpStatus.NOT_FOUND);
     }
+
+    @Test
+    void testUpdateCategories_userUpdated_returnsSuccess() {
+        // Arrange
+        var user = randomUser();
+        var expectedDto = Mapper.mapTo(user, UserDTO.class);
+        var request = new AssignProductCategoryRequest(user.getId(), user.getProductCategoryIds());
+
+        when(userService.assignProductCategories(request)).thenReturn(Optional.of(expectedDto));
+
+        // Act
+        var response = victim.updateUserCategories(request);
+
+        // Assert
+        verify(userService).assignProductCategories(request);
+        assertThatResponseIsSuccessful(response, expectedDto);
+    }
+
+    @Test
+    void testUpdateCategories_userNotFound_returnsFailure() {
+        // Arrange
+        var request = new AssignProductCategoryRequest(UUID.randomUUID(), Set.of(UUID.randomUUID()));
+
+        when(userService.assignProductCategories(request)).thenReturn(Optional.empty());
+
+        // Act
+        var response = victim.updateUserCategories(request);
+
+        // Assert
+        verify(userService).assignProductCategories(request);
+        assertThatResponseFailed(
+                response,
+                List.of(new DealError(notFound(UserDTO.class, "id", request.userId()))),
+                HttpStatus.NOT_FOUND
+        );
+    }
+
+
 
     @Test
     void testDeleteUserById_userDeleted_shouldReturnSuccess() {
