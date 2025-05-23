@@ -1,451 +1,337 @@
-import React, {useEffect, useState} from 'react';
-import {useNavigate, useParams} from 'react-router-dom';
-import {Button, Card, Form, Input, Layout, message, Space, Tabs, theme, Typography} from 'antd';
-import {HeartOutlined, LockOutlined, ShoppingOutlined, UserOutlined} from '@ant-design/icons';
-import {useSelector} from 'react-redux';
-import {selectAuthState} from '../store/slices/auth-slice';
-import {Navbar} from '../components/common/Navbar';
-import BasicInfo from '../components/profile/BasicInfo';
-import UserInfo from '../components/profile/SellerInfo';
-import AdminInfo from '../components/profile/AdminInfo';
-import type {FormInstance} from 'antd/es/form';
-import {UserRole} from "../types/entities";
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { 
+    Card, 
+    Form, 
+    Layout, 
+    Space, 
+    Tabs, 
+    theme, 
+    Typography, 
+    Spin, 
+    Empty
+} from 'antd';
+import { 
+    LockOutlined, 
+    UserOutlined
+} from '@ant-design/icons';
+import { useSelector, useDispatch } from 'react-redux';
+import { selectAuthState, updateUserProfile as updateUserProfileAction } from '../store/slices/auth-slice';
+import { UserRole } from "../types/entities";
+import { useGetUserProfileQuery, useUpdateUserProfileMutation } from '../store/api';
+import { UserProfileUpdateRequest, UpdateUserRequest } from '../types/transfer';
+import { useSnackbar } from '../context/SnackbarContext';
+import ProfileHeader from '../components/profile/ProfileHeader';
+import ProfileForm from '../components/profile/ProfileForm';
+import ProfileInfo from '../components/profile/ProfileInfo';
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
 const { useToken } = theme;
 
-// TODO Adjust these interfaces and move them in types + integrate future endpoints
- 
-interface BaseUserDTO {
-  id: string;
-  username: string;
-  role: UserRole;
-  createdAt: string;
+interface AuthState {
+    user: {
+        id: string;
+        username: string;
+        role: UserRole;
+    } | null;
 }
-
-interface UserDetailsDTO extends BaseUserDTO {
-  role: UserRole.USER;
-  userInfo: {
-    shippingAddress?: string;
-    preferredLocations?: string[];
-    preferredCourier?: string;
-    storeAddress?: string;
-  };
-}
-
-interface AdminDTO extends BaseUserDTO {
-  role: UserRole.ADMIN;
-  adminInfo: {
-    permissions: string[];
-    lastLogin: string;
-  };
-}
-
-type UserDTO = UserDetailsDTO | AdminDTO;
 
 interface ProfileFormData {
-  username: string;
-  preferredLocations?: string;
-  preferredCourier?: string;
-  productCategories?: number[];
-  shippingAddress?: string;
-  paymentMethod?: string;
-  storeAddress?: string;
-}
-
-interface AuthState {
-  user: {
-    id: string;
-    username: string;
-    role: UserRole;
-  } | null;
+    username?: string;
+    email?: string;
+    fullName?: string;
+    address?: string;
+    city?: string;
+    country?: string;
+    postalCode?: string;
+    phoneNumber?: string;
+    profileUrl?: string;
+    storeAddress?: string;
 }
 
 const ProfilePage: React.FC = () => {
-  const { token } = useToken();
-  const navigate = useNavigate();
-  const { username } = useParams<{ username: string }>();
-  const { user } = useSelector(selectAuthState) as AuthState;
-  const [activeTab, setActiveTab] = useState('basic');
-  const [isEditing, setIsEditing] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [userForm] = Form.useForm<ProfileFormData>();
+    const { token } = useToken();
+    const navigate = useNavigate();
+    const { username } = useParams<{ username: string }>();
+    const { user } = useSelector(selectAuthState) as AuthState;
+    const { showSuccess, showDealErrors } = useSnackbar();
+    const dispatch = useDispatch();
+    
+    const [activeTab, setActiveTab] = useState('basic');
+    const [isEditing, setIsEditing] = useState(false);
+    const [profileForm] = Form.useForm<ProfileFormData>();
+    const [localProfileUpdates, setLocalProfileUpdates] = useState<Partial<ProfileFormData> | null>(null);
 
-  // Validate user access
-  useEffect(() => {
-    if (!user) {
-      message.error('Please log in to view your profile');
-      navigate('/');
-      return;
-    }
+    // API hooks
+    const {
+        data: profileResponse,
+        isLoading: isLoadingProfile,
+        refetch: refetchProfile
+    } = useGetUserProfileQuery(user?.id || '', {
+        skip: !user?.id
+    });
 
-    if (username !== user.username) {
-      message.error('You can only view your own profile');
-      navigate('/');
-    }
-  }, [user, username, navigate]);
+    const [updateUserProfile, { isLoading: isUpdating }] = useUpdateUserProfileMutation();
 
-  // Mock user data based on role
-  const getUserData = (): UserDTO => {
-    const baseData = {
-      id: user?.id || '',
-      username: user?.username || '',
-      createdAt: new Date().toISOString(),
+    // Create a merged profile that combines API data with local updates
+    const userProfile = profileResponse?.payload ? {
+        ...profileResponse.payload,
+        ...(localProfileUpdates || {})
+    } : null;
+
+    // Validate user access
+    useEffect(() => {
+        if (!user) {
+            navigate('/');
+            return;
+        }
+
+        if (username !== user.username) {
+            navigate('/');
+        }
+    }, [user, username, navigate]);
+
+    const handleEdit = () => {
+        if (!userProfile) return;
+        
+        // Don't allow editing for admin users
+        if (userProfile.role === UserRole.ADMIN) {
+            return;
+        }
+        
+        setIsEditing(true);
+        profileForm.setFieldsValue({
+            username: userProfile.username,
+            email: userProfile.email,
+            fullName: userProfile.fullName || '',
+            address: userProfile.address || '',
+            city: userProfile.city || '',
+            country: userProfile.country || '',
+            postalCode: userProfile.postalCode || '',
+            phoneNumber: userProfile.phoneNumber || '',
+            profileUrl: userProfile.profileUrl || '',
+            storeAddress: userProfile.storeAddress || '',
+        });
     };
 
-    switch (user?.role) {
-      case UserRole.ADMIN:
-        return {
-          ...baseData,
-          role: UserRole.ADMIN,
-          adminInfo: {
-            permissions: ['manage_users', 'manage_products'],
-            lastLogin: new Date().toISOString()
-          }
-        };
-      default:
-        return {
-          ...baseData,
-          role: UserRole.USER,
-          userInfo: {
-            shippingAddress: '123 Main St, Cluj-Napoca',
-            preferredLocations: ['Cluj-Napoca', 'Bucharest'],
-            preferredCourier: 'Fan Courier',
-            storeAddress: '456 Business Ave, Cluj-Napoca'
-          }
-        };
+    const handleCancel = () => {
+        setIsEditing(false);
+        profileForm.resetFields();
+    };
+
+    const handleSave = async (values: ProfileFormData) => {
+        if (!userProfile) return;
+
+        try {
+            // Immediately update local state for instant UI feedback
+            const cleanedValues: Partial<ProfileFormData> = {
+                ...values,
+                storeAddress: values.storeAddress?.trim() || undefined
+            };
+            setLocalProfileUpdates(cleanedValues);
+
+            const updateRequest: UserProfileUpdateRequest & UpdateUserRequest = {
+                id: userProfile.id,
+                username: values.username,
+                email: values.email,
+                fullName: values.fullName,
+                address: values.address,
+                city: values.city,
+                country: values.country,
+                postalCode: values.postalCode,
+                phoneNumber: values.phoneNumber,
+                profileUrl: values.profileUrl,
+                storeAddress: values.storeAddress
+            };
+
+            await updateUserProfile(updateRequest).unwrap();
+            
+            // Create updated user object for Redux
+            const updatedUser = {
+                ...userProfile,
+                username: values.username || userProfile.username,
+                email: values.email || userProfile.email,
+                fullName: values.fullName || userProfile.fullName,
+                address: values.address || userProfile.address,
+                city: values.city || userProfile.city,
+                country: values.country || userProfile.country,
+                postalCode: values.postalCode || userProfile.postalCode,
+                phoneNumber: values.phoneNumber || userProfile.phoneNumber,
+                profileUrl: values.profileUrl || userProfile.profileUrl,
+                storeAddress: values.storeAddress?.trim() || undefined
+            };
+            
+            // Update Redux state to trigger seller status change
+            dispatch(updateUserProfileAction(updatedUser));
+            
+            showSuccess('Success', 'Profile updated successfully');
+            setIsEditing(false);
+            
+            // Clear local updates since they're now persisted
+            setLocalProfileUpdates(null);
+            
+            // Then refetch to ensure consistency with backend
+            await refetchProfile();
+        } catch (error: any) {
+            // Revert local changes on error
+            setLocalProfileUpdates(null);
+            showDealErrors(error?.errors || [{ message: 'Failed to update profile' }]);
+        }
+    };
+
+    if (isLoadingProfile) {
+        return (
+            <Layout>
+                <Content style={{
+                    padding: token.paddingLG,
+                    marginTop: `calc(${token.layout?.headerHeight || 64}px + ${token.paddingLG}px)`
+                }}>
+                    <div style={{ 
+                        textAlign: 'center', 
+                        padding: token.paddingXL 
+                    }}>
+                        <Spin size="large" />
+                        <p style={{ 
+                            marginTop: token.margin, 
+                            color: token.colorText 
+                        }}>
+                            Loading profile...
+                        </p>
+                    </div>
+                </Content>
+            </Layout>
+        );
     }
-  };
 
-  const userData = getUserData();
-
-  const handleEdit = () => {
-    setIsEditing(true);
-    if (userData.role === UserRole.USER) {
-      userForm.setFieldsValue({
-        preferredLocations: userData.userInfo.preferredLocations?.join(', '),
-        preferredCourier: userData.userInfo.preferredCourier,
-        shippingAddress: userData.userInfo.shippingAddress,
-        storeAddress: userData.userInfo.storeAddress
-      });
+    if (!userProfile) {
+        return (
+            <Layout>
+                <Content style={{
+                    padding: token.paddingLG,
+                    marginTop: `calc(${token.layout?.headerHeight || 64}px + ${token.paddingLG}px)`
+                }}>
+                    <Empty description="Profile not found" />
+                </Content>
+            </Layout>
+        );
     }
-  };
 
-  const handleCancel = () => {
-    setIsEditing(false);
-    userForm.resetFields();
-  };
+    const isAdmin = userProfile.role === UserRole.ADMIN;
 
-  const handleSaveUserInfo = async (values: ProfileFormData) => {
-    try {
-      setSaving(true);
-      // In a real app, this would be an API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      message.success('User information updated successfully');
-      setIsEditing(false);
-    } catch (error) {
-      message.error('Failed to update user information');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const isOwner = user?.username === username;
-  const canEditUserInfo = isOwner && userData.role === UserRole.USER;
-
-  const items = [
-    {
-      key: 'basic',
-      label: (
-        <Space>
-          <UserOutlined />
-          <span>Profile Information</span>
-        </Space>
-      ),
-      children: (
-        <BasicInfo
-          profileData={userData}
-          isOwner={isOwner}
-        />
-      )
-    },
-    {
-      key: 'security',
-      label: (
-        <Space>
-          <LockOutlined />
-          <span>Security</span>
-        </Space>
-      ),
-      children: (
-        <Card
-          title={<Text strong style={{ fontSize: token.customFontSize.base }}>Reset Password</Text>}
-          style={{ 
-            width: '100%',
-            borderRadius: token.borderRadius.sm,
-          }}
-        >
-          <div style={{ padding: token.spacing.md }}>
-            <Text type="secondary">
-              This feature will be implemented in a future task. Here you will be able to:
-            </Text>
-            <ul style={{ 
-              paddingLeft: token.spacing.lg,
-              marginTop: token.spacing.sm,
-              color: token.colorTextSecondary
-            }}>
-              <li>Reset your password if forgotten</li>
-              <li>Set up a new secure password</li>
-            </ul>
-          </div>
+    const renderBasicInfo = () => (
+        <Card style={{ 
+            borderRadius: token.borderRadiusLG, 
+            overflow: 'hidden', 
+            boxShadow: token.boxShadow 
+        }}>
+            <ProfileHeader 
+                userProfile={userProfile} 
+                isEditing={isEditing}
+            />
+            {isAdmin ? (
+                <ProfileInfo
+                    userProfile={userProfile}
+                    onEdit={handleEdit}
+                />
+            ) : isEditing ? (
+                <ProfileForm
+                    userProfile={userProfile}
+                    form={profileForm}
+                    onSave={handleSave}
+                    onCancel={handleCancel}
+                    isLoading={isUpdating}
+                />
+            ) : (
+                <ProfileInfo
+                    userProfile={userProfile}
+                    onEdit={handleEdit}
+                />
+            )}
         </Card>
-      )
-    }
-  ];
+    );
 
-  // Add role-specific tabs
-  if (userData.role === UserRole.USER) {
-    items.push({
-      key: 'seller',
-      label: (
-        <Space>
-          <ShoppingOutlined />
-          <span>Seller Information</span>
-        </Space>
-      ),
-      children: (
-        <Card
-          style={{
-            width: '100%',
-            boxShadow: token.shadows.light.md,
-            borderRadius: token.borderRadius.md,
-            overflow: 'hidden',
-            marginBottom: token.spacing.lg
-          }}
-        >
-          <Title level={4}>Seller Dashboard</Title>
-          <Space direction="vertical" style={{ width: '100%' }} size="large">
-            <Card
-              title={<Text strong style={{ fontSize: token.customFontSize.base }}>Store Information</Text>}
-              style={{ 
-                width: '100%',
-                borderRadius: token.borderRadius.sm,
-              }}
-            >
-              {isEditing && canEditUserInfo ? (
-                <Form
-                  form={userForm}
-                  layout="vertical"
-                  onFinish={handleSaveUserInfo}
-                  style={{ width: '100%' }}
-                >
-                  <Form.Item
-                    name="storeAddress"
-                    label={<span style={{
-                      fontSize: token.customFontSize.sm,
-                      color: token.colorText
-                    }}>Store Address</span>}
-                  >
-                    <Input placeholder="Enter your store address" />
-                  </Form.Item>
-                  <Form.Item>
-                    <Space>
-                      <Button 
-                        type="primary" 
-                        htmlType="submit" 
-                        loading={saving}
-                        style={{ 
-                          backgroundColor: token.colorPrimary,
-                          borderColor: token.colorPrimary
-                        }}
-                      >
-                        Save Changes
-                      </Button>
-                      <Button onClick={handleCancel}>Cancel</Button>
-                    </Space>
-                  </Form.Item>
-                </Form>
-              ) : (
-                <div style={{ padding: token.spacing.md }}>
-                  <div className="info-item" style={{ marginBottom: token.spacing.md }}>
-                    <Text strong style={{ display: 'block', marginBottom: token.spacing.xxs, color: token.colorTextSecondary }}>Store Address</Text>
-                    <Text style={{ fontSize: token.customFontSize.base }}>
-                      {userData.userInfo.storeAddress || 'None specified'}
-                    </Text>
-                  </div>
-                  {canEditUserInfo && (
-                    <Button 
-                      type="primary" 
-                      onClick={handleEdit} 
-                      style={{ 
-                        marginTop: token.spacing.md,
-                        backgroundColor: token.colorPrimary,
-                        borderColor: token.colorPrimary
-                      }}
-                    >
-                      Edit Store Information
-                    </Button>
-                  )}
-                </div>
-              )}
-            </Card>
-
-            <Card
-              title={<Text strong style={{ fontSize: token.customFontSize.base }}>Product Categories</Text>}
-              style={{ 
-                width: '100%',
-                borderRadius: token.borderRadius.sm,
-              }}
-            >
-              <div style={{ padding: token.spacing.md }}>
+    const renderSecurityTab = () => (
+        <Card style={{ 
+            borderRadius: token.borderRadiusLG, 
+            boxShadow: token.boxShadow 
+        }}>
+            <div style={{ padding: token.paddingLG }}>
+                <Title level={4}>Security Settings</Title>
                 <Text type="secondary">
-                  This feature will be implemented in a future task. Here you will be able to:
+                    Password reset functionality will be implemented in a future update. Here you will be able to:
                 </Text>
                 <ul style={{ 
-                  paddingLeft: token.spacing.lg,
-                  marginTop: token.spacing.sm,
-                  color: token.colorTextSecondary
+                    paddingLeft: token.paddingLG, 
+                    marginTop: token.margin 
                 }}>
-                  <li>Manage your product categories</li>
-                  <li>Add new categories to your store</li>
-                  <li>Track category performance</li>
-                  <li>Get insights about your product categories</li>
+                    <li>Change your current password</li>
+                    <li>Set up two-factor authentication</li>
+                    <li>View login history</li>
+                    <li>Manage active sessions</li>
                 </ul>
-              </div>
-            </Card>
-
-            <Card
-              title={<Text strong style={{ fontSize: token.customFontSize.base }}>Products Management</Text>}
-              style={{ 
-                width: '100%',
-                borderRadius: token.borderRadius.sm,
-              }}
-            >
-              <div style={{ padding: token.spacing.md }}>
-                <Text type="secondary">
-                  This feature will be implemented in a future task. Here you will be able to:
-                </Text>
-                <ul style={{ 
-                  paddingLeft: token.spacing.lg,
-                  marginTop: token.spacing.sm,
-                  color: token.colorTextSecondary
-                }}>
-                  <li>Add new products to your store</li>
-                  <li>Edit existing products</li>
-                  <li>Manage product inventory</li>
-                  <li>Track product performance</li>
-                </ul>
-              </div>
-            </Card>
-
-            <Card
-              title={<Text strong style={{ fontSize: token.customFontSize.base }}>Orders Management</Text>}
-              style={{ 
-                width: '100%',
-                borderRadius: token.borderRadius.sm,
-              }}
-            >
-              <div style={{ padding: token.spacing.md }}>
-                <Text type="secondary">
-                  This feature will be implemented in a future task. Here you will be able to:
-                </Text>
-                <ul style={{ 
-                  paddingLeft: token.spacing.lg,
-                  marginTop: token.spacing.sm,
-                  color: token.colorTextSecondary
-                }}>
-                  <li>View and manage incoming orders</li>
-                  <li>Process order shipments</li>
-                  <li>Track order status</li>
-                </ul>
-              </div>
-            </Card>
-          </Space>
-        </Card>
-      )
-    });
-
-    items.push({
-      key: 'buyer',
-      label: (
-        <Space>
-          <HeartOutlined />
-          <span>Buyer Information</span>
-        </Space>
-      ),
-      children: (
-        <Space direction="vertical" style={{ width: '100%' }} size="large">
-          <UserInfo
-            profileData={userData}
-            isEditing={isEditing}
-            canEditUserInfo={canEditUserInfo}
-            saving={saving}
-            form={userForm as FormInstance}
-            handleEdit={handleEdit}
-            handleCancel={handleCancel}
-          />
-
-          <Card
-            title={<Text strong style={{ fontSize: token.customFontSize.base }}>Orders</Text>}
-            style={{ 
-              width: '100%',
-              borderRadius: token.borderRadius.sm,
-            }}
-          >
-            <div style={{ padding: token.spacing.md }}>
-              <Text type="secondary">
-                This feature will be implemented in a future task. Here you will be able to:
-              </Text>
-              <ul style={{ 
-                paddingLeft: token.spacing.lg,
-                marginTop: token.spacing.sm,
-                color: token.colorTextSecondary
-              }}>
-                <li>View your order history</li>
-                <li>Track current orders</li>
-                <li>Manage returns</li>
-                <li>View invoices</li>
-              </ul>
             </div>
-          </Card>
-        </Space>
-      )
-    });
-  }
+        </Card>
+    );
 
-  if (userData.role === UserRole.ADMIN) {
-    items.push({
-      key: 'admin',
-      label: (
-        <Space>
-          <UserOutlined />
-          <span>Admin Dashboard</span>
-        </Space>
-      ),
-      children: <AdminInfo />
-    });
-  }
+    const tabItems = [
+        {
+            key: 'basic',
+            label: (
+                <Space>
+                    <UserOutlined />
+                    <span>Profile Information</span>
+                </Space>
+            ),
+            children: renderBasicInfo()
+        },
+        {
+            key: 'security',
+            label: (
+                <Space>
+                    <LockOutlined />
+                    <span>Security</span>
+                </Space>
+            ),
+            children: renderSecurityTab()
+        }
+    ];
 
-  return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Content style={{ padding: token.spacing.lg }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <Tabs
-            activeKey={activeTab}
-            onChange={setActiveTab}
-            items={items}
-            style={{
-              background: token.colorBgContainer,
-              padding: token.spacing.lg,
-              borderRadius: token.borderRadius.md,
-              boxShadow: token.shadows.light.md
-            }}
-          />
-        </div>
-      </Content>
-    </Layout>
-  );
+    return (
+        <Layout>
+            <Content style={{
+                padding: token.paddingLG,
+                marginTop: `calc(${token.layout?.headerHeight || 64}px + ${token.paddingLG}px)`,
+                background: token.colorBgLayout
+            }}>
+                <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+                    <div style={{ 
+                        marginBottom: token.marginXL, 
+                        textAlign: 'center' 
+                    }}>
+                        <Title level={2} style={{ margin: 0 }}>Profile Settings</Title>
+                        <Text type="secondary" style={{ fontSize: token.fontSizeLG }}>
+                            Manage your account information and preferences
+                        </Text>
+                    </div>
+                    
+                    <Tabs
+                        activeKey={activeTab}
+                        onChange={setActiveTab}
+                        items={tabItems}
+                        size="large"
+                        tabBarStyle={{
+                            background: token.colorBgContainer,
+                            margin: 0,
+                            padding: `0 ${token.paddingLG}px`,
+                            borderRadius: `${token.borderRadiusLG}px ${token.borderRadiusLG}px 0 0`,
+                            borderBottom: `1px solid ${token.colorBorder}`
+                        }}
+                    />
+                </div>
+            </Content>
+        </Layout>
+    );
 };
 
 export default ProfilePage;

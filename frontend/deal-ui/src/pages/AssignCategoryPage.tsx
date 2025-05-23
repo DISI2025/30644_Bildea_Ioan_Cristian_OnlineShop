@@ -1,40 +1,23 @@
-import React, { useMemo, useState } from 'react';
-import { 
-    Card, 
-    Typography, 
-    Select, 
-    Button, 
-    Layout, 
-    theme, 
-    Skeleton, 
-    Empty, 
-    Space,
-    Tag,
-    Spin
-} from 'antd';
-import { EditOutlined, SaveOutlined, CloseOutlined } from '@ant-design/icons';
-import { Navbar } from '../components/common/Navbar';
+import {useMemo, useState} from 'react';
+import {Button, Card, Empty, Layout, Select, Space, Spin, Tag, theme, Typography} from 'antd';
+import {CloseOutlined, EditOutlined, SaveOutlined, ShopOutlined} from '@ant-design/icons';
 import UserSearch from '../components/common/UserSearch';
-import { 
-    useGetUsersQuery, 
-    useGetProductCategoriesQuery, 
-    useAssignUserCategoriesMutation 
-} from '../store/api';
-import { useSnackbar } from '../context/SnackbarContext';
-import { MainUser, ProductCategory } from '../types/entities';
-import { BaseResponse, AssignProductCategoryRequest } from '../types/transfer';
+import {useAssignUserCategoriesMutation, useGetProductCategoriesQuery, useGetUsersQuery} from '../store/api';
+import {useSnackbar} from '../context/SnackbarContext';
+import {MainUser, UserRole} from '../types/entities';
+import {AssignProductCategoryRequest, BaseResponse} from '../types/transfer';
 
-const { Title, Text } = Typography;
-const { Content } = Layout;
+const {Title, Text} = Typography;
+const {Content} = Layout;
 
 export default function AssignCategoryPage() {
-    const { token } = theme.useToken();
-    const { showSuccess, showDealErrors } = useSnackbar();
-    
+    const {token} = theme.useToken();
+    const {showSuccess, showDealErrors} = useSnackbar();
+
     const [searchText, setSearchText] = useState('');
     const [editingUserId, setEditingUserId] = useState<string | null>(null);
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-    
+
     const {
         data: usersResponse,
         isLoading: isLoadingUsers,
@@ -46,18 +29,26 @@ export default function AssignCategoryPage() {
         isLoading: isLoadingCategories
     } = useGetProductCategoriesQuery();
 
-    const [assignUserCategories, { isLoading: isAssigning }] = useAssignUserCategoriesMutation();
+    const [assignUserCategories, {isLoading: isAssigning}] = useAssignUserCategoriesMutation();
 
-    const users = useMemo(() => usersResponse?.payload || [], [usersResponse?.payload]);
+    const sellersOnly = useMemo(() => {
+        const allUsers = usersResponse?.payload || [];
+        return allUsers.filter(user =>
+            user.role !== UserRole.ADMIN &&
+            user.storeAddress &&
+            user.storeAddress.trim() !== ''
+        );
+    }, [usersResponse?.payload]);
+
     const categories = useMemo(() => categoriesResponse?.payload || [], [categoriesResponse?.payload]);
 
     const filteredUsers = useMemo(() => {
-        if (!searchText) return users;
-        return users.filter(user =>
+        if (!searchText) return sellersOnly;
+        return sellersOnly.filter(user =>
             user.username.toLowerCase().includes(searchText.toLowerCase()) ||
             user.fullName?.toLowerCase().includes(searchText.toLowerCase())
         );
-    }, [users, searchText]);
+    }, [sellersOnly, searchText]);
 
     const handleSearchChange = (value: string): void => {
         setSearchText(value);
@@ -65,7 +56,8 @@ export default function AssignCategoryPage() {
 
     const startEditUser = (user: MainUser) => {
         setEditingUserId(user.id);
-        const currentCategoryIds = user.productCategories?.map(cat => cat.id) || [];
+        const currentCategoryIds = user.productCategories?.map(cat => cat.id) ||
+            (user as any).productCategoryIds || [];
         setSelectedCategories(currentCategoryIds);
     };
 
@@ -100,6 +92,43 @@ export default function AssignCategoryPage() {
         return colors[index % colors.length] || 'default';
     };
 
+    const getCategoryName = (categoryId: string): string => {
+        const category = categories.find(c => c.id === categoryId);
+        return category?.categoryName || 'Unknown Category';
+    };
+
+    const getUserCategoryIds = (user: MainUser): string[] => {
+        if (user.productCategories && Array.isArray(user.productCategories)) {
+            return user.productCategories.map(cat => cat.id);
+        }
+        return (user as any).productCategoryIds || [];
+    };
+
+    const renderUserCategories = (user: MainUser) => {
+        const categoryIds = getUserCategoryIds(user);
+
+        if (categoryIds.length === 0) {
+            return (
+                <Text type="secondary" italic>
+                    No categories assigned
+                </Text>
+            );
+        }
+
+        return (
+            <div style={{display: 'inline-flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px'}}>
+                {categoryIds.map(categoryId => (
+                    <Tag
+                        key={categoryId}
+                        color={getCategoryColor(categoryId)}
+                    >
+                        {getCategoryName(categoryId)}
+                    </Tag>
+                ))}
+            </div>
+        );
+    };
+
     if (isLoadingUsers || isLoadingCategories) {
         return (
             <Layout>
@@ -107,9 +136,9 @@ export default function AssignCategoryPage() {
                     padding: "2rem",
                     marginTop: `calc(${token.layout.headerHeight}px + 2rem)`
                 }}>
-                    <div style={{ textAlign: 'center', padding: '40px' }}>
-                        <Spin size="large" />
-                        <p style={{ marginTop: '16px' }}>Loading users and categories...</p>
+                    <div style={{textAlign: 'center', padding: '40px'}}>
+                        <Spin size="large"/>
+                        <p style={{marginTop: '16px'}}>Loading sellers and categories...</p>
                     </div>
                 </Content>
             </Layout>
@@ -122,21 +151,27 @@ export default function AssignCategoryPage() {
                 padding: "2rem",
                 marginTop: `calc(${token.layout.headerHeight}px + 2rem)`
             }}>
-                <Title level={2} style={{ textAlign: "center", marginBottom: "2rem" }}>
+                <Title level={2} style={{textAlign: "center", marginBottom: "1rem"}}>
                     Product Category Assignment Manager
                 </Title>
 
-                <UserSearch onSearch={handleSearchChange} />
+                <div style={{textAlign: "center", marginBottom: "2rem"}}>
+                    <Text type="secondary" style={{fontSize: token.fontSizeLG}}>
+                        Assign product categories to sellers only. Only users with store addresses can manage products.
+                    </Text>
+                </div>
+
+                <UserSearch onSearch={handleSearchChange}/>
 
                 {filteredUsers.length === 0 ? (
-                    <Card style={{ textAlign: 'center', padding: '40px' }}>
-                        <Empty 
-                            description="No users found" 
+                    <Card style={{textAlign: 'center', padding: '40px'}}>
+                        <Empty
+                            description={searchText ? "No sellers found matching your search" : "No sellers found. Users need to set up their store address to appear here."}
                             image={Empty.PRESENTED_IMAGE_SIMPLE}
                         />
                     </Card>
                 ) : (
-                    <div style={{ display: 'grid', gap: '16px' }}>
+                    <div style={{display: 'grid', gap: '16px'}}>
                         {filteredUsers.map(user => (
                             <Card
                                 key={user.id}
@@ -147,65 +182,66 @@ export default function AssignCategoryPage() {
                                     border: editingUserId === user.id ? `2px solid ${token.colorPrimary}` : `1px solid ${token.colorBorder}`,
                                     transition: 'all 0.3s ease'
                                 }}
-                                bodyStyle={{ padding: '16px' }}
+                                bodyStyle={{padding: '16px'}}
                             >
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <div style={{ flex: 1 }}>
-                                        <Title level={4} style={{ margin: 0, marginBottom: '8px' }}>
-                                            {user.fullName || user.username}
-                                        </Title>
-                                        
-                                        <div>
-                                            <Text strong style={{ marginRight: '8px' }}>Categories:</Text>
+                                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                                    <div style={{flex: 1}}>
+                                        <div style={{display: 'flex', alignItems: 'center', marginBottom: '8px'}}>
+                                            <Title level={4} style={{margin: 0, marginRight: '8px'}}>
+                                                {user.fullName || user.username}
+                                            </Title>
+                                            <Tag color="green" icon={<ShopOutlined/>}>
+                                                Seller
+                                            </Tag>
+                                        </div>
+
+                                        <div style={{marginBottom: '8px'}}>
+                                            <Text type="secondary" style={{fontSize: token.fontSizeSM}}>
+                                                <strong>Store:</strong> {user.storeAddress}
+                                            </Text>
+                                        </div>
+
+                                        <div style={{marginBottom: '8px'}}>
                                             {editingUserId === user.id ? (
-                                                <Select
-                                                    mode="multiple"
-                                                    style={{ width: '100%', minWidth: '300px' }}
-                                                    placeholder="Select categories"
-                                                    value={selectedCategories}
-                                                    onChange={setSelectedCategories}
-                                                    loading={isAssigning}
-                                                >
-                                                    {categories.map(category => (
-                                                        <Select.Option key={category.id} value={category.id}>
-                                                            {category.categoryName}
-                                                        </Select.Option>
-                                                    ))}
-                                                </Select>
-                                            ) : (
-                                                <div style={{ display: 'inline-flex', flexWrap: 'wrap', gap: '4px', marginTop: '4px' }}>
-                                                    {user.productCategories && user.productCategories.length > 0 ? (
-                                                        user.productCategories.map(category => (
-                                                            <Tag
-                                                                key={category.id}
-                                                                color={getCategoryColor(category.id)}
-                                                            >
+                                                <div>
+                                                    <Text strong style={{marginRight: '8px'}}>Assign Categories:</Text>
+                                                    <Select
+                                                        mode="multiple"
+                                                        style={{width: '100%', minWidth: '300px', marginTop: '4px'}}
+                                                        placeholder="Select categories"
+                                                        value={selectedCategories}
+                                                        onChange={setSelectedCategories}
+                                                        loading={isAssigning}
+                                                    >
+                                                        {categories.map(category => (
+                                                            <Select.Option key={category.id} value={category.id}>
                                                                 {category.categoryName}
-                                                            </Tag>
-                                                        ))
-                                                    ) : (
-                                                        <Text type="secondary" italic>
-                                                            No categories assigned
-                                                        </Text>
-                                                    )}
+                                                            </Select.Option>
+                                                        ))}
+                                                    </Select>
+                                                </div>
+                                            ) : (
+                                                <div>
+                                                    <Text strong style={{marginRight: '8px'}}>Categories:</Text>
+                                                    {renderUserCategories(user)}
                                                 </div>
                                             )}
                                         </div>
                                     </div>
-                                    
-                                    <div style={{ marginLeft: '16px' }}>
+
+                                    <div style={{marginLeft: '16px'}}>
                                         {editingUserId === user.id ? (
                                             <Space>
                                                 <Button
                                                     type="primary"
-                                                    icon={<SaveOutlined />}
+                                                    icon={<SaveOutlined/>}
                                                     loading={isAssigning}
                                                     onClick={() => handleSaveCategories(user.id)}
                                                 >
                                                     Save
                                                 </Button>
                                                 <Button
-                                                    icon={<CloseOutlined />}
+                                                    icon={<CloseOutlined/>}
                                                     onClick={cancelEdit}
                                                 >
                                                     Cancel
@@ -214,7 +250,7 @@ export default function AssignCategoryPage() {
                                         ) : (
                                             <Button
                                                 type="default"
-                                                icon={<EditOutlined />}
+                                                icon={<EditOutlined/>}
                                                 onClick={() => startEditUser(user)}
                                             >
                                                 Edit Categories

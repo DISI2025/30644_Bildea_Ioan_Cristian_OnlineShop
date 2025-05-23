@@ -49,6 +49,25 @@ export interface AssignProductCategoryRequest {
     productCategoryIds: string[];
 }
 
+export interface UpdateUserRequest {
+    id: string;
+    username?: string;
+    email?: string;
+    role?: string;
+}
+
+export interface UserProfileUpdateRequest {
+    id: string;
+    fullName?: string;
+    address?: string;
+    city?: string;
+    country?: string;
+    postalCode?: string;
+    phoneNumber?: string;
+    profileUrl?: string;
+    storeAddress?: string;
+}
+
 //<---Product Category--->
 export interface CreateProductCategoryRequest {
     categoryName: string;

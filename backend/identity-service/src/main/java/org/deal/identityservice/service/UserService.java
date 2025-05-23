@@ -154,11 +154,8 @@ public class UserService implements UserDetailsService {
     public Optional<UserDTO> assignProductCategories(final AssignProductCategoryRequest request) {
         return userRepository.findById(request.userId())
                 .map(user -> {
-                    Set<UUID> existingIds = Optional.ofNullable(user.getProductCategoryIds())
-                            .orElse(new HashSet<>());
-
-                    existingIds.addAll(request.productCategoryIds());
-                    user.setProductCategoryIds(existingIds);
+                    Set<UUID> newCategoryIds = new HashSet<>(request.productCategoryIds());
+                    user.setProductCategoryIds(newCategoryIds);
 
                     userRepository.save(user);
                     return mapToDTO(user);

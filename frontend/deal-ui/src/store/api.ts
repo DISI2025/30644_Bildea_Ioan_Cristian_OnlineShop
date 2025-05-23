@@ -12,9 +12,11 @@ import {
     DealResponse,
     ForgotPasswordRequest,
     ResetPasswordRequest, UpdateProductCategoryRequest,
-    UpdateProductRequest
+    UpdateProductRequest,
+    UpdateUserRequest,
+    UserProfileUpdateRequest
 } from "../types/transfer.ts";
-import {Product, ProductCategory, BaseUser, MainUser} from "../types/entities.ts";
+import {Product, ProductCategory, MainUser} from "../types/entities.ts";
 
 const appBaseQuery = fetchBaseQuery({
     baseUrl: DEAL_ENDPOINTS.BASE, prepareHeaders: (headers: Headers /*{getState}*/) => {
@@ -76,6 +78,22 @@ export const api = createApi({
         getUserById: builder.query<DealResponse<MainUser>, string>({
             query: (id) => `${DEAL_ENDPOINTS.USERS}/${id}`,
             transformErrorResponse: (response) => response.data as BaseResponse,
+        }),
+
+        getUserProfile: builder.query<DealResponse<MainUser>, string>({
+            query: (id) => `${DEAL_ENDPOINTS.USERS}/profile/${id}`,
+            transformErrorResponse: (response) => response.data as BaseResponse,
+            providesTags: ['Users'],
+        }),
+
+        updateUserProfile: builder.mutation<DealResponse<MainUser>, UserProfileUpdateRequest & UpdateUserRequest>({
+            query: ({ id, username, email, role, ...profileData }) => ({
+                url: `${DEAL_ENDPOINTS.USERS}?${new URLSearchParams(Object.entries(profileData).filter(([_, v]) => v != null)).toString()}`,
+                method: HTTP_METHOD.PATCH,
+                body: { id, username, email, role },
+            }),
+            transformErrorResponse: (response) => response.data as BaseResponse,
+            invalidatesTags: ['Users'],
         }),
 
         assignUserCategories: builder.mutation<DealResponse<MainUser>, AssignProductCategoryRequest>({
@@ -175,6 +193,8 @@ export const {
     useResetPasswordMutation,
     useGetUsersQuery,
     useGetUserByIdQuery,
+    useGetUserProfileQuery,
+    useUpdateUserProfileMutation,
     useAssignUserCategoriesMutation,
     useGetProductCategoriesQuery,
     useGetProductCategoryByIdQuery,

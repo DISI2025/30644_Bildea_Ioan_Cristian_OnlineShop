@@ -9,6 +9,7 @@ import {UserOutlined, LogoutOutlined, ShoppingCartOutlined} from '@ant-design/ic
 import type {MenuProps} from 'antd';
 import {selectCartTotalItems} from "../../store/slices/cart-slice";
 import {UserRole} from "../../types/entities";
+import { useGetUserProfileQuery } from '../../store/api';
 
 const {useToken} = theme;
 
@@ -25,6 +26,14 @@ export const NavbarController: React.FC<NavbarActionsProps> = ({
     const dispatch = useDispatch();
     const {loggedIn, user} = useSelector(selectAuthState);
     const cartItemsCount = useSelector(selectCartTotalItems);
+
+    const {
+        data: profileResponse
+    } = useGetUserProfileQuery(user?.id || '', {
+        skip: !user?.id || !loggedIn
+    });
+
+    const userProfile = profileResponse?.payload;
 
    const handleLogout = () => {
       setTimeout(() => {
@@ -47,6 +56,14 @@ export const NavbarController: React.FC<NavbarActionsProps> = ({
          onClick: handleLogout,
       },
    ];
+
+    const getAvatarSrc = () => {
+        return userProfile?.profileUrl || null;
+    };
+
+    const getAvatarFallback = () => {
+        return user?.username?.[0]?.toUpperCase() || 'U';
+    };
 
     return (
         <Space size="middle" align="center" style={{ height: '100%' }}>
@@ -71,12 +88,15 @@ export const NavbarController: React.FC<NavbarActionsProps> = ({
                 <Dropdown menu={{ items: profileItems }} placement="bottomRight">
                     <Space style={{ cursor: 'pointer' }}>
                         <Avatar 
+                            src={getAvatarSrc()}
                             style={{ 
-                                backgroundColor: token.colorPrimary,
+                                backgroundColor: !getAvatarSrc() ? token.colorPrimary : undefined,
                                 verticalAlign: 'middle',
+                                border: getAvatarSrc() ? `2px solid ${token.colorBorder}` : 'none'
                             }}
+                            icon={!getAvatarSrc() ? <UserOutlined /> : undefined}
                         >
-                            {user?.username?.[0]?.toUpperCase() || 'U'}
+                            {!getAvatarSrc() ? getAvatarFallback() : null}
                         </Avatar>
                         <span style={{ color: token.colorText }}>{user?.username}</span>
                     </Space>
