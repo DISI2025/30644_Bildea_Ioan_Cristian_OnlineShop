@@ -1,6 +1,5 @@
 import React from 'react';
 import {Layout, theme} from 'antd';
-import {Navbar} from "../components/common/Navbar";
 
 const {Content, Footer} = Layout;
 const {useToken} = theme;
@@ -10,8 +9,6 @@ export const HomePage: React.FC = () => {
 
     return (
         <Layout style={{minHeight: '100vh'}}>
-            <Navbar/>
-
             <Content style={{
                 padding: token.spacing.lg,
                 backgroundColor: token.colorBgLayout,

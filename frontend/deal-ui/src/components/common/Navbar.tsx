@@ -1,5 +1,5 @@
 import React, {useMemo} from 'react';
-import {Badge, Flex, Layout, Menu, theme} from 'antd';
+import {Flex, Layout, Menu, theme} from 'antd';
 import {useLocation, useNavigate} from 'react-router-dom';
 import {useTheme} from '../../context/ThemeContext.tsx';
 import {ROUTES} from '../../routes/AppRouter.tsx';
@@ -57,6 +57,15 @@ export const Navbar: React.FC = () => {
                 <div style={{display: 'flex', alignItems: 'center', gap: token.spacing.xs}}>
                     <ProductOutlined style={{fontSize: token.customFontSize.md}}/>
                     <span>Product Category Manager</span>
+                </div>
+            ),
+        },
+        {
+            key: ROUTES.ASSIGN_PRODUCT_CATEGORIES,
+            label: (
+                <div style={{display: 'flex', alignItems: 'center', gap: token.spacing.xs}}>
+                    <ProductOutlined style={{fontSize: token.customFontSize.md}}/>
+                    <span>Product Category Assign Manager</span>
                 </div>
             ),
         },
