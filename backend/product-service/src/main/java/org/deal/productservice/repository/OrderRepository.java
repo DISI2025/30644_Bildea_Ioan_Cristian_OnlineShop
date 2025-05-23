@@ -20,6 +20,6 @@ public interface OrderRepository extends JpaRepository<Order, UUID> {
 
     List<Order> findAllByBuyerId(final UUID buyerId);
 
-    @Query(value = "select o from Order o where o.status != 'DONE'")
+    @Query("SELECT o FROM Order o WHERE o.status NOT IN ('DONE', 'CANCELLED')")
     List<Order> findNotFinishedOrders();
 }

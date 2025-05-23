@@ -15,7 +15,7 @@ public class OrderStateMachine {
             case PENDING -> Optional.of(OrderStatus.PROCESSING);
             case PROCESSING -> Optional.of(OrderStatus.SHIPPING);
             case SHIPPING -> Optional.of(OrderStatus.DONE);
-            case DONE -> Optional.empty();
+            case DONE, CANCELLED -> Optional.empty();
         };
     }
 }

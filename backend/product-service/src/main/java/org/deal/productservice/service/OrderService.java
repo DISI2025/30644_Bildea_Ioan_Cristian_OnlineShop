@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 @Service
@@ -50,8 +51,7 @@ public class OrderService {
                 request.items().stream()
                         .map(CreateOrderRequest.CreateOrderItemRequest::productId)
                         .toList());
-        var productsById = orderProducts.stream()
-                .collect(Collectors.toMap(Product::getId, product -> product));
+        var productsById = getProductsMap(orderProducts);
         checkProductStock(request, productsById);
 
         var order = orderRepository.save(
@@ -74,18 +74,7 @@ public class OrderService {
         orderRepository.save(order);
 
         if (status == OrderStatus.PROCESSING) {
-            var orderedQuantityPerProduct = order.getItems().stream()
-                    .collect(Collectors.toMap(item -> item.getProduct().getId(), OrderItem::getQuantity));
-            var toUpdateProducts = productRepository.findMultipleById(
-                    order.getItems().stream()
-                            .map(item -> item.getProduct().getId())
-                            .toList());
-            toUpdateProducts.forEach(product -> {
-                var quantity = orderedQuantityPerProduct.get(product.getId());
-                product.setStock(product.getStock() - quantity);
-            });
-
-            productRepository.saveAll(toUpdateProducts);
+            handleProcessingOrder(order);
         }
     }
 
@@ -95,6 +84,26 @@ public class OrderService {
                 .map(this::mapToDTO);
     }
 
+    private void handleProcessingOrder(final Order order) {
+        var orderedQuantityPerProduct = order.getItems().stream()
+                .collect(Collectors.toMap(item -> item.getProduct().getId(), OrderItem::getQuantity));
+        var toUpdateProducts = productRepository.findMultipleById(
+                order.getItems().stream()
+                        .map(item -> item.getProduct().getId())
+                        .toList());
+
+        if (checkProductStock(order.getItems(), getProductsMap(toUpdateProducts))) {
+            toUpdateProducts.forEach(product -> {
+                var quantity = orderedQuantityPerProduct.get(product.getId());
+                product.setStock(product.getStock() - quantity);
+            });
+            productRepository.saveAll(toUpdateProducts);
+        } else {
+            order.setStatus(OrderStatus.CANCELLED);
+            orderRepository.save(order);
+        }
+    }
+
     private void checkProductStock(final CreateOrderRequest request, final Map<UUID, Product> products) {
         request.items().forEach(createOrderItemRequest -> {
             var product = products.get(createOrderItemRequest.productId());
@@ -102,6 +111,24 @@ public class OrderService {
                 throw new DealException("Not enough stock for product " + product.getId(), HttpStatus.BAD_REQUEST);
             }
         });
+    }
+
+    private boolean checkProductStock(final List<OrderItem> orderItems, final Map<UUID, Product> products) {
+        var valid = new AtomicBoolean(true);
+
+        orderItems.forEach(orderItem -> {
+            var product = products.get(orderItem.getProduct().getId());
+            if (orderItem.getQuantity() > product.getStock()) {
+                valid.set(false);
+            }
+        });
+
+        return valid.get();
+    }
+
+    private Map<UUID, Product> getProductsMap(final List<Product> products) {
+        return products.stream()
+                .collect(Collectors.toMap(Product::getId, product -> product));
     }
 
     private List<OrderItem> saveOrderItems(
@@ -114,7 +141,7 @@ public class OrderService {
         return orderItemRepository.saveAll(orderItems);
     }
 
-    private OrderItem mapRequestToOrderItem(CreateOrderRequest.CreateOrderItemRequest request, final Order order, final Map<UUID, Product> products) {
+    private OrderItem mapRequestToOrderItem(final CreateOrderRequest.CreateOrderItemRequest request, final Order order, final Map<UUID, Product> products) {
         return OrderItem.builder()
                 .withQuantity(request.quantity())
                 .withProduct(Optional.ofNullable(
