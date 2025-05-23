@@ -5,6 +5,7 @@ import org.deal.core.exception.DealError;
 import org.deal.core.response.product.ProductDetailsResponse;
 import org.deal.core.util.Mapper;
 import org.deal.productservice.entity.Product;
+import org.deal.productservice.enums.SortOption;
 import org.deal.productservice.service.ProductService;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.Test;
@@ -40,11 +41,102 @@ class ProductControllerTest {
     private ProductController victim;
 
     @Test
+    void testGetProducts_withOnlyProductName_shouldReturnSuccess() {
+        var expectedProducts = List.of(Instancio.create(Product.class));
+        var expectedDTOs = convertAll(expectedProducts, ProductDTO.class);
+
+        String productName = "Apple";
+
+        when(productService.findAll(productName, null, SortOption.NONE)).thenReturn(Optional.of(expectedDTOs));
+
+        var response = victim.getProducts(null, productName, SortOption.NONE);
+
+        verify(productService).findAll(productName, null, SortOption.NONE);
+        assertThatResponseIsSuccessful(response, expectedDTOs);
+    }
+
+    @Test
+    void testGetProducts_withOnlyProductCategoryId_shouldReturnSuccess() {
+        var expectedProducts = List.of(Instancio.create(Product.class));
+        var expectedDTOs = convertAll(expectedProducts, ProductDTO.class);
+
+        UUID categoryId = UUID.randomUUID();
+
+        when(productService.findAll(null, categoryId, SortOption.NONE)).thenReturn(Optional.of(expectedDTOs));
+
+        var response = victim.getProducts(categoryId, null, SortOption.NONE);
+
+        verify(productService).findAll(null, categoryId, SortOption.NONE);
+        assertThatResponseIsSuccessful(response, expectedDTOs);
+    }
+
+    @Test
+    void testGetProducts_withOnlySortOption_shouldReturnSuccess() {
+        var expectedProducts = List.of(Instancio.create(Product.class));
+        var expectedDTOs = convertAll(expectedProducts, ProductDTO.class);
+
+        SortOption sortOption = SortOption.Z_TO_A;
+
+        when(productService.findAll(null, null, sortOption)).thenReturn(Optional.of(expectedDTOs));
+
+        var response = victim.getProducts(null, null, sortOption);
+
+        verify(productService).findAll(null, null, sortOption);
+        assertThatResponseIsSuccessful(response, expectedDTOs);
+    }
+
+    @Test
+    void testGetProducts_withAllFiltersNoResults_returnsFailure() {
+        UUID categoryId = UUID.randomUUID();
+        String productName = "Banana";
+        SortOption sortOption = SortOption.NONE;
+
+        when(productService.findAll(productName, categoryId, sortOption)).thenReturn(Optional.empty());
+
+        var response = victim.getProducts(categoryId, productName, sortOption);
+
+        verify(productService).findAll(productName, categoryId, sortOption);
+        assertThatResponseFailed(response, List.of(new DealError(notFound(ProductDTO.class))), HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void testGetProducts_withFilters_shouldReturnSuccess() {
+        var expectedProducts = List.of(Instancio.create(Product.class), Instancio.create(Product.class));
+        var expectedDTOs = convertAll(expectedProducts, ProductDTO.class);
+
+        UUID categoryId = UUID.randomUUID();
+        String productName = "Orange";
+        var sortOption = SortOption.A_TO_Z;
+
+        when(productService.findAll(productName, categoryId, sortOption)).thenReturn(Optional.of(expectedDTOs));
+
+        var response = victim.getProducts(categoryId, productName, sortOption);
+
+        verify(productService).findAll(productName, categoryId, sortOption);
+        assertThatResponseIsSuccessful(response, expectedDTOs);
+    }
+
+    @Test
+    void testGetProducts_withFilters_noProductsFound_returnsFailure() {
+        UUID categoryId = UUID.randomUUID();
+        String productName = "NonexistentProduct";
+        var sortOption = SortOption.NONE;
+
+        when(productService.findAll(productName, categoryId, sortOption)).thenReturn(Optional.empty());
+
+        var response = victim.getProducts(categoryId, productName, sortOption);
+
+        verify(productService).findAll(productName, categoryId, sortOption);
+        assertThatResponseFailed(response, List.of(new DealError(notFound(ProductDTO.class))), HttpStatus.NOT_FOUND);
+    }
+
+
+    @Test
     void testGetProducts_shouldReturnSuccess() {
         var expectedProducts = List.of(Instancio.create(Product.class), Instancio.create(Product.class));
         when(productService.findAll()).thenReturn(Optional.of(convertAll(expectedProducts, ProductDTO.class)));
 
-        var response = victim.getProducts();
+        var response = victim.getProducts(null, null, null);
 
         verify(productService).findAll();
         assertThatResponseIsSuccessful(response, convertAll(expectedProducts, ProductDTO.class));
@@ -54,7 +146,7 @@ class ProductControllerTest {
     void testGetProducts_noProductsFound_returnsFailure() {
         when(productService.findAll()).thenReturn(Optional.empty());
 
-        var response = victim.getProducts();
+        var response = victim.getProducts(null, null, null);
 
         verify(productService).findAll();
         assertThatResponseFailed(response, List.of(new DealError(notFound(ProductDTO.class))), HttpStatus.NOT_FOUND);

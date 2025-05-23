@@ -7,11 +7,13 @@ import org.deal.core.request.product.CreateProductRequest;
 import org.deal.core.request.product.UpdateProductRequest;
 import org.deal.core.response.DealResponse;
 import org.deal.core.response.product.ProductDetailsResponse;
+import org.deal.productservice.enums.SortOption;
 import org.deal.productservice.service.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.deal.core.util.Constants.ReturnMessages.failedToSave;
@@ -26,10 +28,22 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public DealResponse<List<ProductDTO>> getProducts() {
-        return productService.findAll()
+    public DealResponse<List<ProductDTO>> getProducts(
+            @RequestParam(required = false) final UUID productCategoryId,
+            @RequestParam(required = false) final String productName,
+            @RequestParam(required = false, defaultValue = "NONE") final SortOption sortOption
+    ) {
+        Optional<List<ProductDTO>> result;
+
+        if(productName != null || productCategoryId != null || sortOption != null) {
+            result = productService.findAll(productName, productCategoryId, sortOption);
+        } else {
+            result = productService.findAll();
+        }
+
+        return result
                 .map(DealResponse::successResponse)
-                .orElse(DealResponse.failureResponse(
+                .orElseGet(() -> DealResponse.failureResponse(
                         new DealError(notFound(ProductDTO.class)),
                         HttpStatus.NOT_FOUND));
     }

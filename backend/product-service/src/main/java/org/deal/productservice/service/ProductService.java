@@ -13,12 +13,14 @@ import org.deal.core.response.product.ProductDetailsResponse;
 import org.deal.core.util.Mapper;
 import org.deal.productservice.entity.Product;
 import org.deal.productservice.entity.ProductCategory;
+import org.deal.productservice.enums.SortOption;
 import org.deal.productservice.repository.ProductCategoryRepository;
 import org.deal.productservice.repository.ProductRepository;
 import org.deal.productservice.security.DealContext;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -34,6 +36,35 @@ public class ProductService {
     private final DealClient dealClient;
     private final DealContext dealContext;
 
+    public Optional<ProductDTO> findById(final UUID id) {
+        return productRepository.findById(id).map(this::mapToDTO);
+    }
+
+    private Optional<List<ProductDTO>> sortedProductsBy(final List<Product> products, final SortOption sortOption) {
+
+        List<Product> sortedProducts = switch (sortOption) {
+            case NONE -> products;
+            case A_TO_Z -> products.stream()
+                    .sorted(Comparator.comparing(Product::getTitle, String.CASE_INSENSITIVE_ORDER))
+                    .toList();
+            case Z_TO_A -> products.stream()
+                    .sorted(Comparator.comparing(Product::getTitle, String.CASE_INSENSITIVE_ORDER).reversed())
+                    .toList();
+            case LOWEST_PRICE -> products.stream()
+                    .sorted(Comparator.comparing(Product::getPrice))
+                    .toList();
+            case HIGHEST_PRICE -> products.stream()
+                    .sorted(Comparator.comparing(Product::getPrice).reversed())
+                    .toList();
+        };
+
+        var dtoList = sortedProducts.stream()
+                .map(product -> Mapper.mapTo(product, ProductDTO.class))
+                .toList();
+
+        return Optional.of(dtoList);
+    }
+
     public Optional<List<ProductDTO>> findAll() {
         return Optional.of(productRepository.findAll().stream().map(this::mapToDTO).toList());
     }
@@ -42,8 +73,9 @@ public class ProductService {
         return Optional.of(productRepository.findAllBySellerId(sellerId).stream().map(this::mapToDTO).toList());
     }
 
-    public Optional<ProductDTO> findById(final UUID id) {
-        return productRepository.findById(id).map(this::mapToDTO);
+    public Optional<List<ProductDTO>> findAll(final String name, final UUID categoryId, final SortOption sortOption) {
+        var products = productRepository.findWithFilter(name, categoryId);
+        return sortedProductsBy(products, sortOption);
     }
 
     public Optional<ProductDetailsResponse> findDetailsById(final UUID id) {

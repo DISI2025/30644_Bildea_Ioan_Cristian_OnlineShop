@@ -7,6 +7,7 @@ import org.deal.core.dto.UserDTO;
 import org.deal.core.request.auth.ValidateTokenRequest;
 import org.deal.core.util.Mapper;
 import org.deal.productservice.entity.Product;
+import org.deal.productservice.enums.SortOption;
 import org.deal.productservice.repository.ProductCategoryRepository;
 import org.deal.productservice.repository.ProductRepository;
 import org.deal.productservice.security.DealContext;
@@ -26,7 +27,9 @@ import java.util.UUID;
 
 import static org.deal.productservice.util.TestUtils.ProductUtils.createProductRequest;
 import static org.deal.productservice.util.TestUtils.ProductUtils.updateProductRequest;
+import static org.deal.productservice.util.TestUtils.convertAll;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -296,6 +299,81 @@ class ProductServiceTest extends BaseUnitTest {
         verify(dealClient, never()).call(any(), any(), any(), any(), any());
 
         assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void testFindAll_withNameFilter_shouldReturnFilteredProducts() {
+        var product = Instancio.create(Product.class);
+        String name = "banana";
+
+        when(productRepository.findWithFilter(name, null)).thenReturn(List.of(product));
+
+        var result = victim.findAll(name, null, SortOption.NONE);
+
+        verify(productRepository).findWithFilter(name, null);
+        result.ifPresentOrElse(products -> {
+            assertThat(products, hasItem(Mapper.mapTo(product, ProductDTO.class)));
+        }, this::assertThatFails);
+    }
+
+    @Test
+    void testFindAll_withCategoryFilter_shouldReturnFilteredProducts() {
+        var product = Instancio.create(Product.class);
+        UUID categoryId = UUID.randomUUID();
+
+        when(productRepository.findWithFilter(null, categoryId)).thenReturn(List.of(product));
+
+        var result = victim.findAll(null, categoryId, SortOption.NONE);
+
+        verify(productRepository).findWithFilter(null, categoryId);
+        result.ifPresentOrElse(products -> {
+            assertThat(products, hasItem(Mapper.mapTo(product, ProductDTO.class)));
+        }, this::assertThatFails);
+    }
+
+    @Test
+    void testFindAll_withAllFilters_shouldReturnSortedProducts() {
+        var product1 = Instancio.create(Product.class);
+        var product2 = Instancio.create(Product.class);
+
+        String name = "apple";
+        UUID categoryId = UUID.randomUUID();
+        SortOption sortOption = SortOption.Z_TO_A;
+
+        when(productRepository.findWithFilter(name, categoryId)).thenReturn(List.of(product1, product2));
+
+        var result = victim.findAll(name, categoryId, sortOption);
+
+        verify(productRepository).findWithFilter(name, categoryId);
+        result.ifPresentOrElse(products -> {
+            var dtos = convertAll(List.of(product1, product2), ProductDTO.class);
+            var sorted = dtos.stream()
+                    .sorted((p1, p2) -> p2.title().compareTo(p1.title()))
+                    .toList();
+            assertThat(products, equalTo(sorted));
+        }, this::assertThatFails);
+    }
+
+    @Test
+    void testFindAll_withSortOptionAtoZ_shouldReturnSortedAscending() {
+        var product1 = Instancio.create(Product.class);
+        var product2 = Instancio.create(Product.class);
+
+        product1.setTitle("Apple");
+        product2.setTitle("Banana");
+
+        when(productRepository.findWithFilter(null, null)).thenReturn(List.of(product2, product1));
+
+        var result = victim.findAll(null, null, SortOption.A_TO_Z);
+
+        verify(productRepository).findWithFilter(null, null);
+        result.ifPresentOrElse(products -> {
+            var dtos = convertAll(List.of(product2, product1), ProductDTO.class);
+            var sorted = dtos.stream()
+                    .sorted((p1, p2) -> p1.title().compareTo(p2.title()))
+                    .toList();
+            assertThat(products, equalTo(sorted));
+        }, this::assertThatFails);
     }
 
 }
