@@ -1,7 +1,7 @@
 package org.deal.productservice.repository;
 
 import jakarta.transaction.Transactional;
-import org.deal.productservice.entity.Product;
+import org.deal.productservice.entity.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -11,15 +11,15 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface ProductRepository extends JpaRepository<Product, UUID> {
+public interface OrderRepository extends JpaRepository<Order, UUID> {
 
     @Transactional
     @Modifying
-    @Query(value = "delete from Product p where p.id=:id")
+    @Query(value = "delete from Order o where o.id=:id")
     Integer deleteByIdReturning(final UUID id);
 
-    List<Product> findAllBySellerId(final UUID sellerId);
+    List<Order> findAllByBuyerId(final UUID buyerId);
 
-    @Query(value = "SELECT p from Product p WHERE p.id in :ids")
-    List<Product> findMultipleById(final List<UUID> ids);
+    @Query("SELECT o FROM Order o WHERE o.status NOT IN ('DONE', 'CANCELLED')")
+    List<Order> findNotFinishedOrders();
 }
