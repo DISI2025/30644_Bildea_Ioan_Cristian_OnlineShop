@@ -26,3 +26,4 @@ eureka:
 
 
 whitelisted-paths: /swagger-ui/**, /v3/api-docs/**, /v3/api-docs.yaml, /swagger-ui.html, /bus/**, /actuator/**
+orders-cron-active: false

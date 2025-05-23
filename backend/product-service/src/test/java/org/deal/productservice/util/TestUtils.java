@@ -2,12 +2,14 @@ package org.deal.productservice.util;
 
 import org.deal.core.dto.ProductCategoryDTO;
 import org.deal.core.exception.DealError;
+import org.deal.core.request.order.CreateOrderRequest;
 import org.deal.core.request.product.CreateProductRequest;
 import org.deal.core.request.product.UpdateProductRequest;
 import org.deal.core.request.productcategory.CreateProductCategoryRequest;
 import org.deal.core.request.productcategory.UpdateProductCategoryRequest;
 import org.deal.core.response.DealResponse;
 import org.deal.core.util.Mapper;
+import org.deal.productservice.entity.Order;
 import org.deal.productservice.entity.Product;
 import org.deal.productservice.entity.ProductCategory;
 import org.junit.jupiter.api.Assertions;
@@ -113,6 +115,20 @@ public class TestUtils {
                     Objects.nonNull(product.getCategories()) ?
                     product.getCategories().stream().map(ProductCategory::getCategoryName).collect(Collectors.toSet()) :
                     Set.of()
+            );
+        }
+    }
+
+    public interface OrderUtils {
+        static CreateOrderRequest createOrderRequest(final Order order) {
+            return new CreateOrderRequest(
+                    order.getBuyerId(),
+                    order.getItems().stream().map(
+                            orderItem -> new CreateOrderRequest.CreateOrderItemRequest(
+                                    orderItem.getQuantity(),
+                                    orderItem.getProduct().getId()
+                            )
+                    ).toList()
             );
         }
     }

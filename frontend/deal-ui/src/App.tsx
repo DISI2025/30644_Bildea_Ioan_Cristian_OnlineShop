@@ -6,7 +6,7 @@ import {StripeProvider} from './context/StripeContext';
 
 function App() {
     const { theme } = useTheme();
-
+   // TODO: <AssignCategoryPage /> add to Router
     return (
         <ConfigProvider theme={theme}>
             <StripeProvider>

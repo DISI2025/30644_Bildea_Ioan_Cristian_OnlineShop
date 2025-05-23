@@ -121,6 +121,13 @@
             <version>5.4.1</version>
             <scope>test</scope>
         </dependency>
+
+<!--        &lt;!&ndash; State Machine &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>org.springframework.statemachine</groupId>-->
+<!--            <artifactId>spring-statemachine-core</artifactId>-->
+<!--            <version>4.0.0</version>-->
+<!--        </dependency>-->
     </dependencies>
 
     <build>

@@ -90,11 +90,11 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                             label="Categories"
                             rules={[{ required: true, message: 'Please select at least one category' }]}
                         >
-                            <Select 
-                                mode="multiple" 
-                                placeholder="Select categories" 
+                            <Select
+                                mode="multiple"
+                                placeholder="Select categories"
                                 showSearch
-                                filterOption={(input, option) => 
+                                filterOption={(input, option) =>
                                     (option?.children as unknown as string).toLowerCase().includes(input.toLowerCase())
                                 }
                             >
