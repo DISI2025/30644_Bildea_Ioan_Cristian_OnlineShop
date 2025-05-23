@@ -84,11 +84,18 @@ public class UserService implements UserDetailsService {
 
             UserDTO user = userDTO.get();
             UserProfileResponse userProfileResponse = UserProfileResponse.builder()
+                    .withId(user.id())
                     .withEmail(user.email())
                     .withUsername(user.username())
                     .withRole(user.role())
                     .withCreatedAt(user.createdAt())
                     .withProductCategories(productCategories)
+                    .withFullName(user.fullName())
+                    .withAddress(user.address())
+                    .withCity(user.city())
+                    .withCountry(user.country())
+                    .withPhoneNumber(user.phoneNumber())
+                    .withPostalCode(user.postalCode())
                     .build();
 
             return Optional.of(userProfileResponse);
@@ -122,10 +129,18 @@ public class UserService implements UserDetailsService {
         return Optional.of(mapToDTO(user));
     }
 
-    public Optional<UserDTO> update(final UpdateUserRequest request) {
+    public Optional<UserDTO> update(final UpdateUserRequest request, final String fullName, final String address, final String city, final String country, final String postalCode, final String phoneNumber) {
         return userRepository.findById(request.id())
                 .map(user -> {
                     Mapper.updateValues(user, request);
+
+                    if (fullName != null) user.setFullName(fullName);
+                    if (address != null) user.setAddress(address);
+                    if (city != null) user.setCity(city);
+                    if (country != null) user.setCountry(country);
+                    if (postalCode != null) user.setPostalCode(postalCode);
+                    if (phoneNumber != null) user.setPhoneNumber(phoneNumber);
+
                     userRepository.save(user);
 
                     return mapToDTO(user);

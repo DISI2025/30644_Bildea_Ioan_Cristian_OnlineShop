@@ -7,7 +7,6 @@ import org.deal.core.request.user.CreateUserRequest;
 import org.deal.core.request.user.UpdateUserRequest;
 import org.deal.core.response.DealResponse;
 import org.deal.core.response.auth.AuthResponse;
-import org.deal.core.response.user.UserProfileResponse;
 import org.deal.core.util.Mapper;
 import org.deal.core.util.Role;
 import org.deal.identityservice.entity.PasswordToken;
@@ -85,7 +84,15 @@ public class TestUtils {
                     truncateNanos(Timestamp.from(Instant.now())),
                     randomString(),
                     Role.USER,
-                    Set.of(UUID.randomUUID(), UUID.randomUUID()));
+                    Set.of(UUID.randomUUID(), UUID.randomUUID()),
+                    randomString(),
+                    randomString(),
+                    randomString(),
+                    randomString(),
+                    randomString(),
+                    randomString()
+            );
+
         }
 
         static UserDTO randomUserDTO() {

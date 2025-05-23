@@ -18,7 +18,13 @@ public record UserProfileResponse (
         String email,
         Timestamp createdAt,
         Role role,
-        Set<ProductCategoryDTO> productCategories
+        Set<ProductCategoryDTO> productCategories,
+        String fullName,
+        String address,
+        String city,
+        String country,
+        String postalCode,
+        String phoneNumber
 ) implements Serializable {
 }
 

@@ -62,6 +62,24 @@ public class User implements UserDetails {
     @Column(name = "product_category_id", nullable = false)
     private Set<UUID> productCategoryIds;
 
+    @Column
+    String fullName;
+
+    @Column
+    String address;
+
+    @Column
+    String city;
+
+    @Column
+    String country;
+
+    @Column
+    String postalCode;
+
+    @Column
+    String phoneNumber;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));

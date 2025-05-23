@@ -187,7 +187,7 @@ class UserServiceTest extends BaseUnitTest {
         updatedUser.setProductCategoryIds(initialUser.getProductCategoryIds());
         when(userRepository.findById(initialUser.getId())).thenReturn(Optional.of(initialUser));
 
-        var result = victim.update(updateUserRequest(updatedUser));
+        var result = victim.update(updateUserRequest(updatedUser), updatedUser.getFullName(), updatedUser.getAddress(), updatedUser.getCity(), updatedUser.getCountry(), updatedUser.getPostalCode(), updatedUser.getPhoneNumber());
 
         verify(userRepository).findById(initialUser.getId());
         verify(userRepository).save(initialUser);
@@ -201,12 +201,81 @@ class UserServiceTest extends BaseUnitTest {
     void testUpdate_userIsNotFound_returnsEmptyOptional() {
         when(userRepository.findById(any())).thenReturn(Optional.empty());
 
-        var result = victim.update(updateUserRequest(randomUser()));
+        var result = victim.update(updateUserRequest(randomUser()), null,null, null, null, null, null);
 
         verify(userRepository).findById(any());
         verify(userRepository, never()).save(any());
         result.ifPresent(this::assertThatFails);
     }
+
+    @Test
+    void testUpdate_optionalParamsAreNull_shouldNotOverrideExistingFields() {
+        var user = randomUser();
+        var expected = user;
+
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+
+        var result = victim.update(updateUserRequest(user), null,null, null, null, null, null);
+
+        verify(userRepository).findById(user.getId());
+        verify(userRepository).save(user);
+
+        assertThat(user.getAddress(), equalTo(expected.getAddress()));
+        assertThat(user.getCity(), equalTo(expected.getCity()));
+        assertThat(user.getCountry(), equalTo(expected.getCountry()));
+        assertThat(user.getPostalCode(), equalTo(expected.getPostalCode()));
+        assertThat(user.getPhoneNumber(), equalTo(expected.getPhoneNumber()));
+
+        result.ifPresentOrElse(
+                dto -> assertThat(dto, equalTo(Mapper.mapTo(user, UserDTO.class))),
+                this::assertThatFails
+        );
+    }
+
+    @Test
+    void testUpdate_someOptionalParamsProvided_shouldUpdateOnlyThoseFields() {
+        var user = randomUser();
+        var newCity = "Cluj-Napoca";
+        var newPhone = "0740123456";
+
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+
+        var result = victim.update(updateUserRequest(user), null,null, newCity, null, null, newPhone);
+
+        verify(userRepository).findById(user.getId());
+        verify(userRepository).save(user);
+
+        assertThat(user.getCity(), equalTo(newCity));
+        assertThat(user.getPhoneNumber(), equalTo(newPhone));
+        result.ifPresentOrElse(
+                dto -> assertThat(dto.city(), equalTo(newCity)),
+                this::assertThatFails
+        );
+    }
+
+    @Test
+    void testUpdate_allOptionalParamsEmptyStrings_shouldOverrideWithEmpty() {
+        var user = randomUser();
+
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+
+        var result = victim.update(updateUserRequest(user), "", "", "", "", "", "");
+
+        verify(userRepository).findById(user.getId());
+        verify(userRepository).save(user);
+
+        assertThat(user.getAddress(), equalTo(""));
+        assertThat(user.getCity(), equalTo(""));
+        assertThat(user.getCountry(), equalTo(""));
+        assertThat(user.getPostalCode(), equalTo(""));
+        assertThat(user.getPhoneNumber(), equalTo(""));
+
+        result.ifPresentOrElse(
+                dto -> assertThat(dto.address(), equalTo("")),
+                this::assertThatFails
+        );
+    }
+
 
     @Test
     void testAssignProductCategories_userFound_shouldUpdateAndReturnUserDTO() {

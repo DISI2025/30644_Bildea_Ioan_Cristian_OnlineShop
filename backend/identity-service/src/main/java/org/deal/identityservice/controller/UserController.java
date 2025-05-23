@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -70,8 +71,17 @@ public class UserController {
     }
 
     @PatchMapping
-    public DealResponse<UserDTO> update(@RequestBody final UpdateUserRequest request) {
-        return userService.update(request)
+    public DealResponse<UserDTO> update(
+            @RequestBody final UpdateUserRequest request,
+            @RequestParam(required = false) final String fullName,
+            @RequestParam(required = false) final String address,
+            @RequestParam(required = false) final String city,
+            @RequestParam(required = false) final String country,
+            @RequestParam(required = false) final String postalCode,
+            @RequestParam(required = false) final String phoneNumber
+    ) {
+
+        return userService.update(request, fullName, address, city, country, postalCode, phoneNumber)
                 .map(DealResponse::successResponse)
                 .orElse(DealResponse.failureResponse(
                         new DealError(notFound(UserDTO.class, "id", request.id())),
