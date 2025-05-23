@@ -8,6 +8,7 @@ import ForgotPasswordPage from "../pages/ForgotPasswordPage.tsx";
 import ResetPasswordPage from "../pages/ResetPasswordPage.tsx";
 import PrivateRoute from "./ProtectedRoute.tsx";
 import AdminRoute from "./AdminRoute.tsx";
+import OrderManagementPage from "../pages/OrderManagementPage.tsx";
 import ProductCategoryManagerPage from "../pages/ProductCategoryManagerPage.tsx";
 import ProductManagerPage from "../pages/ProductManagerPage.tsx";
 import ProductDetailPage from "../pages/ProductDetailPage.tsx";
@@ -26,6 +27,7 @@ export const ROUTES = {
     PRODUCT_CATEGORIES: "/product-categories",
     ASSIGN_PRODUCT_CATEGORIES: "/assign-product-categories",
     PRODUCT_DETAILS: "/products/:id",
+    ORDER_MANAGEMENT: "/order-management",
     CART: "/cart",
     ADMIN_ROUTE: "/admin",
     NOT_FOUND: "*"
@@ -45,6 +47,7 @@ export default function AppRouter() {
             <Route path={ROUTES.PRODUCT_DETAILS} element={<PrivateRoute><ProductDetailPage/></PrivateRoute>}/>
             <Route path={ROUTES.CART} element={<PrivateRoute><CartPage/></PrivateRoute>}/>
             <Route path={ROUTES.PROFILE} element={<PrivateRoute><ProfilePage/></PrivateRoute>}/>
+            <Route path={ROUTES.ORDER_MANAGEMENT} element={<OrderManagementPage/>}/>
 
             <Route path={ROUTES.PRODUCT_CATEGORIES} element={<AdminRoute><ProductCategoryManagerPage/></AdminRoute>}/>
             <Route path={ROUTES.ASSIGN_PRODUCT_CATEGORIES} element={<AdminRoute><AssignCategoryPage/></AdminRoute>}/>
