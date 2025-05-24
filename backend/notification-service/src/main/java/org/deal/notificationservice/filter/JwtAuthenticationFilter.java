@@ -90,6 +90,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(@NotNull final HttpServletRequest request) {
+        if (request.getRequestURI().startsWith("/ws-notifications")) {
+            return true;
+        }
+
         return whitelistedPaths.stream()
                 .map(pathPatternParser::parse)
                 .anyMatch(pattern -> pattern.matches(PathContainer.parsePath(request.getRequestURI())));
