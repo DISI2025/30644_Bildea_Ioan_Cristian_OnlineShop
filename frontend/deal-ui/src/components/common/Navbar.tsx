@@ -3,7 +3,7 @@ import {Flex, Layout, Menu, theme} from 'antd';
 import {useLocation, useNavigate} from 'react-router-dom';
 import {useTheme} from '../../context/ThemeContext.tsx';
 import {ROUTES} from '../../routes/AppRouter.tsx';
-import {HomeOutlined, ProductOutlined, ShoppingOutlined} from '@ant-design/icons';
+import {HomeOutlined, ProductOutlined, ShoppingOutlined, InfoCircleOutlined, ContactsOutlined} from '@ant-design/icons';
 import {Logo} from './Logo.tsx';
 import {NavbarController} from './NavbarController.tsx';
 import {AuthState, selectAuthState} from "../../store/slices/auth-slice.ts";
@@ -41,6 +41,24 @@ export const Navbar: React.FC = () => {
             ),
                 requiresSeller: true,
         },
+        {
+            key: ROUTES.ABOUT,
+            label: (
+                <div style={{display: 'flex', alignItems: 'center', gap: token.spacing.xs}}>
+                    <InfoCircleOutlined style={{fontSize: token.customFontSize.md}}/>
+                    <span>About</span>
+                </div>
+            ),
+        },
+        {
+            key: ROUTES.CONTACT,
+            label: (
+                <div style={{display: 'flex', alignItems: 'center', gap: token.spacing.xs}}>
+                    <ContactsOutlined style={{fontSize: token.customFontSize.md}}/>
+                    <span>Contact</span>
+                </div>
+            ),
+        },
         ];
 
         return allUserItems.filter(item => {
@@ -76,6 +94,24 @@ export const Navbar: React.FC = () => {
                 <div style={{display: 'flex', alignItems: 'center', gap: token.spacing.xs}}>
                     <ProductOutlined style={{fontSize: token.customFontSize.md}}/>
                     <span>Product Category Assign Manager</span>
+                </div>
+            ),
+        },
+        {
+            key: ROUTES.ABOUT,
+            label: (
+                <div style={{display: 'flex', alignItems: 'center', gap: token.spacing.xs}}>
+                    <InfoCircleOutlined style={{fontSize: token.customFontSize.md}}/>
+                    <span>About</span>
+                </div>
+            ),
+        },
+        {
+            key: ROUTES.CONTACT,
+            label: (
+                <div style={{display: 'flex', alignItems: 'center', gap: token.spacing.xs}}>
+                    <ContactsOutlined style={{fontSize: token.customFontSize.md}}/>
+                    <span>Contact</span>
                 </div>
             ),
         },

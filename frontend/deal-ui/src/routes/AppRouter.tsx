@@ -15,6 +15,8 @@ import ProductDetailPage from "../pages/ProductDetailPage.tsx";
 import CartPage from "../pages/CartPage.tsx";
 import CheckoutPage from "../pages/CheckoutPage.tsx";
 import AssignCategoryPage from "../pages/AssignCategoryPage.tsx";
+import AboutPage from "../pages/AboutPage.tsx";
+import ContactPage from "../pages/ContactPage.tsx";
 
 export const ROUTES = {
     INDEX: "/",
@@ -31,6 +33,8 @@ export const ROUTES = {
     ORDER_MANAGEMENT: "/order-management",
     CART: "/cart",
     CHECKOUT: "/checkout",
+    ABOUT: "/about",
+    CONTACT: "/contact",
     ADMIN_ROUTE: "/admin",
     NOT_FOUND: "*"
 } as const;
@@ -50,6 +54,8 @@ export default function AppRouter() {
             <Route path={ROUTES.CART} element={<PrivateRoute><CartPage/></PrivateRoute>}/>
             <Route path={ROUTES.CHECKOUT} element={<PrivateRoute><CheckoutPage/></PrivateRoute>}/>
             <Route path={ROUTES.PROFILE} element={<PrivateRoute><ProfilePage/></PrivateRoute>}/>
+            <Route path={ROUTES.ABOUT} element={<PrivateRoute><AboutPage/></PrivateRoute>}/>
+            <Route path={ROUTES.CONTACT} element={<PrivateRoute><ContactPage/></PrivateRoute>}/>
             <Route path={ROUTES.ORDER_MANAGEMENT} element={<OrderManagementPage/>}/>
 
             <Route path={ROUTES.PRODUCT_CATEGORIES} element={<AdminRoute><ProductCategoryManagerPage/></AdminRoute>}/>
