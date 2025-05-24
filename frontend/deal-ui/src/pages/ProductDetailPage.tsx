@@ -1,5 +1,5 @@
 import {useEffect} from 'react';
-import {Button, Col, Layout, Result, Row, Spin, theme} from 'antd';
+import {Button, Col, Result, Row, Spin, theme} from 'antd';
 import {useNavigate, useParams} from 'react-router-dom';
 import {useGetProductByIdQuery, useGetProductCategoriesQuery, useGetProductsBySellerIdQuery} from '../store/api';
 import {ProductGallery} from '../components/product/ProductGallery';
@@ -7,7 +7,6 @@ import {ProductInfo} from '../components/product/ProductInfo';
 import {RelatedProducts} from '../components/product/RelatedProducts';
 import {ROUTES} from '../routes/AppRouter';
 
-const {Content} = Layout;
 const { useToken } = theme;
 
 export default function ProductDetailPage() {
@@ -47,78 +46,89 @@ export default function ProductDetailPage() {
     const categories = categoriesResponse?.payload || [];
     const relatedProducts = relatedProductsResponse?.payload || [];
 
-    const contentStyles = {
-        padding: token.paddingLG,
-        marginTop: `calc(${token.layout.headerHeight}px + ${token.marginLG}px)`,
-        minHeight: `calc(100vh - ${token.layout.headerHeight}px)`,
-        backgroundColor: token.colorBgLayout
-    };
-
     if (isLoadingProduct || isLoadingCategories) {
         return (
-            <Layout>
-                <Content style={{
-                    ...contentStyles,
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center"
-                }}>
-                    <Spin size="large"/>
-                </Content>
-            </Layout>
+            <div style={{
+                paddingTop: `calc(${token.layout.headerHeight} + ${token.paddingMD}px)`,
+                paddingLeft: token.paddingLG,
+                paddingRight: token.paddingLG,
+                paddingBottom: token.paddingMD,
+                height: '100%',
+                backgroundColor: token.colorBgLayout,
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center"
+            }}>
+                <Spin size="large"/>
+            </div>
         );
     }
 
     if (productError || !product) {
         return (
-            <Layout>
-                <Content style={contentStyles}>
-                    <Result
-                        status="404"
-                        title="Product Not Found"
-                        subTitle="Sorry, the product you visited does not exist."
-                        extra={
-                            <Button type="primary" onClick={() => navigate(ROUTES.HOME)}>
-                                Back Home
-                            </Button>
-                        }
-                    />
-                </Content>
-            </Layout>
+            <div style={{
+                paddingTop: `calc(${token.layout.headerHeight} + ${token.paddingMD}px)`,
+                paddingLeft: token.paddingLG,
+                paddingRight: token.paddingLG,
+                paddingBottom: token.paddingMD,
+                height: '100%',
+                backgroundColor: token.colorBgLayout,
+                overflow: 'auto'
+            }}>
+                <Result
+                    status="404"
+                    title="Product Not Found"
+                    subTitle="The product you're looking for doesn't exist or has been removed."
+                    extra={
+                        <Button
+                            type="primary"
+                            onClick={() => navigate(ROUTES.HOME)}
+                        >
+                            Back to Home
+                        </Button>
+                    }
+                />
+            </div>
         );
     }
 
     return (
-        <Layout>
-            <Content style={contentStyles}>
-                <div style={{maxWidth: '1400px', margin: '0 auto'}}>
-                    <Row gutter={[token.marginLG, token.marginLG]}>
-                        <Col xs={24} lg={12}>
-                            <ProductGallery
-                                imageUrl={product.imageUrl}
-                                title={product.title}
-                                productId={product.id}
-                                stock={product.stock}
-                                price={product.price}
-                            />
-                        </Col>
+        <div style={{
+            paddingTop: `calc(${token.layout.headerHeight} + ${token.paddingMD}px)`,
+            paddingLeft: token.paddingLG,
+            paddingRight: token.paddingLG,
+            paddingBottom: token.paddingMD,
+            height: '100%',
+            backgroundColor: token.colorBgLayout,
+            overflow: 'auto'
+        }}>
+            <div style={{maxWidth: '1400px', margin: '0 auto'}}>
+                <Row gutter={[token.marginLG, token.marginLG]}>
+                    <Col xs={24} lg={12}>
+                        <ProductGallery
+                            imageUrl={product.imageUrl}
+                            title={product.title}
+                            productId={product.id}
+                            stock={product.stock}
+                            price={product.price}
+                        />
+                    </Col>
 
-                        <Col xs={24} lg={12}>
-                            <ProductInfo
-                                product={product}
-                                categories={categories}
-                            />
-                        </Col>
-                    </Row>
+                    <Col xs={24} lg={12}>
+                        <ProductInfo
+                            product={product}
+                            categories={categories}
+                        />
+                    </Col>
+                </Row>
 
-                    <RelatedProducts
-                        sellerId={product.sellerId}
-                        currentProductId={product.id}
-                        products={relatedProducts}
-                        loading={isLoadingRelatedProducts}
-                    />
-                </div>
-            </Content>
-        </Layout>
+                <RelatedProducts
+                    sellerId={product.sellerId}
+                    currentProductId={product.id}
+                    products={relatedProducts}
+                    loading={isLoadingRelatedProducts}
+                />
+            </div>
+        </div>
     );
 }

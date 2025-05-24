@@ -5,6 +5,8 @@ import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import { AuthData } from "../../types/transfer.ts";
 import {RootState} from "../index.ts";
 
+const THEME_STORAGE_KEY = 'dealshop-theme-preference';
+
 export interface AuthState {
    user: BaseUser | null;
    token: string | null;
@@ -65,6 +67,7 @@ export const authSlice = createSlice({
          state.isSeller = false;
          Cookies.remove(TOKEN_KEY);
          localStorage.removeItem(USER_KEY);
+         localStorage.removeItem(THEME_STORAGE_KEY);
       },
 
       startSession: (state, action: PayloadAction<AuthData>) => {

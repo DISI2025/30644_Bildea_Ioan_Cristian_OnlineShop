@@ -10,6 +10,7 @@ import type {MenuProps} from 'antd';
 import {selectCartTotalItems} from "../../store/slices/cart-slice";
 import {UserRole} from "../../types/entities";
 import { useGetUserProfileQuery } from '../../store/api';
+import { useTheme } from "../../context/ThemeContext";
 
 const {useToken} = theme;
 
@@ -23,6 +24,7 @@ export const NavbarController: React.FC<NavbarActionsProps> = ({
     onNavigate,
 }) => {
     const {token} = useToken();
+    const { themeType } = useTheme();
     const dispatch = useDispatch();
     const {loggedIn, user} = useSelector(selectAuthState);
     const cartItemsCount = useSelector(selectCartTotalItems);
@@ -66,13 +68,20 @@ export const NavbarController: React.FC<NavbarActionsProps> = ({
     };
 
     return (
-        <Space size="middle" align="center" style={{ height: '100%' }}>
+        <Space 
+            size="small" 
+            align="center" 
+            style={{ 
+                height: '100%',
+                flexWrap: 'nowrap',
+            }}
+        >
             {loggedIn && user?.role !== UserRole.ADMIN && (
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                     <Badge count={cartItemsCount} size="small">
                         <ShoppingCartOutlined
                             style={{
-                                fontSize: 24,
+                                fontSize: 20,
                                 cursor: 'pointer',
                                 color: token.colorText,
                                 display: 'flex',
@@ -86,9 +95,10 @@ export const NavbarController: React.FC<NavbarActionsProps> = ({
 
             {loggedIn ? (
                 <Dropdown menu={{ items: profileItems }} placement="bottomRight">
-                    <Space style={{ cursor: 'pointer' }}>
+                    <Space style={{ cursor: 'pointer' }} size="small">
                         <Avatar 
                             src={getAvatarSrc()}
+                            size="small"
                             style={{ 
                                 backgroundColor: !getAvatarSrc() ? token.colorPrimary : undefined,
                                 verticalAlign: 'middle',
@@ -98,42 +108,51 @@ export const NavbarController: React.FC<NavbarActionsProps> = ({
                         >
                             {!getAvatarSrc() ? getAvatarFallback() : null}
                         </Avatar>
-                        <span style={{ color: token.colorText }}>{user?.username}</span>
+                        <span 
+                            style={{ 
+                                color: token.colorText,
+                            }}
+                            className="navbar-username"
+                        >
+                            {user?.username}
+                        </span>
                     </Space>
                 </Dropdown>
             ) : (
-                <Space size="small">
+                <Space size="small" style={{ flexWrap: 'nowrap' }}>
                     <Button
                         type="primary"
                         onClick={() => onNavigate(ROUTES.LOGIN)}
+                        size="small"
                         style={{
-                            height: token.controlHeight,
-                            padding: token.paddingMD,
                             borderRadius: token.borderRadius.md,
                         }}
-                        className="hover-lift"
+                        className="hover-lift navbar-auth-btn"
                     >
-                        Sign In
+                        <span className="auth-btn-text">Sign In</span>
+                        <span className="auth-btn-text-mobile">In</span>
                     </Button>
                     <Button
                         onClick={() => onNavigate(ROUTES.REGISTER)}
+                        size="small"
                         style={{
-                            height: token.controlHeight,
-                            padding: token.paddingMD,
                             borderRadius: token.borderRadius.md,
                             borderColor: token.colorBorder,
                         }}
-                        className="hover-lift"
+                        className="hover-lift navbar-auth-btn"
                     >
-                        Sign Up
+                        <span className="auth-btn-text">Sign Up</span>
+                        <span className="auth-btn-text-mobile">Up</span>
                     </Button>
                 </Space>
             )}
 
             <Switch
+                checked={themeType === 'dark'}
                 onChange={onThemeChange}
                 checkedChildren="🌙"
                 unCheckedChildren="☀️"
+                size="small"
                 style={{
                     background: token.colorPrimary,
                 }}

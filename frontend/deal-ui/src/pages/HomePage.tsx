@@ -1,5 +1,5 @@
 import React, {useMemo, useState} from 'react';
-import {Alert, Card, Col, Divider, Empty, Layout, Row, Skeleton, Space, theme, Typography} from 'antd';
+import {Alert, Card, Col, Divider, Empty, Row, Skeleton, Space, theme, Typography} from 'antd';
 import {AppstoreOutlined, UserOutlined} from '@ant-design/icons';
 import {useSelector} from 'react-redux';
 import ProductGrid from '../components/product/ProductGrid';
@@ -15,7 +15,6 @@ import {MainUser, UserRole} from '../types/entities';
 import UserDetailsModal from '../components/admin/UserDetailsModal';
 import UserCard from "../components/admin/UserCard.tsx";
 
-const {Content} = Layout;
 const {useToken} = theme;
 const {Title, Text, Paragraph} = Typography;
 
@@ -263,104 +262,72 @@ export const HomePage: React.FC = () => {
     };
 
     return (
-        <Layout style={{minHeight: '100vh'}}>
-            <Content
-                style={{
-                    padding: `${token.paddingLG}px ${token.paddingMD}px`,
-                    backgroundColor: token.colorBgLayout,
-                    minHeight: 'calc(100vh - 64px)', // Account for navbar height
-                    width: '100%',
-                    overflow: 'auto'
-                }}
-            >
-                <div style={{
-                    maxWidth: token.screenXL,
-                    margin: '0 auto',
-                    width: '100%',
-                    padding: `0 ${token.paddingMD}px`
+        <div style={{ 
+            paddingTop: `calc(${token.layout.headerHeight} + ${token.paddingMD}px)`,
+            paddingLeft: token.paddingLG,
+            paddingRight: token.paddingLG,
+            paddingBottom: token.paddingMD,
+            height: '100%',
+            overflow: 'auto',
+        }}>
+            <div style={{
+                maxWidth: token.screenXL,
+                margin: '0 auto',
+                width: '100%',
+            }}>
+
+                {/* Filters Section */}
+                <SearchFilters
+                    isAdmin={isAdmin}
+                    searchTerm={searchTerm}
+                    selectedCategory={selectedCategory}
+                    sortOption={sortOption}
+                    categories={categories}
+                    isLoadingCategories={isLoadingCategories}
+                    onSearchChange={handleSearchChange}
+                    onCategoryChange={handleCategoryChange}
+                    onSortChange={handleSortChange}
+                    onClearAll={handleClearAll}
+                />
+
+                {/* Results Summary */}
+                <Card style={{
+                    marginBottom: token.marginLG,
+                    backgroundColor: token.colorBgContainer,
+                    borderRadius: token.borderRadiusLG,
+                    border: `1px solid ${token.colorBorder}`
                 }}>
-                    {/* Header Section */}
-                    <div style={{textAlign: 'center', marginBottom: token.marginXL}}>
-                        <Title level={2} style={{marginBottom: token.marginXS, color: token.colorText}}>
-                            {isAdmin ? (
-                                <>
-                                    <UserOutlined style={{marginRight: token.marginSM}}/>
-                                    User Management Dashboard
-                                </>
-                            ) : (
-                                <>
-                                    <AppstoreOutlined style={{marginRight: token.marginSM}}/>
-                                    Discover Amazing Products
-                                </>
-                            )}
-                        </Title>
-                        <Paragraph style={{
-                            fontSize: token.fontSizeLG,
-                            color: token.colorTextSecondary,
-                            marginBottom: 0
-                        }}>
-                            {isAdmin
-                                ? `Manage and view all ${allUsers.length} registered users in the platform`
-                                : `Browse through ${displayProducts.length} products from various sellers`
-                            }
-                        </Paragraph>
-                    </div>
-
-                    <Divider style={{marginBottom: token.marginLG}}/>
-
-                    {/* Filters Section */}
-                    <SearchFilters
-                        isAdmin={isAdmin}
-                        searchTerm={searchTerm}
-                        selectedCategory={selectedCategory}
-                        sortOption={sortOption}
-                        categories={categories}
-                        isLoadingCategories={isLoadingCategories}
-                        onSearchChange={handleSearchChange}
-                        onCategoryChange={handleCategoryChange}
-                        onSortChange={handleSortChange}
-                        onClearAll={handleClearAll}
-                    />
-
-                    {/* Results Summary */}
-                    <Card style={{
-                        marginBottom: token.marginLG,
-                        backgroundColor: token.colorBgContainer,
-                        borderRadius: token.borderRadiusLG,
-                        border: `1px solid ${token.colorBorder}`
-                    }}>
-                        <Space split={<Divider type="vertical"/>} wrap>
-                            <Text style={{color: token.colorText}}>
-                                <strong>
-                                    {isAdmin ? filteredAndSortedUsers.length : filteredAndSortedProducts.length}
-                                </strong> {isAdmin ? 'users' : 'products'} found
+                    <Space split={<Divider type="vertical"/>} wrap>
+                        <Text style={{color: token.colorText}}>
+                            <strong>
+                                {isAdmin ? filteredAndSortedUsers.length : filteredAndSortedProducts.length}
+                            </strong> {isAdmin ? 'users' : 'products'} found
+                        </Text>
+                        {searchTerm && (
+                            <Text type="secondary">
+                                Search: "{searchTerm}"
                             </Text>
-                            {searchTerm && (
-                                <Text type="secondary">
-                                    Search: "{searchTerm}"
-                                </Text>
-                            )}
-                            {selectedCategory && (
-                                <Text type="secondary">
-                                    Filtered
-                                    by: {isAdmin ? selectedCategory : categories.find(c => c.id === selectedCategory)?.categoryName}
-                                </Text>
-                            )}
-                        </Space>
-                    </Card>
+                        )}
+                        {selectedCategory && (
+                            <Text type="secondary">
+                                Filtered
+                                by: {isAdmin ? selectedCategory : categories.find(c => c.id === selectedCategory)?.categoryName}
+                            </Text>
+                        )}
+                    </Space>
+                </Card>
 
-                    {/* Content Section */}
-                    <div style={{paddingBottom: token.paddingLG}}>
-                        {renderContent()}
-                    </div>
+                {/* Content Section */}
+                <div style={{marginBottom: token.marginLG}}>
+                    {renderContent()}
                 </div>
-            </Content>
+            </div>
 
             <UserDetailsModal
                 user={selectedUser}
                 visible={isUserModalVisible}
                 onClose={handleCloseUserModal}
             />
-        </Layout>
+        </div>
     );
 };

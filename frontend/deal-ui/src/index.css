@@ -24,10 +24,14 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
-  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+#root {
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
 }
 
 h1 {
@@ -105,4 +109,79 @@ button:focus-visible {
   height: 2px;
   background: var(--color-primary);
   border-radius: 2px;
+}
+
+/* Mobile responsiveness for navbar */
+.mobile-menu-trigger {
+  display: none !important;
+}
+
+.desktop-menu {
+  display: flex !important;
+}
+
+/* Navbar responsive text */
+.auth-btn-text-mobile {
+  display: none;
+}
+
+.auth-btn-text {
+  display: inline;
+}
+
+/* Tablet responsiveness */
+@media (max-width: 768px) {
+  .ant-menu-horizontal .ant-menu-item {
+    padding: 0 8px !important;
+    margin: 0 2px !important;
+  }
+  
+  .ant-menu-horizontal .ant-menu-item span {
+    display: none;
+  }
+  
+  .ant-menu-horizontal .ant-menu-item .anticon {
+    margin: 0 !important;
+  }
+
+  .navbar-username {
+    display: none !important;
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 576px) {
+  .desktop-menu {
+    display: none !important;
+  }
+  
+  .mobile-menu-trigger {
+    display: block !important;
+  }
+
+  .auth-btn-text {
+    display: none;
+  }
+
+  .auth-btn-text-mobile {
+    display: inline;
+  }
+
+  .navbar-auth-btn {
+    min-width: 32px !important;
+    padding: 4px 8px !important;
+  }
+}
+
+/* Responsive navbar adjustments */
+@media (max-width: 992px) {
+  .ant-layout-header {
+    padding: 0 16px !important;
+  }
+}
+
+@media (max-width: 576px) {
+  .ant-layout-header {
+    padding: 0 12px !important;
+  }
 }

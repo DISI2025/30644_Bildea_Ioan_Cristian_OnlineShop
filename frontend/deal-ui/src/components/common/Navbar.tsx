@@ -1,9 +1,9 @@
-import React, {useMemo} from 'react';
-import {Flex, Layout, Menu, theme} from 'antd';
+import React, {useMemo, useState} from 'react';
+import {Flex, Layout, Menu, theme, Drawer, Button} from 'antd';
 import {useLocation, useNavigate} from 'react-router-dom';
 import {useTheme} from '../../context/ThemeContext.tsx';
 import {ROUTES} from '../../routes/AppRouter.tsx';
-import {HomeOutlined, ProductOutlined, ShoppingOutlined, InfoCircleOutlined, ContactsOutlined} from '@ant-design/icons';
+import {HomeOutlined, ProductOutlined, ShoppingOutlined, InfoCircleOutlined, ContactsOutlined, MenuOutlined} from '@ant-design/icons';
 import {Logo} from './Logo.tsx';
 import {NavbarController} from './NavbarController.tsx';
 import {AuthState, selectAuthState} from "../../store/slices/auth-slice.ts";
@@ -19,6 +19,7 @@ export const Navbar: React.FC = () => {
     const {toggleTheme} = useTheme();
     const {token} = useToken();
     const authState: AuthState = useSelector(selectAuthState);
+    const [mobileMenuVisible, setMobileMenuVisible] = useState(false);
 
     const userMenuItems = useMemo(() => {
         const allUserItems = [
@@ -117,51 +118,99 @@ export const Navbar: React.FC = () => {
         },
     ], [token]);
 
-
     const handleMenuClick = ({key}: { key: string }) => {
         navigate(key);
+        setMobileMenuVisible(false);
     };
 
+    const toggleMobileMenu = () => {
+        setMobileMenuVisible(!mobileMenuVisible);
+    };
+
+    const currentMenuItems = authState.user?.role === UserRole.ADMIN ? adminMenuItems : userMenuItems;
+
     return (
-        <Header
-            style={{
-                background: token.colorBgContainer,
-                padding: `0 ${token.spacing.lg}px`,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                boxShadow: token.shadows.light.md,
-                position: 'sticky',
-                top: 0,
-                zIndex: 100,
-                height: token.layout.headerHeight,
-                transition: 'all 0.3s ease',
-                backdropFilter: 'blur(10px)',
-                overflow: 'visible',
-            }}
-        >
-            <Flex align="center" gap={token.spacing.lg} style={{ flex: '1 1 auto', overflow: 'visible' }}>
-                <Logo onClick={() => navigate(ROUTES.HOME)}/>
+        <>
+            <Header
+                style={{
+                    background: token.colorBgContainer,
+                    padding: `0 max(${token.spacing.lg}px, 5vw)`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    boxShadow: token.shadows.light.md,
+                    position: 'sticky',
+                    top: 0,
+                    zIndex: 1000,
+                    height: token.layout.headerHeight,
+                    transition: 'all 0.3s ease',
+                    backdropFilter: 'blur(10px)',
+                    borderBottom: `1px solid ${token.colorBorder}`,
+                }}
+            >
+                <Flex align="center" gap={token.spacing.lg} style={{ flex: '1 1 auto', minWidth: 0 }}>
+                    <Logo onClick={() => navigate(ROUTES.HOME)}/>
+                    
+                    {/* Desktop Menu */}
+                    <Menu
+                        mode="horizontal"
+                        selectedKeys={[location.pathname]}
+                        items={currentMenuItems}
+                        onClick={handleMenuClick}
+                        style={{
+                            background: 'transparent',
+                            color: token.colorText,
+                            fontSize: token.customFontSize.base,
+                            borderBottom: 'none',
+                            flex: '1 1 auto',
+                            justifyContent: 'flex-start',
+                            minWidth: 0,
+                        }}
+                        className="desktop-menu"
+                    />
+                    
+                    {/* Mobile Menu Trigger */}
+                    <Button
+                        type="text"
+                        icon={<MenuOutlined />}
+                        onClick={toggleMobileMenu}
+                        className="mobile-menu-trigger"
+                        style={{
+                            fontSize: '18px',
+                            padding: '4px 8px',
+                            height: 'auto',
+                            display: 'none',
+                        }}
+                    />
+                </Flex>
+
+                <NavbarController
+                    onThemeChange={toggleTheme}
+                    onNavigate={navigate}
+                />
+            </Header>
+
+            {/* Mobile Drawer Menu */}
+            <Drawer
+                title="Menu"
+                placement="left"
+                closable={true}
+                onClose={() => setMobileMenuVisible(false)}
+                open={mobileMenuVisible}
+                bodyStyle={{ padding: 0 }}
+                headerStyle={{ borderBottom: `1px solid ${token.colorBorder}` }}
+            >
                 <Menu
-                    mode="horizontal"
+                    mode="vertical"
                     selectedKeys={[location.pathname]}
-                    items={authState.user?.role === UserRole.ADMIN ? adminMenuItems : userMenuItems}
+                    items={currentMenuItems}
                     onClick={handleMenuClick}
                     style={{
                         background: 'transparent',
-                        color: token.colorText,
-                        fontSize: token.customFontSize.base,
-                        borderBottom: 'none',
-                        flex: '1 1 auto',
-                        overflow: 'visible',
+                        border: 'none',
                     }}
                 />
-            </Flex>
-
-            <NavbarController
-                onThemeChange={toggleTheme}
-                onNavigate={navigate}
-            />
-        </Header>
+            </Drawer>
+        </>
     );
 };
