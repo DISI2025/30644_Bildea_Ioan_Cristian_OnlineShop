@@ -2,15 +2,18 @@ import {MainLayout} from './components/common/Layout';
 import AppRouter from './routes/AppRouter.tsx';
 import {ConfigProvider} from "antd";
 import {useTheme} from "./context/ThemeContext.tsx";
+import {StripeProvider} from './context/StripeContext';
 
 function App() {
     const { theme } = useTheme();
-
+   // TODO: <AssignCategoryPage /> add to Router
     return (
         <ConfigProvider theme={theme}>
-            <MainLayout>
-                <AppRouter/>
-            </MainLayout>
+            <StripeProvider>
+                <MainLayout>
+                    <AppRouter/>
+                </MainLayout>
+            </StripeProvider>
         </ConfigProvider>
 
     );

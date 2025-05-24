@@ -78,10 +78,12 @@ public class UserController {
             @RequestParam(required = false) final String city,
             @RequestParam(required = false) final String country,
             @RequestParam(required = false) final String postalCode,
-            @RequestParam(required = false) final String phoneNumber
+            @RequestParam(required = false) final String phoneNumber,
+            @RequestParam(required = false) final String profileUrl,
+            @RequestParam(required = false) final String storeAddress
     ) {
 
-        return userService.update(request, fullName, address, city, country, postalCode, phoneNumber)
+        return userService.update(request, fullName, address, city, country, postalCode, phoneNumber, profileUrl, storeAddress)
                 .map(DealResponse::successResponse)
                 .orElse(DealResponse.failureResponse(
                         new DealError(notFound(UserDTO.class, "id", request.id())),

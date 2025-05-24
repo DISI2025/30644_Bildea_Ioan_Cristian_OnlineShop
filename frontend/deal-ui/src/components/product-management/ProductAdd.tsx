@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, Button, Form, Input, InputNumber, Select, Typography } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { FormInstance } from 'antd/lib/form';
-import { CreateProductRequest, ProductFormData } from '../../types/transfer';
+import { ProductFormData } from '../../types/transfer';
 import { ProductCategory } from '../../types/entities';
 
 const { Title } = Typography;
@@ -90,11 +90,11 @@ const ProductAdd: React.FC<ProductAddProps> = ({
                             label="Categories"
                             rules={[{ required: true, message: 'Please select at least one category' }]}
                         >
-                            <Select 
-                                mode="multiple" 
-                                placeholder="Select categories" 
+                            <Select
+                                mode="multiple"
+                                placeholder="Select categories"
                                 showSearch
-                                filterOption={(input, option) => 
+                                filterOption={(input, option) =>
                                     (option?.children as unknown as string).toLowerCase().includes(input.toLowerCase())
                                 }
                             >

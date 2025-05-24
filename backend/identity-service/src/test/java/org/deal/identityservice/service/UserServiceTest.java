@@ -35,6 +35,7 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -187,7 +188,7 @@ class UserServiceTest extends BaseUnitTest {
         updatedUser.setProductCategoryIds(initialUser.getProductCategoryIds());
         when(userRepository.findById(initialUser.getId())).thenReturn(Optional.of(initialUser));
 
-        var result = victim.update(updateUserRequest(updatedUser), updatedUser.getFullName(), updatedUser.getAddress(), updatedUser.getCity(), updatedUser.getCountry(), updatedUser.getPostalCode(), updatedUser.getPhoneNumber());
+        var result = victim.update(updateUserRequest(updatedUser), updatedUser.getFullName(), updatedUser.getAddress(), updatedUser.getCity(), updatedUser.getCountry(), updatedUser.getPostalCode(), updatedUser.getPhoneNumber(), updatedUser.getProfileUrl(), updatedUser.getStoreAddress());
 
         verify(userRepository).findById(initialUser.getId());
         verify(userRepository).save(initialUser);
@@ -201,7 +202,7 @@ class UserServiceTest extends BaseUnitTest {
     void testUpdate_userIsNotFound_returnsEmptyOptional() {
         when(userRepository.findById(any())).thenReturn(Optional.empty());
 
-        var result = victim.update(updateUserRequest(randomUser()), null,null, null, null, null, null);
+        var result = victim.update(updateUserRequest(randomUser()), null,null, null, null, null, null, null, null);
 
         verify(userRepository).findById(any());
         verify(userRepository, never()).save(any());
@@ -215,7 +216,7 @@ class UserServiceTest extends BaseUnitTest {
 
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
 
-        var result = victim.update(updateUserRequest(user), null,null, null, null, null, null);
+        var result = victim.update(updateUserRequest(user), null,null, null, null, null, null, null, null);
 
         verify(userRepository).findById(user.getId());
         verify(userRepository).save(user);
@@ -240,7 +241,7 @@ class UserServiceTest extends BaseUnitTest {
 
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
 
-        var result = victim.update(updateUserRequest(user), null,null, newCity, null, null, newPhone);
+        var result = victim.update(updateUserRequest(user), null,null, newCity, null, null, newPhone, null, null);
 
         verify(userRepository).findById(user.getId());
         verify(userRepository).save(user);
@@ -259,7 +260,7 @@ class UserServiceTest extends BaseUnitTest {
 
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
 
-        var result = victim.update(updateUserRequest(user), "", "", "", "", "", "");
+        var result = victim.update(updateUserRequest(user), "", "", "", "", "", "", "", "");
 
         verify(userRepository).findById(user.getId());
         verify(userRepository).save(user);
@@ -323,6 +324,67 @@ class UserServiceTest extends BaseUnitTest {
         assertTrue(result.isEmpty());
     }
 
+    @Test
+    void testAssignProductCategories_replaceExistingCategories_shouldUpdateAndReturnUserDTO() {
+        // Arrange
+        var user = randomUser();
+        var oldCategoryId1 = UUID.randomUUID();
+        var oldCategoryId2 = UUID.randomUUID();
+        var newCategoryId = UUID.randomUUID();
+        
+        user.setProductCategoryIds(Set.of(oldCategoryId1, oldCategoryId2));
+        
+        var request = new AssignProductCategoryRequest(user.getId(), Set.of(newCategoryId));
+
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+
+        // Act
+        var result = victim.assignProductCategories(request);
+
+        // Assert
+        verify(userRepository).findById(user.getId());
+        verify(userRepository).save(user);
+
+        result.ifPresentOrElse(
+                dto -> {
+                    assertEquals(user.getId(), dto.id());
+                    assertTrue(dto.productCategoryIds().contains(newCategoryId));
+                    assertFalse(dto.productCategoryIds().contains(oldCategoryId1));
+                    assertFalse(dto.productCategoryIds().contains(oldCategoryId2));
+                    assertEquals(1, dto.productCategoryIds().size());
+                },
+                this::assertThatFails
+        );
+    }
+
+    @Test
+    void testAssignProductCategories_emptyCategories_shouldRemoveAllCategories() {
+        // Arrange
+        var user = randomUser();
+        var oldCategoryId1 = UUID.randomUUID();
+        var oldCategoryId2 = UUID.randomUUID();
+        
+        user.setProductCategoryIds(Set.of(oldCategoryId1, oldCategoryId2));
+        
+        var request = new AssignProductCategoryRequest(user.getId(), Set.of());
+
+        when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+
+        // Act
+        var result = victim.assignProductCategories(request);
+
+        // Assert
+        verify(userRepository).findById(user.getId());
+        verify(userRepository).save(user);
+
+        result.ifPresentOrElse(
+                dto -> {
+                    assertEquals(user.getId(), dto.id());
+                    assertTrue(dto.productCategoryIds().isEmpty());
+                },
+                this::assertThatFails
+        );
+    }
 
     @Test
     void testDelete_userIsFound_shouldReturnDeletedUser() {

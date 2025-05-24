@@ -53,7 +53,7 @@ public class ProductController {
     }
 
     @GetMapping("/seller")
-    public DealResponse<List<ProductDTO>> getProductsBySellerId(@RequestParam final UUID id){
+    public DealResponse<List<ProductDTO>> getProductsBySellerId(@RequestParam final UUID id) {
         return productService.findAllBySellerId(id)
                 .map(DealResponse::successResponse)
                 .orElse(DealResponse.failureResponse(

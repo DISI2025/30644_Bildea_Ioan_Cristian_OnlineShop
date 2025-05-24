@@ -1,7 +1,7 @@
 import React from 'react';
 import {Card, Divider, Rate, Skeleton, Space, Tag, theme, Typography} from 'antd';
 import {Product, ProductCategory} from '../../types/entities';
-import {CheckCircleOutlined, GiftOutlined, SafetyCertificateOutlined} from '@ant-design/icons';
+import {CheckCircleOutlined, GiftOutlined, SafetyCertificateOutlined, ShopOutlined} from '@ant-design/icons';
 import {useGetUserByIdQuery} from '../../store/api';
 
 const {Title, Text, Paragraph} = Typography;
@@ -55,8 +55,19 @@ export const ProductInfo: React.FC<ProductInfoProps> = ({
                        style={{marginBottom: 0, fontWeight: 600, color: token.colorTextHeading}}>{product.title}</Title>
 
                 <Text type="secondary" style={{fontSize: '16px'}}>
-                    Sold by {isLoadingSeller ? <Skeleton.Button active size="small" style={{width: 100}}/> :
-                    <Text strong>{displaySellerName}</Text>}
+                    {isLoadingSeller ? (
+                        <Skeleton.Button active size="small" style={{width: 200}}/>
+                    ) : (
+                        <Space direction="vertical" size={0}>
+                            <Text>
+                                Sold by <Text strong>{seller?.fullName || seller?.username || displaySellerName}</Text>
+                            </Text>
+                            <Text type="secondary" style={{fontSize: '14px'}}>
+                                <ShopOutlined style={{marginRight: 4}} />
+                                Store: {seller?.storeAddress || 'No store address provided'}
+                            </Text>
+                        </Space>
+                    )}
                 </Text>
 
                 <Space wrap style={{marginTop: 8}}>

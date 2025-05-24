@@ -17,6 +17,7 @@ interface ProductGalleryProps {
     loading?: boolean;
 }
 
+//TODO Delete this after the product visualization is done
 export const ProductGallery: React.FC<ProductGalleryProps> = ({
     imageUrl,
     title,

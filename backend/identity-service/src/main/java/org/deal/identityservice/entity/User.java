@@ -80,6 +80,12 @@ public class User implements UserDetails {
     @Column
     String phoneNumber;
 
+    @Column
+    String profileUrl;
+
+    @Column
+    String storeAddress;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));

@@ -32,3 +32,4 @@ typings/
 
 # Yarn Integrity file
 .yarn-integrity
+.vercel

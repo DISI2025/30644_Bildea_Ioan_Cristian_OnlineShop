@@ -150,22 +150,22 @@ class UserControllerTest extends BaseUnitTest {
         var updatedUser = randomUser();
         var request = updateUserRequest(updatedUser);
         var expectedData = Mapper.mapTo(updatedUser, UserDTO.class);
-        when(userService.update(request, updatedUser.getFullName(), updatedUser.getAddress(), updatedUser.getCity(), updatedUser.getCountry(), updatedUser.getPostalCode(), updatedUser.getPhoneNumber())).thenReturn(Optional.of(expectedData));
+        when(userService.update(request, updatedUser.getFullName(), updatedUser.getAddress(), updatedUser.getCity(), updatedUser.getCountry(), updatedUser.getPostalCode(), updatedUser.getPhoneNumber(), updatedUser.getProfileUrl(), updatedUser.getStoreAddress())).thenReturn(Optional.of(expectedData));
 
-        var response = victim.update(request, updatedUser.getFullName(), updatedUser.getAddress(), updatedUser.getCity(), updatedUser.getCountry(), updatedUser.getPostalCode(), updatedUser.getPhoneNumber());
+        var response = victim.update(request, updatedUser.getFullName(), updatedUser.getAddress(), updatedUser.getCity(), updatedUser.getCountry(), updatedUser.getPostalCode(), updatedUser.getPhoneNumber(), updatedUser.getProfileUrl(), updatedUser.getStoreAddress());
 
-        verify(userService).update(request, updatedUser.getFullName(), updatedUser.getAddress(), updatedUser.getCity(), updatedUser.getCountry(), updatedUser.getPostalCode(), updatedUser.getPhoneNumber());
+        verify(userService).update(request, updatedUser.getFullName(), updatedUser.getAddress(), updatedUser.getCity(), updatedUser.getCountry(), updatedUser.getPostalCode(), updatedUser.getPhoneNumber(), updatedUser.getProfileUrl(), updatedUser.getStoreAddress());
         assertThatResponseIsSuccessful(response, expectedData);
     }
 
     @Test
     void testUpdate_userNotUpdated_returnsFailure() {
         var request = updateUserRequest(randomUser());
-        when(userService.update(request, null, null, null, null, null, null)).thenReturn(Optional.empty());
+        when(userService.update(request, null, null, null, null, null, null, null, null)).thenReturn(Optional.empty());
 
-        var response = victim.update(request, null, null, null, null, null, null);
+        var response = victim.update(request, null, null, null, null, null, null, null, null);
 
-        verify(userService).update(request, null, null, null, null, null, null);
+        verify(userService).update(request, null, null, null, null, null, null, null, null);
         assertThatResponseFailed(response, List.of(new DealError(notFound(UserDTO.class, "id", request.id()))), HttpStatus.NOT_FOUND);
     }
 

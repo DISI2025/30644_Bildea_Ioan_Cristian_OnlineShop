@@ -90,6 +90,8 @@ public class TestUtils {
                     randomString(),
                     randomString(),
                     randomString(),
+                    randomString(),
+                    randomString(),
                     randomString()
             );
 

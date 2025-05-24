@@ -96,6 +96,8 @@ public class UserService implements UserDetailsService {
                     .withCountry(user.country())
                     .withPhoneNumber(user.phoneNumber())
                     .withPostalCode(user.postalCode())
+                    .withProfileUrl(user.profileUrl())
+                    .withStoreAddress(user.storeAddress())
                     .build();
 
             return Optional.of(userProfileResponse);
@@ -129,7 +131,7 @@ public class UserService implements UserDetailsService {
         return Optional.of(mapToDTO(user));
     }
 
-    public Optional<UserDTO> update(final UpdateUserRequest request, final String fullName, final String address, final String city, final String country, final String postalCode, final String phoneNumber) {
+    public Optional<UserDTO> update(final UpdateUserRequest request, final String fullName, final String address, final String city, final String country, final String postalCode, final String phoneNumber, final String profileUrl, final String storeAddress) {
         return userRepository.findById(request.id())
                 .map(user -> {
                     Mapper.updateValues(user, request);
@@ -140,6 +142,8 @@ public class UserService implements UserDetailsService {
                     if (country != null) user.setCountry(country);
                     if (postalCode != null) user.setPostalCode(postalCode);
                     if (phoneNumber != null) user.setPhoneNumber(phoneNumber);
+                    if (profileUrl != null) user.setProfileUrl(profileUrl);
+                    if (storeAddress != null) user.setStoreAddress(storeAddress);
 
                     userRepository.save(user);
 
@@ -150,11 +154,8 @@ public class UserService implements UserDetailsService {
     public Optional<UserDTO> assignProductCategories(final AssignProductCategoryRequest request) {
         return userRepository.findById(request.userId())
                 .map(user -> {
-                    Set<UUID> existingIds = Optional.ofNullable(user.getProductCategoryIds())
-                            .orElse(new HashSet<>());
-
-                    existingIds.addAll(request.productCategoryIds());
-                    user.setProductCategoryIds(existingIds);
+                    Set<UUID> newCategoryIds = new HashSet<>(request.productCategoryIds());
+                    user.setProductCategoryIds(newCategoryIds);
 
                     userRepository.save(user);
                     return mapToDTO(user);

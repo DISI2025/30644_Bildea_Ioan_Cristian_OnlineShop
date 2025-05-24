@@ -1,4 +1,4 @@
-import {User, UserRole} from "./entities.ts";
+import {BaseUser, UserRole} from "./entities.ts";
 
 //<---BaseResponse--->
 export interface BaseResponse {
@@ -18,7 +18,7 @@ export type DealError = {
 //<---Auth--->
 export interface AuthData {
     accessToken: string;
-    user: User;
+    user: BaseUser;
 }
 
 export interface AuthRequest {
@@ -40,6 +40,32 @@ export interface ForgotPasswordRequest {
 export interface ResetPasswordRequest {
     newPassword: string;
     token: string;
+}
+
+//<---User--->
+
+export interface AssignProductCategoryRequest {
+    userId: string;
+    productCategoryIds: string[];
+}
+
+export interface UpdateUserRequest {
+    id: string;
+    username?: string;
+    email?: string;
+    role?: string;
+}
+
+export interface UserProfileUpdateRequest {
+    id: string;
+    fullName?: string;
+    address?: string;
+    city?: string;
+    country?: string;
+    postalCode?: string;
+    phoneNumber?: string;
+    profileUrl?: string;
+    storeAddress?: string;
 }
 
 //<---Product Category--->
@@ -74,4 +100,42 @@ export interface CreateProductRequest {
 
 export interface UpdateProductRequest extends CreateProductRequest {
     id: string;
+}
+
+//<---Order--->
+
+export interface CreateOrderRequest {
+    buyerId: string;
+    items: CreateOrderItemRequest[];
+}
+
+export interface CreateOrderItemRequest {
+    quantity: number;
+    productId: string;
+}
+
+export interface CreatePaymentIntentRequest {
+    amount: number;
+    currency: string;
+    customerEmail: string;
+    customerPhone: string;
+    orderId: string;
+    customerDetails: {
+        fullName: string;
+        address: string;
+        city: string;
+        postalCode: string;
+        country: string;
+        phoneNumber: string;
+        email: string;
+    };
+}
+
+export interface PaymentIntentResponse {
+    id: string;
+    clientSecret: string;
+    amount: number;
+    currency: string;
+    status: string;
+    orderId: string;
 }

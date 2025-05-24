@@ -5,6 +5,7 @@ export const DEAL_ENDPOINTS = {
     USERS: "/is/users",
     PRODUCT_CATEGORIES: "/ps/product-categories",
     PRODUCTS: "/ps/products",
+    ORDERS: "/ps/orders",
     AUTH: "/is/auth"
 }
 
@@ -19,3 +20,11 @@ export const USER_KEY = 'user';
 export const AUTH_HEADER = 'Authorization';
 
 export const buildAuthHeader = (token: string): string => `Bearer ${token}`;
+
+export enum OrderStatus {
+    PENDING = "PENDING",
+    PROCESSING = "PROCESSING",
+    SHIPPING = "SHIPPING",
+    DONE = "DONE",
+    CANCELLED = "CANCELLED"
+}

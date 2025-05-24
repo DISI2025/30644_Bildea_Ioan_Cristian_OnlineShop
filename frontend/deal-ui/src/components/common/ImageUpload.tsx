@@ -4,10 +4,6 @@ import {UploadOutlined, LoadingOutlined, DeleteOutlined, EyeOutlined, EditOutlin
 import type {RcFile} from 'antd/es/upload/interface';
 import {HTTP_METHOD} from "../../utils/constants.ts";
 
-// ImgBB API key from environment // TODO Put them in .env
-const IMGBB_API_KEY = '03e856809891fc84f9d4535effc1315c';
-const IMGBB_API_URL = 'https://api.imgbb.com/1/upload';
-
 interface ImageUploadProps {
     value?: string;
     onChange?: (url: string) => void;
@@ -43,10 +39,12 @@ const ImageUpload: React.FC<ImageUploadProps> = ({value, onChange, placeholder =
             const base64String = base64Image.split(',')[1];
 
             const formData = new FormData();
-            formData.append('key', IMGBB_API_KEY);
+            //TODO
+            formData.append('key', import.meta.env.VITE_IMGBB_API_KEY || '03e856809891fc84f9d4535effc1315c');
             formData.append('image', base64String);
 
-            const response = await fetch(IMGBB_API_URL, {
+            //TODO
+            const response = await fetch(import.meta.env.VITE_IMGBB_API_URL || 'https://api.imgbb.com/1/upload', {
                 method: HTTP_METHOD.POST,
                 body: formData,
             });
@@ -64,6 +62,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({value, onChange, placeholder =
             } else {
                 message.error('Failed to upload image: ' + (result.error?.message || 'Unknown error'));
             }
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (error: unknown) {
             message.error('Failed to upload image. Please try again.');
         } finally {

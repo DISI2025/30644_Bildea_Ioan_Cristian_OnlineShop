@@ -21,6 +21,8 @@ public record UserDTO(
         String city,
         String country,
         String postalCode,
-        String phoneNumber
+        String phoneNumber,
+        String profileUrl,
+        String storeAddress
 ) implements Serializable {
 }
