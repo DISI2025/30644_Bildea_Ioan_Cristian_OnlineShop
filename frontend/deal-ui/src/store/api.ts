@@ -6,11 +6,12 @@ import {
     AssignProductCategoryRequest,
     AuthData,
     AuthRequest,
-    BaseResponse, CreateOrderRequest, CreateProductCategoryRequest,
+    BaseResponse, CreateOrderRequest, CreatePaymentIntentRequest, CreateProductCategoryRequest,
     CreateProductRequest,
     CreateUserRequest,
     DealResponse,
     ForgotPasswordRequest,
+    PaymentIntentResponse,
     ResetPasswordRequest, UpdateProductCategoryRequest,
     UpdateProductRequest,
     UpdateUserRequest,
@@ -190,8 +191,8 @@ export const api = createApi({
             transformErrorResponse: (response) => response.data as BaseResponse,
         }),
 
-        getOrdersByBuyerId: builder.query<DealResponse<Order>, string>({
-            query: (id) => `${DEAL_ENDPOINTS.ORDERS}/${id}`,
+        getOrdersByBuyerId: builder.query<DealResponse<Order[]>, string>({
+            query: (buyerId) => `${DEAL_ENDPOINTS.ORDERS}/buyer?id=${buyerId}`,
             transformErrorResponse: (response) => response.data as BaseResponse,
         }),
         getOrderById: builder.query<DealResponse<Order>, string>({
@@ -201,6 +202,14 @@ export const api = createApi({
         createOrder: builder.mutation<DealResponse<Order>, CreateOrderRequest>({
             query: (request) => ({
                 url: DEAL_ENDPOINTS.ORDERS,
+                method: HTTP_METHOD.POST,
+                body: request,
+            }),
+            transformErrorResponse: (response) => response.data as BaseResponse,
+        }),
+        createPaymentIntent: builder.mutation<DealResponse<PaymentIntentResponse>, CreatePaymentIntentRequest>({
+            query: (request) => ({
+                url: `${DEAL_ENDPOINTS.ORDERS}/payment-intent`,
                 method: HTTP_METHOD.POST,
                 body: request,
             }),
@@ -236,5 +245,11 @@ export const {
     useGetProductsBySellerIdQuery,
     useCreateProductMutation,
     useUpdateProductMutation,
-    useDeleteProductMutation
+    useDeleteProductMutation,
+    useGetOrdersQuery,
+    useGetOrdersByBuyerIdQuery,
+    useGetOrderByIdQuery,
+    useCreateOrderMutation,
+    useCreatePaymentIntentMutation,
+    useDeleteOrderMutation
 } = api;

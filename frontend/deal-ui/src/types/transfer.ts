@@ -113,3 +113,29 @@ export interface CreateOrderItemRequest {
     quantity: number;
     productId: string;
 }
+
+export interface CreatePaymentIntentRequest {
+    amount: number;
+    currency: string;
+    customerEmail: string;
+    customerPhone: string;
+    orderId: string;
+    customerDetails: {
+        fullName: string;
+        address: string;
+        city: string;
+        postalCode: string;
+        country: string;
+        phoneNumber: string;
+        email: string;
+    };
+}
+
+export interface PaymentIntentResponse {
+    id: string;
+    clientSecret: string;
+    amount: number;
+    currency: string;
+    status: string;
+    orderId: string;
+}

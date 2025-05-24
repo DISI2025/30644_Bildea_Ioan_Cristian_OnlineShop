@@ -21,22 +21,3 @@ export const transformCartToOrderRequest = (
     items: orderItems
   };
 };
-
-//TODO Delete this after integration with backend
-/**
- * Simulate creating an order (for development)
- * @param orderRequest - The order request to submit
- * @returns A promise that resolves to a simulated order response
- */
-export const simulateCreateOrder = async (
-  orderRequest: CreateOrderRequest
-): Promise<{ success: boolean; orderId: string }> => {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  // Simulate successful response
-  return {
-    success: true,
-    orderId: `order-${Date.now()}`
-  };
-}; 

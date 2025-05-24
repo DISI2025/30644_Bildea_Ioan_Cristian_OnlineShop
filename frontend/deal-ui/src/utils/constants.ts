@@ -21,9 +21,10 @@ export const AUTH_HEADER = 'Authorization';
 
 export const buildAuthHeader = (token: string): string => `Bearer ${token}`;
 
-export enum  OrderStatus {
-    PENDING,
-    PROCESSING,
-    SHIPPING,
-    DONE
+export enum OrderStatus {
+    PENDING = "PENDING",
+    PROCESSING = "PROCESSING",
+    SHIPPING = "SHIPPING",
+    DONE = "DONE",
+    CANCELLED = "CANCELLED"
 }

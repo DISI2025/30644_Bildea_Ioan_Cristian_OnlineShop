@@ -1,7 +1,7 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {Button, Card, Col, Divider, Empty, InputNumber, Layout, Row, Space, Table, theme, Typography} from 'antd';
-import {DeleteOutlined, ShoppingOutlined} from '@ant-design/icons';
+import {Button, Card, Col, Divider, Empty, InputNumber, Layout, Row, Skeleton, Space, Table, theme, Typography} from 'antd';
+import {DeleteOutlined, ShoppingOutlined, ShopOutlined} from '@ant-design/icons';
 import {useNavigate} from 'react-router-dom';
 import {
     CartItem,
@@ -12,13 +12,36 @@ import {
     updateCartItemQuantity
 } from '../store/slices/cart-slice';
 import {ROUTES} from '../routes/AppRouter';
-import {simulateCreateOrder, transformCartToOrderRequest} from '../utils/orderUtils';
 import {useSnackbar} from "../context/SnackbarContext.tsx";
 import {selectAuthState} from "../store/slices/auth-slice.ts";
+import {useGetUserByIdQuery} from '../store/api';
 
 const {Content} = Layout;
 const {Title, Text} = Typography;
 const {useToken} = theme;
+
+const SellerInfo: React.FC<{ sellerId: string }> = ({ sellerId }) => {
+    const { data: sellerResponse, isLoading } = useGetUserByIdQuery(sellerId);
+    const seller = sellerResponse?.payload;
+
+    if (isLoading) {
+        return <Skeleton.Button active size="small" style={{ width: 120 }} />;
+    }
+
+    if (!seller) {
+        return <Text type="secondary">Unknown Seller</Text>;
+    }
+
+    return (
+        <Space direction="vertical" size={0}>
+            <Text strong style={{ fontSize: 14 }}>{seller.fullName || seller.username}</Text>
+            <Text type="secondary" style={{ fontSize: 12 }}>
+                <ShopOutlined style={{ marginRight: 4 }} />
+                {seller.storeAddress || 'No store address'}
+            </Text>
+        </Space>
+    );
+};
 
 const CartPage: React.FC = () => {
     const {token} = useToken();
@@ -26,8 +49,7 @@ const CartPage: React.FC = () => {
     const dispatch = useDispatch();
     const cartItems = useSelector(selectCartItems);
     const totalPrice = useSelector(selectCartTotalPrice);
-    const [isProcessing, setIsProcessing] = useState(false);
-    const {showError, showInfo} = useSnackbar();
+    const {showError} = useSnackbar();
 
     const {user} = useSelector(selectAuthState);
 
@@ -43,51 +65,23 @@ const CartPage: React.FC = () => {
         dispatch(clearCart());
     };
 
-    const handleCheckout = async () => {
+    const handleCheckout = () => {
         if (!user) {
-            showError('Authentication Error', 'You must be logged in to proceed with checkout.');
+            showError('You must be logged in to proceed with checkout.');
             return;
         }
 
         if (cartItems.length === 0) {
-            showError('Empty Cart', 'Your cart is empty. Add some items before checkout.');
+            showError('Your cart is empty. Add some items before checkout.');
             return;
         }
 
-        setIsProcessing(true);
-
-        try {
-            // Transform cart items to order request format
-            const orderRequest = transformCartToOrderRequest(cartItems, user.id);
-
-            //TODO Integrate backend
-            // In a real app, call the backend API
-            // const api = useContext(ApiContext);
-            // const response = await api.createOrder(orderRequest);
-
-            // For demonstration, simulate the API call
-            const response = await simulateCreateOrder(orderRequest);
-
-            if (response.success) {
-                showInfo('Order Created', 'Your order has been successfully created.');
-                navigate(ROUTES.CHECKOUT, {
-                    state: {
-                        cartItems,
-                        totalPrice,
-                        orderId: response.orderId
-                    }
-                });
-
-                dispatch(clearCart());
-            } else {
-                showError('Order Creation Failed', 'There was an error creating your order. Please try again.');
+        navigate(ROUTES.CHECKOUT, {
+            state: {
+                cartItems,
+                totalPrice
             }
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch (error) {
-            showError('Checkout Error', 'An error occurred during checkout. Please try again later.');
-        } finally {
-            setIsProcessing(false);
-        }
+        });
     };
 
     const columns = [
@@ -137,6 +131,14 @@ const CartPage: React.FC = () => {
                 <Text strong style={{color: token.colorPrimary}}>
                     ${(record.product.price * record.quantity).toFixed(2)}
                 </Text>
+            ),
+        },
+        {
+            title: 'Seller',
+            dataIndex: 'seller',
+            key: 'seller',
+            render: (_: unknown, record: CartItem) => (
+                <SellerInfo sellerId={record.product.sellerId} />
             ),
         },
         {
@@ -198,7 +200,7 @@ const CartPage: React.FC = () => {
                                     </Space>
                                 </Col>
                                 <Col xs={24} md={12}>
-                                    <Card>
+                                    <Card title="Order Summary">
                                         <div style={{
                                             display: 'flex',
                                             justifyContent: 'space-between',
@@ -236,15 +238,14 @@ const CartPage: React.FC = () => {
                                             size="large"
                                             block
                                             onClick={handleCheckout}
-                                            loading={isProcessing}
-                                            disabled={cartItems.length === 0 || isProcessing}
+                                            disabled={cartItems.length === 0}
                                             style={{
                                                 marginTop: 16,
                                                 backgroundColor: token.colorPrimary,
                                                 borderColor: token.colorPrimary
                                             }}
                                         >
-                                            {isProcessing ? 'Processing...' : 'Proceed to Checkout'}
+                                            Proceed to Checkout
                                         </Button>
                                     </Card>
                                 </Col>

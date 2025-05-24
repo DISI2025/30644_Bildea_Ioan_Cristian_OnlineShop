@@ -2,7 +2,6 @@ import {useMemo} from "react";
 import {Card, Form, Layout, Skeleton, theme, Typography, Alert, Button, Space} from "antd";
 import {useDispatch, useSelector} from "react-redux";
 import {useSnackbar} from "../context/SnackbarContext";
-import {Navbar} from "../components/common/Navbar";
 import {Product} from "../types/entities";
 import {BaseResponse, CreateProductRequest, ProductFormData, UpdateProductRequest} from "../types/transfer";
 import {
@@ -10,6 +9,7 @@ import {
     useDeleteProductMutation,
     useGetProductCategoriesQuery,
     useGetProductsBySellerIdQuery,
+    useGetUserProfileQuery,
     useUpdateProductMutation
 } from "../store/api";
 import {
@@ -64,6 +64,11 @@ export default function ProductManagerPage() {
         data: categoriesResponse,
         isLoading: isLoadingCategories
     } = useGetProductCategoriesQuery();
+
+    const {
+        data: userProfileResponse,
+        isLoading: isLoadingUserProfile
+    } = useGetUserProfileQuery(userId);
 
     const [createProduct, {isLoading: isCreating}] = useCreateProductMutation();
     const [updateProduct, {isLoading: isUpdating}] = useUpdateProductMutation();
@@ -165,8 +170,20 @@ export default function ProductManagerPage() {
     }, [productsResponse?.payload, searchText, selectedCategoryId, sortOrder]);
 
     const availableCategories = useMemo(() => {
-        return categoriesResponse?.payload || [];
-    }, [categoriesResponse?.payload]);
+        const allCategories = categoriesResponse?.payload || [];
+        const userProfile = userProfileResponse?.payload;
+        const userCategories = userProfile?.productCategories || [];
+        
+        // Filter to only show categories assigned to the current user
+        if (userCategories.length === 0) {
+            // If user has no assigned categories, show empty array
+            return [];
+        }
+        
+        // Return only categories that are assigned to the current user
+        const userCategoryIds = userCategories.map(cat => cat.id);
+        return allCategories.filter(category => userCategoryIds.includes(category.id));
+    }, [categoriesResponse?.payload, userProfileResponse?.payload]);
 
     const handleGoToProfile = () => {
         const username = authState.user?.username;
@@ -217,6 +234,42 @@ export default function ProductManagerPage() {
         );
     }
 
+    // If user is a seller but has no assigned categories, show message to contact admin
+    if (isSeller && !isLoadingUserProfile && !isLoadingCategories && availableCategories.length === 0) {
+        return (
+            <Layout>
+                <Content style={{
+                    padding: "2rem",
+                    marginTop: `calc(${token.layout.headerHeight}px + 2rem)`
+                }}>
+                    <Title level={2} style={{textAlign: "center", marginBottom: "2rem"}}>
+                        Manage Products
+                    </Title>
+
+                    <Card style={{ maxWidth: 600, margin: '0 auto' }}>
+                        <Alert
+                            message="No Product Categories Assigned"
+                            description={
+                                <Space direction="vertical" style={{ width: '100%' }}>
+                                    <div>
+                                        You don't have any product categories assigned to your account yet. 
+                                        Please contact an administrator to assign categories before you can create or manage products.
+                                    </div>
+                                    <div>
+                                        <strong>What you can sell:</strong> Only products in categories specifically assigned to you by an administrator.
+                                    </div>
+                                </Space>
+                            }
+                            type="warning"
+                            showIcon
+                            style={{ textAlign: 'left' }}
+                        />
+                    </Card>
+                </Content>
+            </Layout>
+        );
+    }
+
     return (
         <Layout>
             <Content style={{
@@ -232,7 +285,7 @@ export default function ProductManagerPage() {
                 <div style={{display: "flex"}}>
                     <div style={{width: "250px"}}>
                         <Card title="Filters" variant="borderless" style={{marginBottom: '1rem'}}>
-                            {isLoadingCategories ? (
+                            {isLoadingCategories || isLoadingUserProfile ? (
                                 <Skeleton active/>
                             ) : (
                                 <ProductFilter
@@ -252,7 +305,7 @@ export default function ProductManagerPage() {
                     }}/>
 
                     <div style={{flex: 1}}>
-                        {isLoadingProducts ? (
+                        {isLoadingProducts || isLoadingUserProfile ? (
                             <Card>
                                 <Skeleton active/>
                             </Card>

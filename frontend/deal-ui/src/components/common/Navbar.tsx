@@ -22,25 +22,25 @@ export const Navbar: React.FC = () => {
 
     const userMenuItems = useMemo(() => {
         const allUserItems = [
-            {
-                key: ROUTES.HOME,
-                label: (
-                    <div style={{display: 'flex', alignItems: 'center', gap: token.spacing.xs}}>
-                        <HomeOutlined style={{fontSize: token.customFontSize.md}}/>
-                        <span>Home</span>
-                    </div>
-                ),
-            },
-            {
-                key: ROUTES.PRODUCTS,
-                label: (
-                    <div style={{display: 'flex', alignItems: 'center', gap: token.spacing.xs}}>
-                        <ShoppingOutlined style={{fontSize: token.customFontSize.md}}/>
-                        <span>Products Manager</span>
-                    </div>
-                ),
+        {
+            key: ROUTES.HOME,
+            label: (
+                <div style={{display: 'flex', alignItems: 'center', gap: token.spacing.xs}}>
+                    <HomeOutlined style={{fontSize: token.customFontSize.md}}/>
+                    <span>Home</span>
+                </div>
+            ),
+        },
+        {
+            key: ROUTES.PRODUCTS,
+            label: (
+                <div style={{display: 'flex', alignItems: 'center', gap: token.spacing.xs}}>
+                    <ShoppingOutlined style={{fontSize: token.customFontSize.md}}/>
+                    <span>Products Manager</span>
+                </div>
+            ),
                 requiresSeller: true,
-            },
+        },
         ];
 
         return allUserItems.filter(item => {

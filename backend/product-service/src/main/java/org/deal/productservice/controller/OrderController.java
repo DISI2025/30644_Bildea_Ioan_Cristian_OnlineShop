@@ -2,10 +2,13 @@ package org.deal.productservice.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.deal.core.dto.OrderDTO;
+import org.deal.core.dto.PaymentIntentDTO;
 import org.deal.core.exception.DealError;
 import org.deal.core.request.order.CreateOrderRequest;
+import org.deal.core.request.order.CreatePaymentIntentRequest;
 import org.deal.core.response.DealResponse;
 import org.deal.productservice.service.OrderService;
+import org.deal.productservice.service.StripeService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,6 +33,7 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 public class OrderController {
 
     private final OrderService orderService;
+    private final StripeService stripeService;
 
     @GetMapping
     public DealResponse<List<OrderDTO>> getOrders() {
@@ -65,6 +69,18 @@ public class OrderController {
                 .orElse(DealResponse.failureResponse(
                         new DealError(failedToSave(OrderDTO.class)),
                         BAD_REQUEST));
+    }
+
+    @PostMapping("/payment-intent")
+    public DealResponse<PaymentIntentDTO> createPaymentIntent(@RequestBody final CreatePaymentIntentRequest request) {
+        try {
+            PaymentIntentDTO paymentIntent = stripeService.createPaymentIntent(request);
+            return DealResponse.successResponse(paymentIntent);
+        } catch (Exception e) {
+            return DealResponse.failureResponse(
+                    new DealError("Failed to create payment intent: " + e.getMessage()),
+                    BAD_REQUEST);
+        }
     }
 
     @DeleteMapping("/{id}")

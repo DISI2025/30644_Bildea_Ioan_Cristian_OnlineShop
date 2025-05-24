@@ -17,17 +17,21 @@ const {Text, Title} = Typography;
 type PaymentStatusProps = {
     status: 'success' | 'error' | 'processing' | 'confirmation';
     orderId?: string;
+    paymentId?: string;
     error?: string;
     onVerifyOtp?: (otp: string) => void;
     verificationLoading?: boolean;
+    onRetry?: () => void;
 };
 
 const PaymentStatus: React.FC<PaymentStatusProps> = ({
                                                          status,
                                                          orderId,
+                                                         paymentId,
                                                          error,
                                                          onVerifyOtp,
-                                                         verificationLoading = false
+                                                         verificationLoading = false,
+                                                         onRetry
                                                      }) => {
     const navigate = useNavigate();
     const [otpValue, setOtpValue] = useState('');
@@ -56,12 +60,13 @@ const PaymentStatus: React.FC<PaymentStatusProps> = ({
                     <Result
                         status="success"
                         icon={<CheckCircleOutlined/>}
-                        title="Payment Successful!"
+                        title="Order Created Successfully!"
                         subTitle={
                             <Space direction="vertical">
-                                <Text>Your order has been successfully placed.</Text>
+                                <Text>Your payment has been confirmed and order created.</Text>
                                 {orderId && <Text strong>Order ID: {orderId}</Text>}
-                                <Text>Your order was confirmed via SMS.</Text>
+                                {paymentId && <Text strong>Payment ID: {paymentId}</Text>}
+                                <Text>Thank you for your purchase!</Text>
                             </Space>
                         }
                         extra={[
@@ -91,7 +96,7 @@ const PaymentStatus: React.FC<PaymentStatusProps> = ({
                             </Space>
                         }
                         extra={[
-                            <Button type="primary" key="retry" onClick={() => window.location.reload()}>
+                            <Button type="primary" key="retry" onClick={onRetry || (() => window.location.reload())}>
                                 Try Again
                             </Button>,
                             <Button key="back" onClick={() => navigate(ROUTES.CART)}>
@@ -118,9 +123,12 @@ const PaymentStatus: React.FC<PaymentStatusProps> = ({
                                 icon={<SafetyOutlined style={{color: '#1677ff'}}/>}
                                 title="Confirm Your Payment"
                                 subTitle={
-                                    <Text>
-                                        Please enter the verification code to complete your purchase.
-                                    </Text>
+                                    <Space direction="vertical">
+                                        <Text>
+                                            Payment processed successfully! Please enter the verification code to complete your purchase and create your order.
+                                        </Text>
+                                        {paymentId && <Text strong>Payment ID: {paymentId}</Text>}
+                                    </Space>
                                 }
                             />
 
@@ -170,7 +178,7 @@ const PaymentStatus: React.FC<PaymentStatusProps> = ({
                                             htmlType="submit"
                                             loading={verificationLoading}
                                         >
-                                            Complete Payment
+                                            Complete Order
                                         </Button>
                                     </Space>
                                 </div>

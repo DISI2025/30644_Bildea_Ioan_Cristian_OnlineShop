@@ -22,7 +22,6 @@ import {
 } from "../store/slices/product-category-slice";
 import {ProductCategory} from "../types/entities";
 import {BaseResponse, CreateProductCategoryRequest} from "../types/transfer";
-import {Navbar} from "../components/common/Navbar";
 import ProductCategorySearch from "../components/product-category/ProductCategorySearch.tsx";
 import ProductCategoryFilter from "../components/product-category/ProductCategoryFilter.tsx";
 import ProductCategoryAdd from "../components/product-category/ProductCategoryAdd.tsx";

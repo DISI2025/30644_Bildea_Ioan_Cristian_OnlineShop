@@ -122,6 +122,13 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Stripe -->
+        <dependency>
+            <groupId>com.stripe</groupId>
+            <artifactId>stripe-java</artifactId>
+            <version>29.1.0</version>
+        </dependency>
+
 <!--        &lt;!&ndash; State Machine &ndash;&gt;-->
 <!--        <dependency>-->
 <!--            <groupId>org.springframework.statemachine</groupId>-->

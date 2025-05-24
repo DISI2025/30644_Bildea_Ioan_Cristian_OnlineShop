@@ -13,7 +13,8 @@ import {
 } from 'antd';
 import { 
     LockOutlined, 
-    UserOutlined
+    UserOutlined,
+    ShoppingOutlined
 } from '@ant-design/icons';
 import { useSelector, useDispatch } from 'react-redux';
 import { selectAuthState, updateUserProfile as updateUserProfileAction } from '../store/slices/auth-slice';
@@ -24,6 +25,7 @@ import { useSnackbar } from '../context/SnackbarContext';
 import ProfileHeader from '../components/profile/ProfileHeader';
 import ProfileForm from '../components/profile/ProfileForm';
 import ProfileInfo from '../components/profile/ProfileInfo';
+import OrderHistory from '../components/profile/OrderHistory';
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
@@ -35,6 +37,7 @@ interface AuthState {
         username: string;
         role: UserRole;
     } | null;
+    isSeller: boolean;
 }
 
 interface ProfileFormData {
@@ -54,7 +57,7 @@ const ProfilePage: React.FC = () => {
     const { token } = useToken();
     const navigate = useNavigate();
     const { username } = useParams<{ username: string }>();
-    const { user } = useSelector(selectAuthState) as AuthState;
+    const { user, isSeller } = useSelector(selectAuthState) as AuthState;
     const { showSuccess, showDealErrors } = useSnackbar();
     const dispatch = useDispatch();
     
@@ -274,6 +277,17 @@ const ProfilePage: React.FC = () => {
         </Card>
     );
 
+    const renderOrderHistory = () => (
+        <Card style={{ 
+            borderRadius: token.borderRadiusLG, 
+            boxShadow: token.boxShadow 
+        }}>
+            <div style={{ padding: token.paddingLG }}>
+                <OrderHistory userId={userProfile.id} isSeller={isSeller} />
+            </div>
+        </Card>
+    );
+
     const tabItems = [
         {
             key: 'basic',
@@ -294,6 +308,16 @@ const ProfilePage: React.FC = () => {
                 </Space>
             ),
             children: renderSecurityTab()
+        },
+        {
+            key: 'order-history',
+            label: (
+                <Space>
+                    <ShoppingOutlined />
+                    <span>Order History</span>
+                </Space>
+            ),
+            children: renderOrderHistory()
         }
     ];
 

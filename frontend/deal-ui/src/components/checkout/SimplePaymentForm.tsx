@@ -8,6 +8,9 @@ import {
 import { loadStripe } from '@stripe/stripe-js';
 import { Button, Card, Typography, Alert, Spin, Space } from 'antd';
 import {TEST_CARDS } from '../../utils/stripe';
+import { useCreatePaymentIntentMutation } from '../../store/api';
+import { CustomerDetails } from './CustomerDetailsForm';
+import { CartItem } from '../../store/slices/cart-slice';
 
 const { Title, Text } = Typography;
 
@@ -15,24 +18,33 @@ const stripePromise = loadStripe(import.meta.env.STRIPE_PUBLISHABLE_KEY || 'pk_t
 
 interface CardFormProps {
   onSuccess: (paymentId: string) => void;
-  orderId: string;
+  onError?: (error: string) => void;
   amount: number;
   customerEmail: string;
   customerPhone: string;
+  customerDetails: CustomerDetails;
+  cartItems: CartItem[];
 }
 
 const CardForm: React.FC<CardFormProps> = ({
   onSuccess, 
-  orderId, 
+  onError,
   amount, 
   customerEmail, 
-  customerPhone 
+  customerPhone, 
+  customerDetails,
+  cartItems
 }) => {
   const stripe = useStripe();
   const elements = useElements();
   const [error, setError] = useState<string | null>(null);
   const [cardComplete, setCardComplete] = useState(false);
   const [processing, setProcessing] = useState(false);
+  const [createPaymentIntent] = useCreatePaymentIntentMutation();
+
+  const generatePaymentReference = () => {
+    return `pay_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -44,12 +56,33 @@ const CardForm: React.FC<CardFormProps> = ({
     setProcessing(true);
 
     try {
-      //TODO Call backend
-      // Create simulated payment intent
-      // In a real app, you would call your backend
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      // const clientSecret = `pi_${Math.random().toString(36).substring(2)}_secret_${Math.random().toString(36).substring(2)}`;
-      const tempPaymentId = `pi_${Math.random().toString(36).substring(7)}`;
+      // Generate a temporary payment reference instead of using order ID
+      const paymentReference = generatePaymentReference();
+      
+      const paymentIntentRequest = {
+        amount,
+        currency: 'usd',
+        customerEmail,
+        customerPhone,
+        orderId: paymentReference, // Use payment reference instead of actual order ID
+        customerDetails: {
+          fullName: customerDetails.fullName,
+          address: customerDetails.address,
+          city: customerDetails.city,
+          postalCode: customerDetails.postalCode,
+          country: customerDetails.country,
+          phoneNumber: customerPhone,
+          email: customerEmail
+        }
+      };
+
+      const paymentIntentResponse = await createPaymentIntent(paymentIntentRequest).unwrap();
+      
+      if (!paymentIntentResponse.payload) {
+        throw new Error('Failed to create payment intent');
+      }
+
+      const { clientSecret } = paymentIntentResponse.payload;
       
       const cardElement = elements.getElement(CardElement);
       
@@ -57,23 +90,29 @@ const CardForm: React.FC<CardFormProps> = ({
         throw new Error('Card element not found');
       }
 
-      const paymentMethodResult = await stripe.createPaymentMethod({
-        type: 'card',
-        card: cardElement,
-        billing_details: {
-          email: customerEmail,
-          phone: customerPhone,
+      const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: cardElement,
+          billing_details: {
+            email: customerEmail,
+            phone: customerPhone,
+          },
         },
       });
 
-      if (paymentMethodResult.error) {
-        throw new Error(paymentMethodResult.error.message);
+      if (confirmError) {
+        throw new Error(confirmError.message);
       }
 
-      onSuccess(tempPaymentId);
+      if (paymentIntent && paymentIntent.status === 'succeeded') {
+        onSuccess(paymentIntent.id);
+      } else {
+        throw new Error('Payment was not successful');
+      }
       
     } catch (error) {
       setError(error instanceof Error ? error.message : 'An unexpected error occurred');
+      onError?.(error instanceof Error ? error.message : 'An unexpected error occurred');
     } finally {
       setProcessing(false);
     }
@@ -128,7 +167,7 @@ const CardForm: React.FC<CardFormProps> = ({
 
       <div style={{ textAlign: 'right', marginBottom: 16 }}>
         <Space>
-          <Text>Order ID: {orderId}</Text>
+          <Text>Items: {cartItems.length}</Text>
           <Text strong>Total: ${amount.toFixed(2)}</Text>
         </Space>
       </div>
@@ -153,29 +192,35 @@ const CardForm: React.FC<CardFormProps> = ({
 };
 
 interface SimplePaymentFormProps {
-  orderId: string;
   amount: number;
   customerEmail: string;
   customerPhone: string;
+  customerDetails: CustomerDetails;
+  cartItems: CartItem[];
   onSuccess: (paymentId: string) => void;
+  onError?: (error: string) => void;
 }
 
 const SimplePaymentForm: React.FC<SimplePaymentFormProps> = ({
-  orderId, 
   amount, 
   customerEmail, 
   customerPhone, 
-  onSuccess 
+  customerDetails,
+  cartItems,
+  onSuccess, 
+  onError
 }) => {
   return (
     <Card title={<Title level={4}>Payment Details</Title>}>
       <Elements stripe={stripePromise}>
         <CardForm
-          orderId={orderId}
           amount={amount}
           customerEmail={customerEmail}
           customerPhone={customerPhone}
+          customerDetails={customerDetails}
+          cartItems={cartItems}
           onSuccess={onSuccess}
+          onError={onError}
         />
       </Elements>
     </Card>
