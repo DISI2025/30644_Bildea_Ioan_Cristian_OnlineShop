@@ -53,6 +53,10 @@ public class DealResponse<T> extends ResponseEntity<Object> implements Serializa
         return baseResponse(payload, SUCCESS, HttpStatus.OK, getDefaultHttpHeaders(), null);
     }
 
+    public static <T> DealResponse<T> successPaginatedResponse(final T payload, final PaginationDetails pagination) {
+        return basePaginatedResponse(payload, SUCCESS, HttpStatus.OK, getDefaultHttpHeaders(), null, pagination);
+    }
+
     public static <T> DealResponse<T> successResponse(final T payload, final String headerKey, final String headerValue) {
         HttpHeaders headers = getDefaultHttpHeaders();
         headers.add(headerKey, headerValue);
@@ -83,6 +87,23 @@ public class DealResponse<T> extends ResponseEntity<Object> implements Serializa
                 .withMessage(message)
                 .withHeaders(headers)
                 .withErrors(errors)
+                .build();
+    }
+
+    public static <T> DealResponse<T> basePaginatedResponse(
+            final T payload,
+            final String message,
+            final HttpStatus status,
+            final HttpHeaders headers,
+            final List<DealError> errors,
+            final PaginationDetails pagination) {
+        return new DealResponse.Builder<T>()
+                .withStatus(status)
+                .withPayload(payload)
+                .withMessage(message)
+                .withHeaders(headers)
+                .withErrors(errors)
+                .withPaginationDetails(pagination)
                 .build();
     }
 
@@ -122,6 +143,11 @@ public class DealResponse<T> extends ResponseEntity<Object> implements Serializa
 
         public Builder<T> withHeaders(final HttpHeaders headers) {
             this.headers.putAll(headers);
+            return this;
+        }
+
+        public Builder<T> withPaginationDetails(final PaginationDetails details) {
+            this.body.put("pagination", details);
             return this;
         }
 

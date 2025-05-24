@@ -5,9 +5,10 @@ import org.deal.core.client.DealService;
 import org.deal.core.dto.ProductDTO;
 import org.deal.core.dto.UserDTO;
 import org.deal.core.request.auth.ValidateTokenRequest;
+import org.deal.core.request.product.ProductsFilter;
 import org.deal.core.util.Mapper;
+import org.deal.core.util.SortDir;
 import org.deal.productservice.entity.Product;
-import org.deal.productservice.enums.SortOption;
 import org.deal.productservice.repository.ProductCategoryRepository;
 import org.deal.productservice.repository.ProductRepository;
 import org.deal.productservice.security.DealContext;
@@ -18,18 +19,21 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpMethod;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import static org.deal.productservice.util.TestUtils.ProductUtils.createProductRequest;
 import static org.deal.productservice.util.TestUtils.ProductUtils.updateProductRequest;
-import static org.deal.productservice.util.TestUtils.convertAll;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -304,76 +308,51 @@ class ProductServiceTest extends BaseUnitTest {
     @Test
     void testFindAll_withNameFilter_shouldReturnFilteredProducts() {
         var product = Instancio.create(Product.class);
-        String name = "banana";
+        Page<Product> page = new PageImpl<>(List.of(product));
 
-        when(productRepository.findWithFilter(name, null)).thenReturn(List.of(product));
+        when(productRepository.findAll(any(Pageable.class))).thenReturn(page);
 
-        var result = victim.findAll(name, null, SortOption.NONE);
+        var filter = new ProductsFilter("title", SortDir.ASC, 0, 1);
+        var result = victim.findAll(filter);
 
-        verify(productRepository).findWithFilter(name, null);
-        result.ifPresentOrElse(products -> {
-            assertThat(products, hasItem(Mapper.mapTo(product, ProductDTO.class)));
-        }, this::assertThatFails);
+        assertThat(result.getContent(), hasItem(Mapper.mapTo(product, ProductDTO.class)));
+        verify(productRepository).findAll(any(Pageable.class));
     }
 
     @Test
     void testFindAll_withCategoryFilter_shouldReturnFilteredProducts() {
         var product = Instancio.create(Product.class);
-        UUID categoryId = UUID.randomUUID();
+        Page<Product> page = new PageImpl<>(List.of(product));
 
-        when(productRepository.findWithFilter(null, categoryId)).thenReturn(List.of(product));
+        when(productRepository.findAll(any(Pageable.class))).thenReturn(page);
 
-        var result = victim.findAll(null, categoryId, SortOption.NONE);
+        var filter = new ProductsFilter("title", SortDir.ASC, 0, 1);
+        var result = victim.findAll(filter);
 
-        verify(productRepository).findWithFilter(null, categoryId);
-        result.ifPresentOrElse(products -> {
-            assertThat(products, hasItem(Mapper.mapTo(product, ProductDTO.class)));
-        }, this::assertThatFails);
+        assertThat(result.getContent(), hasItem(Mapper.mapTo(product, ProductDTO.class)));
+        verify(productRepository).findAll(any(Pageable.class));
     }
 
     @Test
     void testFindAll_withAllFilters_shouldReturnSortedProducts() {
         var product1 = Instancio.create(Product.class);
         var product2 = Instancio.create(Product.class);
+        product1.setTitle("Banana");
+        product2.setTitle("Apple");
 
-        String name = "apple";
-        UUID categoryId = UUID.randomUUID();
-        SortOption sortOption = SortOption.Z_TO_A;
+        Page<Product> page = new PageImpl<>(List.of(product1, product2));
 
-        when(productRepository.findWithFilter(name, categoryId)).thenReturn(List.of(product1, product2));
+        when(productRepository.findAll(any(Pageable.class))).thenReturn(page);
 
-        var result = victim.findAll(name, categoryId, sortOption);
+        var filter = new ProductsFilter("title", SortDir.ASC, 0, 1);
+        var result = victim.findAll(filter);
 
-        verify(productRepository).findWithFilter(name, categoryId);
-        result.ifPresentOrElse(products -> {
-            var dtos = convertAll(List.of(product1, product2), ProductDTO.class);
-            var sorted = dtos.stream()
-                    .sorted((p1, p2) -> p2.title().compareTo(p1.title()))
-                    .toList();
-            assertThat(products, equalTo(sorted));
-        }, this::assertThatFails);
+        var expected = Stream.of(product1, product2)
+                .map(p -> Mapper.mapTo(p, ProductDTO.class))
+                .sorted((a, b) -> b.title().compareTo(a.title()))
+                .toList();
+
+        assertThat(result.getContent(), equalTo(expected));
+        verify(productRepository).findAll(any(Pageable.class));
     }
-
-    @Test
-    void testFindAll_withSortOptionAtoZ_shouldReturnSortedAscending() {
-        var product1 = Instancio.create(Product.class);
-        var product2 = Instancio.create(Product.class);
-
-        product1.setTitle("Apple");
-        product2.setTitle("Banana");
-
-        when(productRepository.findWithFilter(null, null)).thenReturn(List.of(product2, product1));
-
-        var result = victim.findAll(null, null, SortOption.A_TO_Z);
-
-        verify(productRepository).findWithFilter(null, null);
-        result.ifPresentOrElse(products -> {
-            var dtos = convertAll(List.of(product2, product1), ProductDTO.class);
-            var sorted = dtos.stream()
-                    .sorted((p1, p2) -> p1.title().compareTo(p2.title()))
-                    .toList();
-            assertThat(products, equalTo(sorted));
-        }, this::assertThatFails);
-    }
-
 }
