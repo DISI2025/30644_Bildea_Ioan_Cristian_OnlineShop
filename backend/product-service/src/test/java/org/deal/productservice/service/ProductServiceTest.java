@@ -1,10 +1,7 @@
 package org.deal.productservice.service;
 
-import org.deal.core.client.DealClient;
-import org.deal.core.client.DealService;
 import org.deal.core.dto.ProductDTO;
 import org.deal.core.dto.UserDTO;
-import org.deal.core.request.auth.ValidateTokenRequest;
 import org.deal.core.request.product.ProductsFilter;
 import org.deal.core.util.Mapper;
 import org.deal.core.util.SortDir;
@@ -23,7 +20,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpMethod;
 
 import java.util.List;
 import java.util.Optional;
@@ -56,9 +52,6 @@ class ProductServiceTest extends BaseUnitTest {
 
     @InjectMocks
     private ProductService victim;
-
-    @Mock
-    private DealClient dealClient;
 
     @Mock
     private DealContext dealContext;
@@ -250,33 +243,17 @@ class ProductServiceTest extends BaseUnitTest {
         // Arrange
         var product = Instancio.create(Product.class);
         var productDTO = Mapper.mapTo(product, ProductDTO.class);
-        var jwtToken = "Bearer token.jwt.test";
-
         var userDTO = Instancio.create(UserDTO.class);
 
         when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
-        when(dealContext.getToken()).thenReturn(jwtToken);
-        when(dealClient.call(
-                DealService.IS,
-                "/auth/validate-token",
-                HttpMethod.POST,
-                new ValidateTokenRequest(jwtToken),
-                UserDTO.class
-        )).thenReturn(userDTO);
+        when(dealContext.getUser()).thenReturn(userDTO);
 
         // Act
         var result = victim.findDetailsById(product.getId());
 
         // Assert
         verify(productRepository).findById(product.getId());
-        verify(dealContext).getToken();
-        verify(dealClient).call(
-                DealService.IS,
-                "/auth/validate-token",
-                HttpMethod.POST,
-                new ValidateTokenRequest(jwtToken),
-                UserDTO.class
-        );
+        verify(dealContext).getUser();
 
         result.ifPresentOrElse(
                 details -> {
@@ -299,8 +276,7 @@ class ProductServiceTest extends BaseUnitTest {
 
         // Assert
         verify(productRepository).findById(id);
-        verify(dealContext, never()).getToken();
-        verify(dealClient, never()).call(any(), any(), any(), any(), any());
+        verify(dealContext, never()).getUser();
 
         assertTrue(result.isEmpty());
     }

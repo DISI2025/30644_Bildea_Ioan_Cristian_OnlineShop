@@ -2,12 +2,7 @@ package org.deal.productservice.service;
 
 import jakarta.persistence.criteria.Path;
 import lombok.RequiredArgsConstructor;
-import org.deal.core.client.DealClient;
-import org.deal.core.client.DealService;
 import org.deal.core.dto.ProductDTO;
-import org.deal.core.dto.UserDTO;
-import org.deal.core.exception.DealException;
-import org.deal.core.request.auth.ValidateTokenRequest;
 import org.deal.core.request.product.CreateProductRequest;
 import org.deal.core.request.product.ProductsFilter;
 import org.deal.core.request.product.UpdateProductRequest;
@@ -25,7 +20,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -40,7 +34,6 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final ProductCategoryRepository productCategoryRepository;
-    private final DealClient dealClient;
     private final DealContext dealContext;
 
     public Optional<ProductDTO> findById(final UUID id) {
@@ -82,28 +75,19 @@ public class ProductService {
             return Optional.empty();
         }
 
-        String jwtToken = dealContext.getToken();
+        ProductDetailsResponse productDetailsResponse = ProductDetailsResponse.builder()
+                .withId(productDTO.get().id())
+                .withTitle(productDTO.get().title())
+                .withDescription(productDTO.get().description())
+                .withPrice(productDTO.get().price())
+                .withStock(productDTO.get().stock())
+                .withImageUrl(productDTO.get().imageUrl())
+                .withCategories(productDTO.get().categories())
+                .withCreatedAt(productDTO.get().createdAt())
+                .withSellerDTO(dealContext.getUser())
+                .build();
 
-        try {
-            UserDTO userDTO = dealClient.call(DealService.IS, "/auth/validate-token", HttpMethod.POST, new ValidateTokenRequest(jwtToken), UserDTO.class);
-
-            ProductDetailsResponse productDetailsResponse = ProductDetailsResponse.builder()
-                    .withId(productDTO.get().id())
-                    .withTitle(productDTO.get().title())
-                    .withDescription(productDTO.get().description())
-                    .withPrice(productDTO.get().price())
-                    .withStock(productDTO.get().stock())
-                    .withImageUrl(productDTO.get().imageUrl())
-                    .withCategories(productDTO.get().categories())
-                    .withCreatedAt(productDTO.get().createdAt())
-                    .withSellerDTO(userDTO)
-                    .build();
-
-            return Optional.of(productDetailsResponse);
-
-        } catch (DealException e) {
-            return Optional.empty();
-        }
+        return Optional.of(productDetailsResponse);
     }
 
     public Optional<ProductDTO> create(final CreateProductRequest request) {
