@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -47,6 +48,7 @@ public class ProductController {
     public DealResponse<List<ProductDTO>> getProducts(final ProductsFilter filter, final HttpServletRequest request) {
         Page<ProductDTO> page = productService.findAll(filter);
         List<ProductDTO> products = page.getContent();
+        var size = Optional.ofNullable(filter.size()).orElse(PaginationDetails.DEFAULT_PAGE_SIZE);
 
         int currentPage = page.getNumber();
         int totalPages = page.getTotalPages();
@@ -55,16 +57,16 @@ public class ProductController {
                 products,
                 PaginationDetails.builder()
                         .withPage(currentPage)
-                        .withSize(filter.size())
+                        .withSize(size)
                         .withTotalElements(page.getTotalElements())
                         .withTotalPages(totalPages)
                         .withHasNext(page.hasNext())
                         .withHasPrevious(page.hasPrevious())
                         .withNextPageUrl(currentPage + 1 < totalPages ?
-                                         buildPageUrl(request, currentPage + 1, filter.size()) :
+                                         buildPageUrl(request, currentPage + 1, size) :
                                          null)
                         .withPreviousPageUrl(currentPage > 0 ?
-                                             buildPageUrl(request, currentPage - 1, filter.size()) :
+                                             buildPageUrl(request, currentPage - 1, size) :
                                              null)
                         .build()
         );
