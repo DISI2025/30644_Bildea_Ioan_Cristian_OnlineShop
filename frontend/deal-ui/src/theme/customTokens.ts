@@ -87,9 +87,9 @@ export const customTokens = {
         tertiary: '#f0f2f5',
       },
       dark: {
-        primary: '#1f1f1f',
-        secondary: '#262626',
-        tertiary: '#2d2d2d',
+        primary: '#141414',
+        secondary: '#1a1a1a',
+        tertiary: '#1f1f1f',
       },
     },
     border: {
