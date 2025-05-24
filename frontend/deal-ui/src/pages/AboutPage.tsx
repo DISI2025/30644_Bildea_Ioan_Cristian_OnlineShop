@@ -1,13 +1,6 @@
 import React from 'react';
-import { Layout, Typography, Card, Row, Col, Avatar, Space, Divider, Tag } from 'antd';
-import {
-    TeamOutlined,
-    TrophyOutlined,
-    RocketOutlined,
-    HeartOutlined,
-    ShoppingOutlined,
-    UserOutlined
-} from '@ant-design/icons';
+import {Avatar, Card, Col, Divider, Layout, Row, Space, Tag, Typography} from 'antd';
+import {HeartOutlined, RocketOutlined, ShoppingOutlined, TeamOutlined, TrophyOutlined} from '@ant-design/icons';
 
 // Import avatar images
 import CristiAvatar from '../assets/Cristi.png';

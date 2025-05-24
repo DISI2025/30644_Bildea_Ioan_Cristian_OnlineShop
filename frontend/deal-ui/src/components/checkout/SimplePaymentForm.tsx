@@ -92,10 +92,10 @@ const CardForm: React.FC<CardFormProps> = ({
 
       const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
         payment_method: {
-          card: cardElement,
-          billing_details: {
-            email: customerEmail,
-            phone: customerPhone,
+        card: cardElement,
+        billing_details: {
+          email: customerEmail,
+          phone: customerPhone,
           },
         },
       });

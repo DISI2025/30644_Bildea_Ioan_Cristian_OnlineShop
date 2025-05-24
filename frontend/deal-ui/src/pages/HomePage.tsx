@@ -1,48 +1,23 @@
-import React, { useState, useMemo } from 'react';
-import { 
-    Layout, 
-    theme, 
-    Typography, 
-    Divider, 
-    Input, 
-    Select, 
-    Button, 
-    Row, 
-    Col, 
-    Card, 
-    Space, 
-    Avatar, 
-    Tag, 
-    Skeleton, 
-    Empty,
-    Alert
-} from 'antd';
-import { 
-    SearchOutlined, 
-    FilterOutlined,
-    SortAscendingOutlined,
-    SortDescendingOutlined,
-    UserOutlined,
-    ShopOutlined,
-    DollarOutlined,
-    CalendarOutlined,
-    AppstoreOutlined
-} from '@ant-design/icons';
-import { useSelector } from 'react-redux';
+import React, {useMemo, useState} from 'react';
+import {Alert, Card, Col, Divider, Empty, Layout, Row, Skeleton, Space, theme, Typography} from 'antd';
+import {AppstoreOutlined, UserOutlined} from '@ant-design/icons';
+import {useSelector} from 'react-redux';
 import ProductGrid from '../components/product/ProductGrid';
-import { 
-    useGetProductsQuery, 
-    useGetUsersQuery, 
-    useGetProductsBySellerIdQuery, 
-    useGetProductCategoriesQuery 
+import {SearchFilters} from '../components/common';
+import {
+    useGetProductCategoriesQuery,
+    useGetProductsBySellerIdQuery,
+    useGetProductsQuery,
+    useGetUsersQuery
 } from '../store/api';
-import { selectAuthState } from '../store/slices/auth-slice';
-import { UserRole, Product, MainUser } from '../types/entities';
+import {selectAuthState} from '../store/slices/auth-slice';
+import {MainUser, UserRole} from '../types/entities';
+import UserDetailsModal from '../components/admin/UserDetailsModal';
+import UserCard from "../components/admin/UserCard.tsx";
 
 const { Content, Footer } = Layout;
 const { useToken } = theme;
 const { Title, Text, Paragraph } = Typography;
-const { Option } = Select;
 
 type SortOption = 'name-asc' | 'name-desc' | 'price-low' | 'price-high';
 
@@ -56,6 +31,8 @@ export const HomePage: React.FC = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState<string>('');
     const [sortOption, setSortOption] = useState<SortOption>('name-asc');
+    const [selectedUser, setSelectedUser] = useState<MainUser | null>(null);
+    const [isUserModalVisible, setIsUserModalVisible] = useState(false);
 
     // API queries
     const { data: allProductsResponse, error: productsError, isLoading: isLoadingProducts } = useGetProductsQuery();
@@ -122,14 +99,11 @@ export const HomePage: React.FC = () => {
         return filtered;
     }, [displayProducts, searchTerm, selectedCategory, sortOption]);
 
-    // Filter and sort users for admin view
     const filteredAndSortedUsers = useMemo(() => {
         if (!isAdmin) return [];
         
         let filtered = [...allUsers];
 
-        // TODO: Move user search filtering to backend endpoint
-        // Search by user name, email, or store name
         if (searchTerm) {
             filtered = filtered.filter(user =>
                 user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -139,8 +113,6 @@ export const HomePage: React.FC = () => {
             );
         }
 
-        // TODO: Move user role filtering to backend endpoint
-        // Filter by role (treating role as category)
         if (selectedCategory) {
             filtered = filtered.filter(user => {
                 if (selectedCategory === 'ADMIN') {
@@ -148,16 +120,14 @@ export const HomePage: React.FC = () => {
                 } else if (selectedCategory === 'SELLER') {
                     return user.role === UserRole.USER && !!user.storeAddress;
                 } else if (selectedCategory === 'BUYER') {
-                    return user.role === UserRole.USER; // All users can buy
+                    return user.role === UserRole.USER;
                 } else if (selectedCategory === 'SELLER_BUYER') {
-                    return user.role === UserRole.USER && !!user.storeAddress; // Users who are both
+                    return user.role === UserRole.USER && !!user.storeAddress;
                 }
                 return false;
             });
         }
 
-        // TODO: Move user sorting to backend endpoint
-        // Sort users
         filtered.sort((a, b) => {
             switch (sortOption) {
                 case 'name-asc':
@@ -176,8 +146,8 @@ export const HomePage: React.FC = () => {
         return filtered;
     }, [allUsers, searchTerm, selectedCategory, sortOption, isAdmin]);
 
-    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchTerm(e.target.value);
+    const handleSearchChange = (value: string) => {
+        setSearchTerm(value);
     };
 
     const handleCategoryChange = (value: string) => {
@@ -188,213 +158,35 @@ export const HomePage: React.FC = () => {
         setSortOption(value);
     };
 
-    const renderFilters = () => (
-        <Card style={{ marginBottom: 24, borderRadius: 12 }}>
-            <Row gutter={[16, 16]} align="middle">
-                <Col xs={24} md={8}>
-                    <Input
-                        placeholder={isAdmin ? "Search users..." : "Search products..."}
-                        prefix={<SearchOutlined style={{ color: token.colorTextSecondary }} />}
-                        value={searchTerm}
-                        onChange={handleSearchChange}
-                        size="large"
-                        style={{ borderRadius: 8 }}
-                    />
-                </Col>
-                <Col xs={24} md={6}>
-                    <Select
-                        placeholder={isAdmin ? "Filter by role" : "Filter by category"}
-                        style={{ width: '100%' }}
-                        size="large"
-                        allowClear
-                        value={selectedCategory || undefined}
-                        onChange={handleCategoryChange}
-                        suffixIcon={<FilterOutlined />}
-                        loading={isLoadingCategories}
-                    >
-                        {isAdmin ? (
-                            // User roles for admin - custom options
-                            <>
-                                <Option key="ADMIN" value="ADMIN">ADMIN</Option>
-                                <Option key="SELLER" value="SELLER">SELLER ONLY</Option>
-                                <Option key="BUYER" value="BUYER">BUYER (ALL USERS)</Option>
-                                <Option key="SELLER_BUYER" value="SELLER_BUYER">SELLER & BUYER</Option>
-                            </>
-                        ) : (
-                            // Product categories for regular users
-                            categories.map(category => (
-                                <Option key={category.id} value={category.id}>
-                                    {category.categoryName}
-                                </Option>
-                            ))
-                        )}
-                    </Select>
-                </Col>
-                <Col xs={24} md={6}>
-                    <Select
-                        placeholder="Sort by"
-                        style={{ width: '100%' }}
-                        size="large"
-                        value={sortOption}
-                        onChange={handleSortChange}
-                    >
-                        <Option value="name-asc">
-                            <Space>
-                                <SortAscendingOutlined />
-                                {isAdmin ? 'Name A-Z' : 'Name A-Z'}
-                            </Space>
-                        </Option>
-                        <Option value="name-desc">
-                            <Space>
-                                <SortDescendingOutlined />
-                                {isAdmin ? 'Name Z-A' : 'Name Z-A'}
-                            </Space>
-                        </Option>
-                        <Option value="price-low">
-                            <Space>
-                                <CalendarOutlined />
-                                {isAdmin ? 'Oldest First' : 'Lowest Price'}
-                            </Space>
-                        </Option>
-                        <Option value="price-high">
-                            <Space>
-                                <CalendarOutlined />
-                                {isAdmin ? 'Newest First' : 'Highest Price'}
-                            </Space>
-                        </Option>
-                    </Select>
-                </Col>
-                <Col xs={24} md={4}>
-                    <Button 
-                        type="default" 
-                        onClick={() => {
-                            setSearchTerm('');
-                            setSelectedCategory('');
-                            setSortOption('name-asc');
-                        }}
-                        size="large"
-                        style={{ width: '100%' }}
-                    >
-                        Clear All
-                    </Button>
-                </Col>
-            </Row>
-        </Card>
-    );
+    const handleClearAll = () => {
+        setSearchTerm('');
+        setSelectedCategory('');
+        setSortOption('name-asc');
+    };
 
-    const renderUserCard = (user: MainUser) => (
-        <Col xs={24} sm={12} md={8} lg={6} key={user.id}>
-            <Card
-                hoverable
-                style={{ 
-                    height: '100%',
-                    borderRadius: 12,
-                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-                }}
-                cover={
-                    <div style={{ 
-                        padding: 24, 
-                        textAlign: 'center',
-                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-                    }}>
-                        <Avatar 
-                            size={80} 
-                            icon={<UserOutlined />}
-                            style={{ 
-                                backgroundColor: 'white',
-                                color: token.colorPrimary,
-                                marginBottom: 16
-                            }}
-                        />
-                        <Title level={4} style={{ color: 'white', marginBottom: 0 }}>
-                            {user.fullName || user.username}
-                        </Title>
-                        <Text style={{ color: 'rgba(255,255,255,0.8)' }}>
-                            @{user.username}
-                        </Text>
-                    </div>
-                }
-            >
-                <Space direction="vertical" size="small" style={{ width: '100%' }}>
-                    <div>
-                        <Text strong>Role:</Text>
-                        <div style={{ marginLeft: 8, display: 'inline-block' }}>
-                            {user.role === UserRole.ADMIN ? (
-                                <Tag color="red">ADMIN</Tag>
-                            ) : (
-                                <>
-                                    {user.storeAddress && (
-                                        <Tag color="blue" style={{ marginRight: 4 }}>SELLER</Tag>
-                                    )}
-                                    <Tag color="green">BUYER</Tag>
-                                </>
-                            )}
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <Text strong>Email:</Text>
-                        <Text style={{ marginLeft: 8, color: token.colorTextSecondary }}>
-                            {user.email}
-                        </Text>
-                    </div>
+    const handleUserClick = (user: MainUser) => {
+        setSelectedUser(user);
+        setIsUserModalVisible(true);
+    };
 
-                    {user.storeAddress && (
-                        <div>
-                            <Text strong>Store:</Text>
-                            <Text style={{ marginLeft: 8, color: token.colorTextSecondary }}>
-                                <ShopOutlined style={{ marginRight: 4 }} />
-                                {user.storeAddress}
-                            </Text>
-                        </div>
-                    )}
-
-                    {user.city && user.country && (
-                        <div>
-                            <Text strong>Location:</Text>
-                            <Text style={{ marginLeft: 8, color: token.colorTextSecondary }}>
-                                {user.city}, {user.country}
-                            </Text>
-                        </div>
-                    )}
-
-                    <div>
-                        <Text strong>Member since:</Text>
-                        <Text style={{ marginLeft: 8, color: token.colorTextSecondary }}>
-                            {new Date(user.createdAt).toLocaleDateString()}
-                        </Text>
-                    </div>
-
-                    {user.productCategories && user.productCategories.length > 0 && (
-                        <div>
-                            <Text strong>Categories:</Text>
-                            <div style={{ marginTop: 8 }}>
-                                {user.productCategories.slice(0, 3).map(category => (
-                                    <Tag key={category.id} style={{ marginBottom: 4 }}>
-                                        {category.categoryName}
-                                    </Tag>
-                                ))}
-                                {user.productCategories.length > 3 && (
-                                    <Tag color="default">+{user.productCategories.length - 3} more</Tag>
-                                )}
-                            </div>
-                        </div>
-                    )}
-                </Space>
-            </Card>
-        </Col>
-    );
+    const handleCloseUserModal = () => {
+        setIsUserModalVisible(false);
+        setSelectedUser(null);
+    };
 
     const renderContent = () => {
         if (isAdmin) {
-            // Admin view - show users
             if (isLoadingUsers) {
                 return (
-                    <Row gutter={[24, 24]}>
+                    <Row gutter={[token.padding, token.padding]}>
                         {Array.from({ length: 8 }).map((_, index) => (
-                            <Col xs={24} sm={12} md={8} lg={6} key={index}>
-                                <Card style={{ height: 400 }}>
-                                    <Skeleton active avatar paragraph={{ rows: 6 }} />
+                            <Col xs={24} sm={12} md={8} lg={6} xl={6} key={index}>
+                                <Card style={{ 
+                                    height: '320px',
+                                    borderRadius: token.borderRadiusLG,
+                                    border: `1px solid ${token.colorBorder}`
+                                }}>
+                                    <Skeleton active avatar paragraph={{ rows: 4 }} />
                                 </Card>
                             </Col>
                         ))}
@@ -409,7 +201,7 @@ export const HomePage: React.FC = () => {
                         description="Failed to load users. Please try again later."
                         type="error"
                         showIcon
-                        style={{ marginTop: 24 }}
+                        style={{ marginTop: token.marginLG }}
                     />
                 );
             }
@@ -419,18 +211,21 @@ export const HomePage: React.FC = () => {
                     <Empty
                         image={Empty.PRESENTED_IMAGE_SIMPLE}
                         description="No users found matching your search criteria"
-                        style={{ marginTop: 48 }}
+                        style={{ marginTop: token.marginXXL }}
                     />
                 );
             }
 
             return (
-                <Row gutter={[24, 24]}>
-                    {filteredAndSortedUsers.map(renderUserCard)}
+                <Row gutter={[token.padding, token.padding]}>
+                    {filteredAndSortedUsers.map(user => (
+                        <Col xs={24} sm={12} md={8} lg={6} xl={6} key={user.id}>
+                            <UserCard user={user} onClick={handleUserClick} />
+                        </Col>
+                    ))}
                 </Row>
             );
         } else {
-            // Regular user view - show products (excluding their own)
             if (isLoadingProducts) {
                 return <ProductGrid products={[]} loading={true} columns={4} />;
             }
@@ -442,7 +237,7 @@ export const HomePage: React.FC = () => {
                         description="Failed to load products. Please try again later."
                         type="error"
                         showIcon
-                        style={{ marginTop: 24 }}
+                        style={{ marginTop: token.marginLG }}
                     />
                 );
             }
@@ -452,7 +247,7 @@ export const HomePage: React.FC = () => {
                     <Empty
                         image={Empty.PRESENTED_IMAGE_SIMPLE}
                         description="No products found matching your search criteria"
-                        style={{ marginTop: 48 }}
+                        style={{ marginTop: token.marginXXL }}
                     />
                 );
             }
@@ -471,29 +266,39 @@ export const HomePage: React.FC = () => {
         <Layout style={{ minHeight: '100vh' }}>
             <Content 
                 style={{
-                    padding: token.spacing.lg,
+                    padding: `${token.paddingLG}px ${token.paddingMD}px`,
                     backgroundColor: token.colorBgLayout,
-                    minHeight: `calc(100vh - ${token.layout.headerHeight}px - ${token.layout.footerHeight}px)`,
-                    marginTop: `calc(${token.layout.headerHeight}px + 2rem)`
+                    minHeight: 'calc(100vh - 64px)', // Account for navbar height
+                    width: '100%',
+                    overflow: 'auto'
                 }}
             >
-                <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+                <div style={{ 
+                    maxWidth: token.screenXL, 
+                    margin: '0 auto',
+                    width: '100%',
+                    padding: `0 ${token.paddingMD}px`
+                }}>
                     {/* Header Section */}
-                    <div style={{ textAlign: 'center', marginBottom: 32 }}>
-                        <Title level={2} style={{ marginBottom: 8 }}>
+                    <div style={{ textAlign: 'center', marginBottom: token.marginXL }}>
+                        <Title level={2} style={{ marginBottom: token.marginXS, color: token.colorText }}>
                             {isAdmin ? (
                                 <>
-                                    <UserOutlined style={{ marginRight: 12 }} />
+                                    <UserOutlined style={{ marginRight: token.marginSM }} />
                                     User Management Dashboard
                                 </>
                             ) : (
                                 <>
-                                    <AppstoreOutlined style={{ marginRight: 12 }} />
+                                    <AppstoreOutlined style={{ marginRight: token.marginSM }} />
                                     Discover Amazing Products
                                 </>
                             )}
                         </Title>
-                        <Paragraph style={{ fontSize: 16, color: token.colorTextSecondary, marginBottom: 0 }}>
+                        <Paragraph style={{ 
+                            fontSize: token.fontSizeLG, 
+                            color: token.colorTextSecondary, 
+                            marginBottom: 0 
+                        }}>
                             {isAdmin 
                                 ? `Manage and view all ${allUsers.length} registered users in the platform`
                                 : `Browse through ${displayProducts.length} products from various sellers`
@@ -501,15 +306,31 @@ export const HomePage: React.FC = () => {
                         </Paragraph>
                     </div>
 
-                    <Divider />
+                    <Divider style={{ marginBottom: token.marginLG }} />
 
                     {/* Filters Section */}
-                    {renderFilters()}
+                    <SearchFilters
+                        isAdmin={isAdmin}
+                        searchTerm={searchTerm}
+                        selectedCategory={selectedCategory}
+                        sortOption={sortOption}
+                        categories={categories}
+                        isLoadingCategories={isLoadingCategories}
+                        onSearchChange={handleSearchChange}
+                        onCategoryChange={handleCategoryChange}
+                        onSortChange={handleSortChange}
+                        onClearAll={handleClearAll}
+                    />
 
                     {/* Results Summary */}
-                    <Card style={{ marginBottom: 24, backgroundColor: token.colorBgContainer }}>
-                        <Space split={<Divider type="vertical" />}>
-                            <Text>
+                    <Card style={{ 
+                        marginBottom: token.marginLG, 
+                        backgroundColor: token.colorBgContainer,
+                        borderRadius: token.borderRadiusLG,
+                        border: `1px solid ${token.colorBorder}`
+                    }}>
+                        <Space split={<Divider type="vertical" />} wrap>
+                            <Text style={{ color: token.colorText }}>
                                 <strong>
                                     {isAdmin ? filteredAndSortedUsers.length : filteredAndSortedProducts.length}
                                 </strong> {isAdmin ? 'users' : 'products'} found
@@ -528,20 +349,17 @@ export const HomePage: React.FC = () => {
                     </Card>
 
                     {/* Content Section */}
-                    {renderContent()}
+                    <div style={{ paddingBottom: token.paddingLG }}>
+                        {renderContent()}
+                    </div>
                 </div>
             </Content>
 
-            <Footer style={{
-                textAlign: 'center',
-                backgroundColor: token.colorBgContainer,
-                color: token.colorTextSecondary,
-                padding: token.spacing.md,
-                borderTop: `1px solid ${token.colorBorder}`,
-            }}>
-                DEAL E-Commerce ©{new Date().getFullYear()} - 
-                {isAdmin ? ' Admin Dashboard' : ' Shopping Platform'}
-            </Footer>
+            <UserDetailsModal
+                user={selectedUser}
+                visible={isUserModalVisible}
+                onClose={handleCloseUserModal}
+            />
         </Layout>
     );
 };

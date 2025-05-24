@@ -124,9 +124,9 @@ const PaymentStatus: React.FC<PaymentStatusProps> = ({
                                 title="Confirm Your Payment"
                                 subTitle={
                                     <Space direction="vertical">
-                                        <Text>
+                                    <Text>
                                             Payment processed successfully! Please enter the verification code to complete your purchase and create your order.
-                                        </Text>
+                                    </Text>
                                         {paymentId && <Text strong>Payment ID: {paymentId}</Text>}
                                     </Space>
                                 }
