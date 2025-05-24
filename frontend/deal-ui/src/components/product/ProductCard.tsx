@@ -1,9 +1,8 @@
 import React from 'react';
-import {Card, Typography, Space, Tag, theme} from 'antd';
+import {Card, Typography, Tag, theme} from 'antd';
 import {Link} from 'react-router-dom';
 import {Product} from '../../types/entities';
 
-const {Meta} = Card;
 const {Text} = Typography;
 const { useToken } = theme;
 

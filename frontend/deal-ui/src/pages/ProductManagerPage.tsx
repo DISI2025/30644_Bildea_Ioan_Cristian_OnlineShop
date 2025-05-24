@@ -1,5 +1,5 @@
-import {useMemo} from "react";
-import {Card, Form, Layout, Skeleton, theme, Typography, Alert, Button, Space} from "antd";
+import {useMemo, useState, useEffect} from "react";
+import {Card, Form, Layout, Skeleton, theme, Typography, Alert, Button, Space, Row, Col, Drawer} from "antd";
 import {useDispatch, useSelector} from "react-redux";
 import {useSnackbar} from "../context/SnackbarContext";
 import {Product} from "../types/entities";
@@ -29,7 +29,7 @@ import ProductFilter from "../components/product-management/ProductFilter";
 import ProductList from "../components/product-management/ProductList";
 import {selectAuthState} from "../store/slices/auth-slice";
 import { useNavigate } from "react-router-dom";
-import { ShopOutlined, SettingOutlined } from '@ant-design/icons';
+import { ShopOutlined, SettingOutlined, FilterOutlined } from '@ant-design/icons';
 
 const {Title} = Typography;
 const {Content} = Layout;
@@ -42,6 +42,9 @@ export default function ProductManagerPage() {
     const authState = useSelector(selectAuthState);
     const userId = authState.user?.id || '';
     const isSeller = authState.isSeller;
+    
+    const [filtersVisible, setFiltersVisible] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
 
     const searchText = useSelector(selectSearchText);
     const sortOrder = useSelector(selectSortOrder);
@@ -51,6 +54,22 @@ export default function ProductManagerPage() {
 
     const [form] = Form.useForm<CreateProductRequest>();
     const [updateForm] = Form.useForm<UpdateProductRequest>();
+
+    // Handle responsive behavior
+    useEffect(() => {
+        const handleResize = () => {
+            const screenWidth = window.innerWidth;
+            setIsMobile(screenWidth < 768);
+            // Close filters drawer if screen becomes large
+            if (screenWidth >= 768) {
+                setFiltersVisible(false);
+            }
+        };
+
+        handleResize(); // Check on mount
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const {
         data: productsResponse,
@@ -197,135 +216,147 @@ export default function ProductManagerPage() {
         return (
             <Layout>
                 <Content style={{
-                    padding: "2rem",
-                    marginTop: `calc(${token.layout.headerHeight}px + 2rem)`
+                    padding: isMobile ? "1rem" : "2rem",
+                    marginTop: `calc(${token.layout.headerHeight}px + ${isMobile ? '1rem' : '2rem'})`,
+                    minHeight: 'calc(100vh - 64px)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
                 }}>
-                    <Title level={2} style={{textAlign: "center", marginBottom: "2rem"}}>
-                        Manage Products
-                    </Title>
-
-                    <Card style={{ maxWidth: 600, margin: '0 auto' }}>
-                        <Alert
-                            message="Store Address Required"
-                            description={
-                                <Space direction="vertical" style={{ width: '100%' }}>
-                                    <div>
-                                        To manage and sell products, you need to set up your store address in your profile.
-                                        This helps customers know where your products are coming from.
-                                    </div>
-                                    <Button 
-                                        type="primary" 
-                                        icon={<SettingOutlined />}
-                                        onClick={handleGoToProfile}
-                                        size="large"
-                                    >
-                                        Set Up Store Address
-                                    </Button>
-                                </Space>
-                            }
-                            type="info"
-                            showIcon
-                            icon={<ShopOutlined />}
-                            style={{ textAlign: 'left' }}
-                        />
+                    <Card style={{ maxWidth: 600, width: '100%', textAlign: 'center' }}>
+                        <Space direction="vertical" size="large" style={{ width: '100%' }}>
+                            <ShopOutlined style={{ fontSize: 64, color: token.colorPrimary }} />
+                            <Title level={3}>Set Up Your Store</Title>
+                            <Alert
+                                message="Seller Account Required"
+                                description="To manage products, you need to set up your seller account first. Please go to your profile and complete the seller registration process."
+                                type="info"
+                                showIcon
+                            />
+                            <Space size="middle" direction={isMobile ? "vertical" : "horizontal"}>
+                                <Button 
+                                    type="primary" 
+                                    icon={<SettingOutlined />} 
+                                    onClick={handleGoToProfile}
+                                    size={isMobile ? "large" : "middle"}
+                                >
+                                    Go to Profile
+                                </Button>
+                                <Button 
+                                    onClick={() => navigate('/')}
+                                    size={isMobile ? "large" : "middle"}
+                                >
+                                    Back to Home
+                                </Button>
+                            </Space>
+                        </Space>
                     </Card>
                 </Content>
             </Layout>
         );
     }
 
-    // If user is a seller but has no assigned categories, show message to contact admin
-    if (isSeller && !isLoadingUserProfile && !isLoadingCategories && availableCategories.length === 0) {
+    // Loading state
+    if (isLoadingProducts || isLoadingCategories || isLoadingUserProfile) {
         return (
             <Layout>
                 <Content style={{
-                    padding: "2rem",
-                    marginTop: `calc(${token.layout.headerHeight}px + 2rem)`
+                    padding: isMobile ? "1rem" : "2rem",
+                    marginTop: `calc(${token.layout.headerHeight}px + ${isMobile ? '1rem' : '2rem'})`
                 }}>
-                    <Title level={2} style={{textAlign: "center", marginBottom: "2rem"}}>
-                        Manage Products
-                    </Title>
-
-                    <Card style={{ maxWidth: 600, margin: '0 auto' }}>
-                        <Alert
-                            message="No Product Categories Assigned"
-                            description={
-                                <Space direction="vertical" style={{ width: '100%' }}>
-                                    <div>
-                                        You don't have any product categories assigned to your account yet. 
-                                        Please contact an administrator to assign categories before you can create or manage products.
-                                    </div>
-                                    <div>
-                                        <strong>What you can sell:</strong> Only products in categories specifically assigned to you by an administrator.
-                                    </div>
-                                </Space>
-                            }
-                            type="warning"
-                            showIcon
-                            style={{ textAlign: 'left' }}
-                        />
-                    </Card>
+                    <Skeleton active paragraph={{ rows: 8 }} />
                 </Content>
             </Layout>
         );
     }
+
+    const FiltersContent = () => (
+        <Card title="Filters" variant="borderless" style={{marginBottom: '1rem'}}>
+            <ProductFilter 
+                onSortChange={handleSortChange}
+                onCategoryChange={handleCategoryChange}
+                productCategories={availableCategories}
+            />
+        </Card>
+    );
 
     return (
         <Layout>
             <Content style={{
-                padding: "2rem",
-                marginTop: `calc(${token.layout.headerHeight}px + 2rem)`
+                padding: isMobile ? "1rem" : "2rem",
+                marginTop: `calc(${token.layout.headerHeight}px + ${isMobile ? '1rem' : '2rem'})`
             }}>
-                <Title level={2} style={{textAlign: "center", marginBottom: "2rem"}}>
+                <Title level={2} style={{
+                    textAlign: isMobile ? "center" : "left", 
+                    marginBottom: "2rem"
+                }}>
                     Manage Products
                 </Title>
 
-                <ProductSearch onSearch={handleSearchChange}/>
+                <Row gutter={[16, 16]} style={{ marginBottom: '2rem' }}>
+                    <Col xs={24} md={18}>
+                        <ProductSearch onSearch={handleSearchChange}/>
+                    </Col>
+                    <Col xs={24} md={6}>
+                        {isMobile && (
+                            <Button
+                                type="default"
+                                icon={<FilterOutlined />}
+                                onClick={() => setFiltersVisible(true)}
+                                block
+                            >
+                                Filters
+                            </Button>
+                        )}
+                    </Col>
+                </Row>
 
-                <div style={{display: "flex"}}>
-                    <div style={{width: "250px"}}>
-                        <Card title="Filters" variant="borderless" style={{marginBottom: '1rem'}}>
-                            {isLoadingCategories || isLoadingUserProfile ? (
-                                <Skeleton active/>
-                            ) : (
-                                <ProductFilter
-                                    onSortChange={handleSortChange}
-                                    onCategoryChange={handleCategoryChange}
-                                    productCategories={availableCategories}
-                                />
-                            )}
-                        </Card>
-                    </div>
-
-                    <div style={{
-                        width: "2px",
-                        backgroundColor: token.colorBorder,
-                        margin: "0 16px",
-                        minHeight: "100%"
-                    }}/>
-
-                    <div style={{flex: 1}}>
-                        {isLoadingProducts || isLoadingUserProfile ? (
+                <Row gutter={[16, 16]}>
+                    {!isMobile && (
+                        <Col xs={24} md={6}>
+                            <FiltersContent />
+                        </Col>
+                    )}
+                    
+                    <Col xs={24} md={!isMobile ? 18 : 24}>
+                        {isLoadingProducts ? (
                             <Card>
-                                <Skeleton active/>
+                                <Skeleton active paragraph={{ rows: 4 }} />
                             </Card>
                         ) : (
                             <ProductList
                                 products={filteredProducts}
-                                productCategories={availableCategories}
                                 loading={isLoadingProducts || isCreating || isUpdating || isDeleting}
                                 editingProductId={editingProductId}
+                                productCategories={availableCategories}
                                 onUpdate={handleUpdateProduct}
                                 onDelete={handleDeleteProduct}
                                 onStartEdit={startEditProduct}
                                 onCancelEdit={cancelEditProduct}
-                                updateForm={updateForm}
                                 onAdd={handleAddProduct}
+                                updateForm={updateForm}
                                 form={form}
                             />
                         )}
-                    </div>
-                </div>
+                    </Col>
+                </Row>
+
+                {/* Mobile Filters Drawer */}
+                <Drawer
+                    title="Filters"
+                    placement="right"
+                    closable={true}
+                    onClose={() => setFiltersVisible(false)}
+                    open={filtersVisible}
+                    width={Math.min(320, window.innerWidth * 0.85)}
+                    bodyStyle={{ padding: '16px' }}
+                >
+                    <ProductFilter 
+                        onSortChange={handleSortChange}
+                        onCategoryChange={handleCategoryChange}
+                        productCategories={availableCategories}
+                    />
+                </Drawer>
             </Content>
         </Layout>
     );

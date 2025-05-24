@@ -6,7 +6,7 @@ const {Header} = Layout;
 const {useToken} = theme;
 
 export const SimpleHeader: React.FC = () => {
-    const {toggleTheme} = useTheme();
+    const {toggleTheme, themeType} = useTheme();
     const {token} = useToken();
 
     return (
@@ -24,6 +24,7 @@ export const SimpleHeader: React.FC = () => {
             zIndex: token.layout.headerHeight,
         }}>
             <Switch
+                checked={themeType === 'dark'}
                 onChange={toggleTheme}
                 checkedChildren="🌙"
                 unCheckedChildren="☀️"

@@ -1,7 +1,8 @@
-import {useEffect, useMemo} from "react";
-import {Button, Card, Form, Layout, Result, Skeleton, theme, Typography} from "antd";
+import {useEffect, useMemo, useState} from "react";
+import {Button, Card, Form, Layout, Result, Skeleton, theme, Typography, Row, Col, Drawer} from "antd";
 import {useDispatch, useSelector} from "react-redux";
 import {useSnackbar} from "../context/SnackbarContext";
+import {FilterOutlined} from "@ant-design/icons";
 import {
     useCreateProductCategoryMutation,
     useDeleteProductCategoryMutation,
@@ -34,6 +35,8 @@ export default function ProductCategoryManagerPage() {
     const {token} = theme.useToken();
     const {showSuccess, showDealErrors} = useSnackbar();
     const dispatch = useDispatch();
+    const [filtersVisible, setFiltersVisible] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
 
     const searchText = useSelector(selectSearchText);
     const sortOrder = useSelector(selectSortOrder);
@@ -42,6 +45,22 @@ export default function ProductCategoryManagerPage() {
 
     const [form] = Form.useForm<CreateProductCategoryRequest>();
     const [updateForm] = Form.useForm<ProductCategory>();
+
+    // Handle responsive behavior
+    useEffect(() => {
+        const handleResize = () => {
+            const screenWidth = window.innerWidth;
+            setIsMobile(screenWidth < 768);
+            // Close filters drawer if screen becomes large
+            if (screenWidth >= 768) {
+                setFiltersVisible(false);
+            }
+        };
+
+        handleResize(); // Check on mount
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const {
         data: categoriesResponse,
@@ -145,33 +164,51 @@ export default function ProductCategoryManagerPage() {
         );
     }
 
+    const FiltersContent = () => (
+        <Card title="Filters" variant="borderless" style={{marginBottom: '1rem'}}>
+            <ProductCategoryFilter onSortChange={handleSortChange}/>
+        </Card>
+    );
+
     return (
         <Layout>
             <Content style={{
-                padding: "2rem", 
-                marginTop: `calc(${token.layout.headerHeight}px + 2rem)`
+                padding: isMobile ? "1rem" : "2rem", 
+                marginTop: `calc(${token.layout.headerHeight}px + ${isMobile ? '1rem' : '2rem'})`
             }}>
-                <Title level={2} style={{textAlign: "center", marginBottom: "2rem"}}>
+                <Title level={2} style={{
+                    textAlign: isMobile ? "center" : "left", 
+                    marginBottom: "2rem"
+                }}>
                     Manage Product Categories
                 </Title>
 
-                <ProductCategorySearch onSearch={handleSearchChange}/>
+                <Row gutter={[16, 16]} style={{ marginBottom: '2rem' }}>
+                    <Col xs={24} md={18}>
+                        <ProductCategorySearch onSearch={handleSearchChange}/>
+                    </Col>
+                    <Col xs={24} md={6}>
+                        {isMobile && (
+                            <Button
+                                type="default"
+                                icon={<FilterOutlined />}
+                                onClick={() => setFiltersVisible(true)}
+                                block
+                            >
+                                Filters
+                            </Button>
+                        )}
+                    </Col>
+                </Row>
 
-                <div style={{display: "flex"}}>
-                    <div style={{width: "250px"}}>
-                        <Card title="Filters" variant="borderless" style={{marginBottom: '1rem'}}>
-                            <ProductCategoryFilter onSortChange={handleSortChange}/>
-                        </Card>
-                    </div>
-
-                    <div style={{
-                        width: "2px",
-                        backgroundColor: token.colorBorder,
-                        margin: "0 16px",
-                        minHeight: "100%"
-                    }}/>
-
-                    <div style={{flex: 1}}>
+                <Row gutter={[16, 16]}>
+                    {!isMobile && (
+                        <Col xs={24} md={6}>
+                            <FiltersContent />
+                        </Col>
+                    )}
+                    
+                    <Col xs={24} md={!isMobile ? 18 : 24}>
                         <ProductCategoryAdd
                             isAddPanelOpen={isAddPanelOpen}
                             toggleAddPanel={handleToggleAddPanel}
@@ -195,8 +232,21 @@ export default function ProductCategoryManagerPage() {
                                 updateForm={updateForm}
                             />
                         )}
-                    </div>
-                </div>
+                    </Col>
+                </Row>
+
+                {/* Mobile Filters Drawer */}
+                <Drawer
+                    title="Filters"
+                    placement="right"
+                    closable={true}
+                    onClose={() => setFiltersVisible(false)}
+                    open={filtersVisible}
+                    width={300}
+                    bodyStyle={{ padding: '16px' }}
+                >
+                    <ProductCategoryFilter onSortChange={handleSortChange}/>
+                </Drawer>
             </Content>
         </Layout>
     );

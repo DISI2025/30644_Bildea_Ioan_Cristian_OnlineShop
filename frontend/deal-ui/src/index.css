@@ -24,10 +24,14 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
-  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+#root {
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
 }
 
 h1 {
@@ -83,6 +87,8 @@ button:focus-visible {
 .ant-menu-item {
   padding: 0 16px !important;
   margin: 0 4px !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
 }
 
 .ant-menu-item::after {
@@ -91,8 +97,7 @@ button:focus-visible {
 
 .ant-menu-item:hover,
 .ant-menu-item-selected {
-  color: var(--color-primary) !important;
-  background: transparent !important;
+  background: rgba(var(--ant-primary-color-rgb), 0.06) !important;
 }
 
 .ant-menu-item-selected::before,
@@ -103,6 +108,571 @@ button:focus-visible {
   right: 16px;
   bottom: 0;
   height: 2px;
-  background: var(--color-primary);
+  background: var(--ant-primary-color);
   border-radius: 2px;
+}
+
+/* Force default desktop behavior */
+.navbar-header .mobile-menu-trigger,
+.ant-layout-header .mobile-menu-trigger {
+  display: none;
+  visibility: hidden;
+}
+
+.navbar-header .desktop-menu,
+.ant-layout-header .desktop-menu {
+  display: flex;
+  visibility: visible;
+}
+
+.auth-btn-text-mobile {
+  display: none;
+}
+
+.auth-btn-text {
+  display: inline;
+}
+
+/* Desktop screens - show only desktop menu */
+@media screen and (min-width: 1024px) {
+  .navbar-header .mobile-menu-trigger,
+  .ant-layout-header .mobile-menu-trigger {
+    display: none !important;
+    visibility: hidden !important;
+  }
+  
+  .navbar-header .desktop-menu,
+  .ant-layout-header .desktop-menu {
+    display: flex !important;
+    visibility: visible !important;
+  }
+}
+
+/* Large tablets: show hamburger menu for better UX */
+@media screen and (max-width: 1023px) and (min-width: 769px) {
+  .navbar-header .desktop-menu,
+  .ant-layout-header .desktop-menu {
+    display: none !important;
+    visibility: hidden !important;
+  }
+  
+  .navbar-header .mobile-menu-trigger,
+  .ant-layout-header .mobile-menu-trigger {
+    display: flex !important;
+    visibility: visible !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+}
+
+/* Tablets and small laptops: show hamburger menu */
+@media screen and (max-width: 768px) and (min-width: 577px) {
+  .navbar-header .desktop-menu,
+  .ant-layout-header .desktop-menu {
+    display: none !important;
+    visibility: hidden !important;
+  }
+  
+  .navbar-header .mobile-menu-trigger,
+  .ant-layout-header .mobile-menu-trigger {
+    display: flex !important;
+    visibility: visible !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .navbar-username {
+    display: none !important;
+  }
+}
+
+/* Mobile: show hamburger menu only */
+@media screen and (max-width: 576px) {
+  .navbar-header .desktop-menu,
+  .ant-layout-header .desktop-menu {
+    display: none !important;
+    visibility: hidden !important;
+  }
+  
+  .navbar-header .mobile-menu-trigger,
+  .ant-layout-header .mobile-menu-trigger {
+    display: flex !important;
+    visibility: visible !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+
+  .mobile-menu-trigger:hover {
+    background: rgba(0, 0, 0, 0.04) !important;
+    transform: scale(1.05);
+  }
+
+  .mobile-menu-trigger:active {
+    transform: scale(0.98);
+  }
+
+  .auth-btn-text {
+    display: none;
+  }
+
+  .auth-btn-text-mobile {
+    display: inline;
+  }
+
+  .navbar-auth-btn {
+    min-width: 32px !important;
+    padding: 4px 8px !important;
+  }
+}
+
+/* Additional mobile enforcement for very small screens */
+@media screen and (max-width: 480px) {
+  .navbar-header .desktop-menu,
+  .ant-layout-header .desktop-menu,
+  .desktop-menu {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+  }
+  
+  .navbar-header .mobile-menu-trigger,
+  .ant-layout-header .mobile-menu-trigger,
+  .mobile-menu-trigger {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  /* Make sure hamburger menu is easily clickable on very small screens */
+  .mobile-menu-trigger {
+    min-width: 44px !important;
+    min-height: 44px !important;
+    font-size: 20px !important;
+  }
+}
+
+/* Dark theme burger menu hover */
+[data-theme="dark"] .mobile-menu-trigger:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Enhanced hamburger menu button styling */
+.mobile-menu-trigger {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.mobile-menu-trigger::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(var(--ant-primary-color-rgb), 0.1);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease;
+  z-index: 0;
+}
+
+.mobile-menu-trigger:hover::before {
+  width: 100%;
+  height: 100%;
+}
+
+.mobile-menu-trigger .anticon {
+  position: relative;
+  z-index: 1;
+  transition: transform 0.2s ease;
+}
+
+.mobile-menu-trigger:active .anticon {
+  transform: scale(0.9);
+}
+
+/* Responsive drawer improvements */
+@media screen and (max-width: 360px) {
+  .ant-drawer-content {
+    width: 100% !important;
+  }
+}
+
+/* Smooth menu transitions */
+.desktop-menu,
+.mobile-menu-trigger {
+  transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease !important;
+}
+
+/* Focus states for accessibility */
+.mobile-menu-trigger:focus-visible {
+  outline: 2px solid var(--ant-primary-color) !important;
+  outline-offset: 2px !important;
+}
+
+.ant-menu-item:focus-visible {
+  outline: 2px solid var(--ant-primary-color) !important;
+  outline-offset: -2px !important;
+}
+
+/* Drawer styling */
+.ant-drawer {
+  z-index: 1001 !important;
+}
+
+.ant-drawer-mask {
+  z-index: 1001 !important;
+  backdrop-filter: blur(4px);
+}
+
+.ant-drawer-content {
+  border-radius: 0 12px 12px 0 !important;
+  overflow: hidden;
+}
+
+.ant-drawer-header {
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+}
+
+.ant-drawer-body {
+  padding: 0 !important;
+}
+
+/* Mobile drawer menu styling */
+.ant-menu-vertical .ant-menu-item {
+  margin: 4px 16px !important;
+  border-radius: 8px !important;
+  width: calc(100% - 32px) !important;
+  padding-left: 16px !important;
+  height: 48px !important;
+  line-height: 48px !important;
+  font-weight: 500 !important;
+}
+
+.ant-menu-vertical .ant-menu-item:hover {
+  background: rgba(var(--ant-primary-color-rgb), 0.08) !important;
+  transform: translateX(4px);
+}
+
+.ant-menu-vertical .ant-menu-item-selected {
+  background: rgba(var(--ant-primary-color-rgb), 0.12) !important;
+  border-left: 3px solid var(--ant-primary-color) !important;
+  font-weight: 600 !important;
+}
+
+.ant-menu-vertical .ant-menu-item-selected::after {
+  display: none !important;
+}
+
+/* Responsive improvements for pages */
+
+/* Cart Page Responsive */
+@media screen and (max-width: 768px) {
+  .ant-table-wrapper {
+    overflow-x: auto;
+  }
+  
+  .ant-table-tbody > tr > td {
+    padding: 8px 4px !important;
+    font-size: 12px !important;
+  }
+  
+  .ant-table-thead > tr > th {
+    padding: 8px 4px !important;
+    font-size: 12px !important;
+  }
+  
+  .ant-input-number {
+    min-width: 60px !important;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .ant-table-wrapper {
+    font-size: 11px;
+  }
+  
+  .ant-table-tbody > tr > td:first-child {
+    min-width: 200px;
+  }
+  
+  .cart-product-image {
+    width: 60px !important;
+    height: 60px !important;
+  }
+  
+  .cart-summary-card {
+    margin-top: 16px;
+    order: -1;
+  }
+}
+
+/* Checkout Page Responsive */
+@media screen and (max-width: 768px) {
+  .ant-steps {
+    flex-direction: column !important;
+  }
+  
+  .ant-steps-item {
+    margin-bottom: 16px !important;
+  }
+  
+  .checkout-order-summary {
+    order: -1 !important;
+    margin-bottom: 24px;
+  }
+  
+  .ant-list-item-meta-avatar {
+    margin-right: 8px !important;
+  }
+  
+  .ant-list-item-meta-content {
+    min-width: 0;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .ant-steps-item-title {
+    font-size: 12px !important;
+  }
+  
+  .ant-steps-item-description {
+    display: none !important;
+  }
+  
+  .checkout-form-item {
+    margin-bottom: 16px !important;
+  }
+}
+
+/* Product Manager & Category Manager Responsive */
+@media screen and (max-width: 768px) {
+  .product-filters-sidebar {
+    display: none !important;
+  }
+  
+  .product-filters-drawer .ant-drawer-body {
+    padding: 16px !important;
+  }
+  
+  .product-card {
+    margin-bottom: 16px;
+  }
+  
+  .product-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .product-actions .ant-btn {
+    width: 100%;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .ant-card-body {
+    padding: 12px !important;
+  }
+  
+  .ant-card-head {
+    padding: 8px 12px !important;
+  }
+  
+  .ant-card-head-title {
+    font-size: 14px !important;
+  }
+  
+  .product-title {
+    font-size: 16px !important;
+  }
+  
+  .product-description {
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+  }
+  
+  .product-price {
+    font-size: 18px !important;
+  }
+  
+  .product-categories .ant-tag {
+    font-size: 10px !important;
+    padding: 2px 6px !important;
+  }
+}
+
+/* Form Responsive */
+@media screen and (max-width: 768px) {
+  .ant-form-item-label {
+    text-align: left !important;
+  }
+  
+  .ant-form-item-label > label {
+    font-size: 14px !important;
+  }
+  
+  .ant-input, .ant-input-number, .ant-select-selector {
+    font-size: 14px !important;
+    padding: 8px 12px !important;
+  }
+  
+  .ant-btn {
+    height: auto !important;
+    padding: 8px 16px !important;
+    font-size: 14px !important;
+  }
+  
+  .ant-btn-lg {
+    padding: 12px 20px !important;
+    font-size: 16px !important;
+  }
+}
+
+/* Modal Responsive */
+@media screen and (max-width: 768px) {
+  .ant-modal {
+    margin: 16px !important;
+    max-width: calc(100vw - 32px) !important;
+  }
+  
+  .ant-modal-content {
+    border-radius: 8px !important;
+  }
+  
+  .ant-modal-header {
+    padding: 16px 20px !important;
+  }
+  
+  .ant-modal-body {
+    padding: 16px 20px !important;
+  }
+  
+  .ant-modal-footer {
+    padding: 12px 20px !important;
+  }
+}
+
+/* List and Table Responsive */
+@media screen and (max-width: 768px) {
+  .ant-list-item {
+    padding: 12px 0 !important;
+  }
+  
+  .ant-list-item-meta {
+    align-items: flex-start !important;
+  }
+  
+  .ant-list-item-meta-title {
+    font-size: 14px !important;
+    margin-bottom: 4px !important;
+  }
+  
+  .ant-list-item-meta-description {
+    font-size: 12px !important;
+  }
+  
+  .ant-table-small .ant-table-tbody > tr > td {
+    padding: 4px !important;
+  }
+  
+  .ant-table-wrapper .ant-table-container {
+    min-width: 400px;
+  }
+}
+
+/* Search and Filter Responsive */
+@media screen and (max-width: 576px) {
+  .ant-input-search {
+    margin-bottom: 16px;
+  }
+  
+  .ant-input-search .ant-input {
+    height: 40px !important;
+  }
+  
+  .filter-button {
+    height: 40px !important;
+    width: 100% !important;
+    margin-bottom: 16px;
+  }
+  
+  .search-container {
+    margin-bottom: 20px;
+  }
+}
+
+/* Typography Responsive */
+@media screen and (max-width: 768px) {
+  .ant-typography h1 {
+    font-size: 24px !important;
+  }
+  
+  .ant-typography h2 {
+    font-size: 20px !important;
+  }
+  
+  .ant-typography h3 {
+    font-size: 18px !important;
+  }
+  
+  .ant-typography h4 {
+    font-size: 16px !important;
+  }
+  
+  .page-title {
+    text-align: center !important;
+    margin-bottom: 20px !important;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .ant-typography h1 {
+    font-size: 20px !important;
+  }
+  
+  .ant-typography h2 {
+    font-size: 18px !important;
+  }
+  
+  .ant-typography h3 {
+    font-size: 16px !important;
+  }
+  
+  .ant-typography h4 {
+    font-size: 14px !important;
+  }
+}
+
+/* Spacing Responsive */
+@media screen and (max-width: 768px) {
+  .page-content {
+    padding: 16px !important;
+  }
+  
+  .section-spacing {
+    margin-bottom: 20px !important;
+  }
+  
+  .card-spacing {
+    margin-bottom: 12px !important;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .page-content {
+    padding: 12px !important;
+  }
+  
+  .section-spacing {
+    margin-bottom: 16px !important;
+  }
+  
+  .card-spacing {
+    margin-bottom: 8px !important;
+  }
+  
+  .ant-space-item {
+    margin-bottom: 8px !important;
+  }
 }
