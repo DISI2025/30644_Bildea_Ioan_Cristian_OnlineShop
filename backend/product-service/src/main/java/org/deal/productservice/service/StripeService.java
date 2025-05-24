@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.deal.core.dto.PaymentIntentDTO;
 import org.deal.core.exception.DealException;
 import org.deal.core.request.order.CreatePaymentIntentRequest;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -19,10 +20,11 @@ import java.util.Map;
 @Service
 @Slf4j
 public class StripeService {
+    @Value("${stripe-key}")
+    private String stripeSecretKey;
 
     @PostConstruct
     public void init() {
-        String stripeSecretKey = "sk_test_51RRHph67CPFfX2OAI3N6tqY2WlHkd3VH4s7m9MBCty88dYbNp5pbFFGFtfupeQSiZKQwAqiripuU8U5ZkX87cbW8000otYzES3";
         Stripe.apiKey = stripeSecretKey;
     }
 
