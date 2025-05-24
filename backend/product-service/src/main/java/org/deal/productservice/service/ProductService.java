@@ -1,5 +1,6 @@
 package org.deal.productservice.service;
 
+import jakarta.persistence.criteria.Path;
 import lombok.RequiredArgsConstructor;
 import org.deal.core.client.DealClient;
 import org.deal.core.client.DealService;
@@ -23,6 +24,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 
@@ -58,11 +60,20 @@ public class ProductService {
         SortDir sortDir = Optional.ofNullable(filter.sort()).orElse(SortDir.ASC);
         int page = Optional.ofNullable(filter.page()).orElse(PaginationDetails.DEFAULT_PAGE);
         int size = Optional.ofNullable(filter.size()).orElse(PaginationDetails.DEFAULT_PAGE_SIZE);
+        String searchValue = Optional.ofNullable(filter.search()).orElse("");
 
         Sort sort = Sort.by(Sort.Direction.fromString(sortDir.name()), sortProperty);
         Pageable pageable = PageRequest.of(page, size, sort);
 
-        return productRepository.findAll(pageable).map(this::mapToDTO);
+        Specification<Product> spec = (root, query, cb) -> {
+            if (!searchValue.isBlank()) {
+                Path<String> path = root.get(sortProperty);
+                return cb.like(cb.lower(path), "%" + searchValue.toLowerCase() + "%");
+            }
+            return cb.conjunction();
+        };
+
+        return productRepository.findAll(spec, pageable).map(this::mapToDTO);
     }
 
     public Optional<ProductDetailsResponse> findDetailsById(final UUID id) {

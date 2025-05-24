@@ -22,9 +22,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpMethod;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -309,28 +309,26 @@ class ProductServiceTest extends BaseUnitTest {
     void testFindAll_withNameFilter_shouldReturnFilteredProducts() {
         var product = Instancio.create(Product.class);
         Page<Product> page = new PageImpl<>(List.of(product));
+        when(productRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
 
-        when(productRepository.findAll(any(Pageable.class))).thenReturn(page);
-
-        var filter = new ProductsFilter("title", SortDir.ASC, 0, 1);
+        var filter = new ProductsFilter("title", "", SortDir.ASC, 0, 1);
         var result = victim.findAll(filter);
 
         assertThat(result.getContent(), hasItem(Mapper.mapTo(product, ProductDTO.class)));
-        verify(productRepository).findAll(any(Pageable.class));
+        verify(productRepository).findAll(any(Specification.class), any(Pageable.class));
     }
 
     @Test
     void testFindAll_withCategoryFilter_shouldReturnFilteredProducts() {
         var product = Instancio.create(Product.class);
         Page<Product> page = new PageImpl<>(List.of(product));
+        when(productRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
 
-        when(productRepository.findAll(any(Pageable.class))).thenReturn(page);
-
-        var filter = new ProductsFilter("title", SortDir.ASC, 0, 1);
+        var filter = new ProductsFilter("title", "", SortDir.ASC, 0, 1);
         var result = victim.findAll(filter);
 
         assertThat(result.getContent(), hasItem(Mapper.mapTo(product, ProductDTO.class)));
-        verify(productRepository).findAll(any(Pageable.class));
+        verify(productRepository).findAll(any(Specification.class), any(Pageable.class));
     }
 
     @Test
@@ -339,12 +337,11 @@ class ProductServiceTest extends BaseUnitTest {
         var product2 = Instancio.create(Product.class);
         product1.setTitle("Banana");
         product2.setTitle("Apple");
-
         Page<Product> page = new PageImpl<>(List.of(product1, product2));
+        when(productRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
 
-        when(productRepository.findAll(any(Pageable.class))).thenReturn(page);
 
-        var filter = new ProductsFilter("title", SortDir.ASC, 0, 1);
+        var filter = new ProductsFilter("title", "", SortDir.ASC, 0, 1);
         var result = victim.findAll(filter);
 
         var expected = Stream.of(product1, product2)
@@ -353,6 +350,6 @@ class ProductServiceTest extends BaseUnitTest {
                 .toList();
 
         assertThat(result.getContent(), equalTo(expected));
-        verify(productRepository).findAll(any(Pageable.class));
+        verify(productRepository).findAll(any(Specification.class), any(Pageable.class));
     }
 }

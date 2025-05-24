@@ -56,7 +56,7 @@ public class ProductController {
                 PaginationDetails.builder()
                         .withPage(currentPage)
                         .withSize(filter.size())
-                        .withTotalElements(page.getSize())
+                        .withTotalElements(page.getTotalElements())
                         .withTotalPages(totalPages)
                         .withHasNext(page.hasNext())
                         .withHasPrevious(page.hasPrevious())

@@ -60,7 +60,7 @@ class ProductControllerTest {
         int totalPages = 3;
         long totalElements = 12;
         var page = new PageImpl<>(content, PageRequest.of(currentPage, pageSize), totalElements);
-        var filter = new ProductsFilter("title", SortDir.ASC, currentPage, pageSize);
+        var filter = new ProductsFilter("title", "", SortDir.ASC, currentPage, pageSize);
 
         when(productService.findAll(filter)).thenReturn(page);
         when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost/products"));
@@ -68,7 +68,8 @@ class ProductControllerTest {
                 "property", new String[]{"title"},
                 "page", new String[]{String.valueOf(currentPage)},
                 "size", new String[]{String.valueOf(pageSize)},
-                "sort", new String[]{"ASC"}
+                "sort", new String[]{"ASC"},
+                "search", new String[]{"smart"}
         ));
 
         var response = victim.getProducts(filter, request);
@@ -77,12 +78,12 @@ class ProductControllerTest {
                                                 PaginationDetails.builder()
                                                         .withPage(currentPage)
                                                         .withSize(filter.size())
-                                                        .withTotalElements(page.getSize())
+                                                        .withTotalElements(page.getTotalElements())
                                                         .withTotalPages(totalPages)
                                                         .withHasNext(page.hasNext())
                                                         .withHasPrevious(page.hasPrevious())
-                                                        .withNextPageUrl("http://localhost/products?page=2&size=5&property=title&sort=ASC")
-                                                        .withPreviousPageUrl("http://localhost/products?page=0&size=5&property=title&sort=ASC")
+                                                        .withNextPageUrl("http://localhost/products?page=2&size=5&property=title&search=smart&sort=ASC")
+                                                        .withPreviousPageUrl("http://localhost/products?page=0&size=5&property=title&search=smart&sort=ASC")
                                                         .build());
     }
 

@@ -8,7 +8,7 @@ import lombok.Builder;
 public record PaginationDetails(
         Integer page,
         Integer size,
-        Integer totalElements,
+        Long totalElements,
         Integer totalPages,
         boolean hasNext,
         boolean hasPrevious,
