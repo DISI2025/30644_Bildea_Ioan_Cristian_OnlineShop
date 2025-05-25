@@ -40,10 +40,7 @@ public class OrdersProcessor {
                     log.info("Moving order {} from {} to {}", order.getId(), order.getStatus(), newStatus);
                     orderService.updateOrderStatus(order, newStatus);
 
-                    // TODO: Call notifications service with the updated Order, send through websocket on UI
                     dealClient.call(DealService.NS, "/notify", HttpMethod.POST, order, OrderDTO.class);
-
-                    // and also maybe an email using our mail service
                 }));
     }
 }
