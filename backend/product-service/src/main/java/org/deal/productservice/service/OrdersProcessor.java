@@ -2,14 +2,15 @@ package org.deal.productservice.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.Headers;
 import org.deal.core.client.DealClient;
 import org.deal.core.client.DealService;
-import org.deal.core.dto.OrderDTO;
 import org.deal.productservice.config.OrderStateMachine;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.deal.productservice.config.AppConfig.TokenStorage;
 
 import java.util.concurrent.TimeUnit;
 
@@ -22,6 +23,8 @@ public class OrdersProcessor {
     private boolean cronjobEnabled;
     private final OrderService orderService;
     private final DealClient dealClient;
+    private final TokenStorage tokenStorage;
+
 
     @Scheduled(fixedRate = 30, initialDelay = 15, timeUnit = TimeUnit.SECONDS)
     public void processOrders() {
@@ -40,7 +43,21 @@ public class OrdersProcessor {
                     log.info("Moving order {} from {} to {}", order.getId(), order.getStatus(), newStatus);
                     orderService.updateOrderStatus(order, newStatus);
 
-                    dealClient.call(DealService.NS, "/notify", HttpMethod.POST, order, OrderDTO.class);
+                    String jwtToken = tokenStorage.getToken();
+
+                    Headers headers = new Headers.Builder()
+                            .add("Authorization", "Bearer " + jwtToken)
+                            .add("Content-Type", "application/json")
+                            .build();
+
+                    dealClient.call(
+                            DealService.NS,
+                            "/notify",
+                            HttpMethod.POST,
+                            order,
+                            headers,
+                            String.class
+                    );
                 }));
     }
 }

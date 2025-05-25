@@ -9,6 +9,7 @@ import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.util.concurrent.TimeUnit;
@@ -34,4 +35,20 @@ public class AppConfig {
     public DealClient dealClient(final OkHttpClient okHttpClient, final DiscoveryClient discoveryClient) {
         return new DealClient(okHttpClient, new ObjectMapper(), discoveryClient);
     }
+
+    @Component
+    public class TokenStorage {
+
+        private volatile String token;
+
+        public synchronized void setToken(final String token) {
+            this.token = token;
+        }
+
+        public String getToken() {
+            return token;
+        }
+
+    }
+
 }

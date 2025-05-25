@@ -1,7 +1,10 @@
 package org.deal.productservice.service;
 
 
+import org.deal.core.client.DealClient;
+import org.deal.core.response.DealResponse;
 import org.deal.core.util.OrderStatus;
+import org.deal.productservice.config.AppConfig;
 import org.deal.productservice.entity.Order;
 import org.deal.productservice.util.BaseUnitTest;
 import org.instancio.Instancio;
@@ -28,6 +31,10 @@ class OrdersProcessorTest extends BaseUnitTest {
     private OrderService orderService;
     @InjectMocks
     private OrdersProcessor victim;
+    @Mock
+    private DealClient dealClient;
+    @Mock
+    private AppConfig.TokenStorage tokenStorage;
 
     @BeforeEach
     void setUp() {
@@ -57,6 +64,11 @@ class OrdersProcessorTest extends BaseUnitTest {
     @Test
     void testProcessOrders_ordersExist_shouldProcessEach() {
         ReflectionTestUtils.setField(victim, "cronjobEnabled", true);
+
+        when(tokenStorage.getToken()).thenReturn("mock-jwt-token");
+
+        when(dealClient.call(any(), any(), any(), any(), any()))
+                .thenReturn(DealResponse.ok("success"));
 
         Order order1 = Instancio.create(Order.class);
         order1.setStatus(OrderStatus.PENDING);
