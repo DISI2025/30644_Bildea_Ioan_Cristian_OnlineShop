@@ -5,6 +5,15 @@ spring:
     url: jdbc:postgresql://localhost:5436/ps_db
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+  neo4j:
+    uri: bolt://localhost:7687
+    authentication:
+      username: neo4j
+      password: password
+    pool:
+      metrics-enabled: true
+      log-leaked-sessions: true
+      max-connection-pool-size: 50
   jpa:
     hibernate:
       ddl-auto: update
@@ -23,7 +32,6 @@ springdoc:
 eureka:
   instance:
     prefer-ip-address: true
-
 
 whitelisted-paths: /swagger-ui/**, /v3/api-docs/**, /v3/api-docs.yaml, /swagger-ui.html, /bus/**, /actuator/**
 orders-cron-active: true

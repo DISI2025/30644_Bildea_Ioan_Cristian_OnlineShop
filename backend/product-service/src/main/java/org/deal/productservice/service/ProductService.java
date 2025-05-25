@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
@@ -34,6 +35,7 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final ProductCategoryRepository productCategoryRepository;
+    private final ProductSyncService productSyncService;
     private final DealContext dealContext;
 
     public Optional<ProductDTO> findById(final UUID id) {
@@ -49,16 +51,16 @@ public class ProductService {
     }
 
     public Page<ProductDTO> findAll(final ProductsFilter filter) {
-        String sortProperty = Optional.ofNullable(filter.property()).orElse(Product.DEFAULT_SORTING_PROPERTY);
-        SortDir sortDir = Optional.ofNullable(filter.sort()).orElse(SortDir.ASC);
-        int page = Optional.ofNullable(filter.page()).orElse(PaginationDetails.DEFAULT_PAGE);
-        int size = Optional.ofNullable(filter.size()).orElse(PaginationDetails.DEFAULT_PAGE_SIZE);
-        String searchValue = Optional.ofNullable(filter.search()).orElse("");
+        final String sortProperty = Optional.ofNullable(filter.property()).orElse(Product.DEFAULT_SORTING_PROPERTY);
+        final SortDir sortDir = Optional.ofNullable(filter.sort()).orElse(SortDir.ASC);
+        final int page = Optional.ofNullable(filter.page()).orElse(PaginationDetails.DEFAULT_PAGE);
+        final int size = Optional.ofNullable(filter.size()).orElse(PaginationDetails.DEFAULT_PAGE_SIZE);
+        final String searchValue = Optional.ofNullable(filter.search()).orElse("");
 
-        Sort sort = Sort.by(Sort.Direction.fromString(sortDir.name()), sortProperty);
-        Pageable pageable = PageRequest.of(page, size, sort);
+        final Sort sort = Sort.by(Sort.Direction.fromString(sortDir.name()), sortProperty);
+        final Pageable pageable = PageRequest.of(page, size, sort);
 
-        Specification<Product> spec = (root, query, cb) -> {
+        final Specification<Product> spec = (root, query, cb) -> {
             if (!searchValue.isBlank()) {
                 Path<String> path = root.get(sortProperty);
                 return cb.like(cb.lower(path), "%" + searchValue.toLowerCase() + "%");
@@ -90,8 +92,9 @@ public class ProductService {
         return Optional.of(productDetailsResponse);
     }
 
+    @Transactional
     public Optional<ProductDTO> create(final CreateProductRequest request) {
-        var product = productRepository.save(
+        final Product product = productRepository.save(
                 Product.builder()
                         .withTitle(request.title())
                         .withDescription(request.description())
@@ -103,29 +106,36 @@ public class ProductService {
                         .build()
         );
 
+        productSyncService.syncCreate(product);
         return Optional.of(mapToDTO(product));
     }
 
+    @Transactional
     public Optional<ProductDTO> update(final UpdateProductRequest request) {
         return productRepository.findById(request.getId())
-                .map(user -> {
+                .map(product -> {
                     if (Objects.nonNull(request.getCategories())) {
                         Set<ProductCategory> newCategories = productCategoryRepository.findAllByName(request.getCategories());
                         request.setCategories(null);
-                        user.setCategories(newCategories);
+                        product.setCategories(newCategories);
                     }
 
-                    Mapper.updateValues(user, request);
-                    productRepository.save(user);
+                    Mapper.updateValues(product, request);
+                    final Product updatedProduct = productRepository.save(product);
+                    productSyncService.syncUpdate(updatedProduct);
 
-                    return mapToDTO(user);
+                    return mapToDTO(updatedProduct);
                 });
     }
 
+    @Transactional
     public Optional<ProductDTO> deleteById(final UUID id) {
         return productRepository.findById(id)
                 .filter(__ -> productRepository.deleteByIdReturning(id) != 0)
-                .map(this::mapToDTO);
+                .map(product -> {
+                    productSyncService.syncDelete(id);
+                    return mapToDTO(product);
+                });
     }
 
     private ProductDTO mapToDTO(final Product product) {

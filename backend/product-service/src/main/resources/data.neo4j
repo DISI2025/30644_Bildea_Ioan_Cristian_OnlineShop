@@ -1,0 +1,193 @@
+// Create product categories
+CREATE (electronics:ProductCategory {id: '3e5b1f29-d4e8-4972-b64a-cc103086bd91', categoryName: 'Electronics'})
+CREATE (homeKitchen:ProductCategory {id: 'd1229c71-9e3e-4f35-9c2d-5c19fc9931a4', categoryName: 'Home & Kitchen'})
+CREATE (fashion:ProductCategory {id: 'a7b82e2e-4d7c-4662-b8b9-0c9f14a75994', categoryName: 'Fashion'})
+CREATE (booksMedia:ProductCategory {id: '6f4dc56f-e33b-45c2-bc10-77234c6fc9a3', categoryName: 'Books & Media'})
+CREATE (sportsOutdoors:ProductCategory {id: '5e4d3c2b-1a9e-4f7d-8c6b-9a8e7d6c5b4a', categoryName: 'Sports & Outdoors'})
+CREATE (healthBeauty:ProductCategory {id: '7f6e5d4c-3b2a-6f8e-0d1c-3a2b1c0d9e8f', categoryName: 'Health & Beauty'})
+CREATE (automotive:ProductCategory {id: '9a8b7c6d-5e4f-8a9b-2c1d-5e4f3a2b1c0d', categoryName: 'Automotive'})
+CREATE (gardenTools:ProductCategory {id: '0b1c2d3e-4f5a-6b7c-8d9e-0f1a2b3c4d5e', categoryName: 'Garden & Tools'});
+
+// Create users
+CREATE (electronicsStore:User {id: '9c6d5b4a-3e2f-5e9d-8a6b-7f6e5d4c3b2a'})
+CREATE (homeGoodsSeller:User {id: '2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e'})
+CREATE (techVendor:User {id: '4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a'})
+CREATE (fashionBoutique:User {id: '5e6f7a8b-9c0d-1e2f-3a4b-5c6d7e8f9a0b'})
+CREATE (sportsGear:User {id: '6f7a8b9c-0d1e-2f3a-4b5c-6d7e8f9a0b1c'});
+
+// Create products and relationships
+// Electronics products
+CREATE (headphones:Product {
+    id: '1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d',
+    title: 'Wireless Bluetooth Headphones',
+    description: 'Premium noise-cancelling wireless headphones with 30-hour battery life and superior sound quality.',
+    price: 129.99,
+    stock: 45,
+    imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop',
+    sellerId: '9c6d5b4a-3e2f-5e9d-8a6b-7f6e5d4c3b2a',
+    createdAt: datetime('2024-01-15T08:30:00')
+})
+CREATE (smartphone:Product {
+    id: '2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e',
+    title: 'Smartphone with 128GB Storage',
+    description: 'Latest model smartphone with advanced camera system, 5G connectivity, and all-day battery life.',
+    price: 699.99,
+    stock: 23,
+    imageUrl: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&h=400&fit=crop',
+    sellerId: '9c6d5b4a-3e2f-5e9d-8a6b-7f6e5d4c3b2a',
+    createdAt: datetime('2024-01-15T08:30:00')
+})
+CREATE (gamingLaptop:Product {
+    id: '3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f',
+    title: 'Gaming Laptop with RTX Graphics',
+    description: 'High-performance gaming laptop with 16GB RAM, 1TB SSD, and dedicated graphics card for ultimate gaming experience.',
+    price: 1299.99,
+    stock: 12,
+    imageUrl: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=400&fit=crop',
+    sellerId: '4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a',
+    createdAt: datetime('2024-01-15T08:30:00')
+});
+
+// Create relationships for electronics products
+CREATE (electronicsStore)-[:SELLS]->(headphones)
+CREATE (electronicsStore)-[:SELLS]->(smartphone)
+CREATE (techVendor)-[:SELLS]->(gamingLaptop)
+CREATE (headphones)-[:HAS_CATEGORY]->(electronics)
+CREATE (smartphone)-[:HAS_CATEGORY]->(electronics)
+CREATE (gamingLaptop)-[:HAS_CATEGORY]->(electronics);
+
+// Home & Kitchen products
+CREATE (coffeeMaker:Product {
+    id: '4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a',
+    title: 'Stainless Steel Coffee Maker',
+    description: 'Programmable 12-cup coffee maker with thermal carafe and auto-brew feature for perfect coffee every morning.',
+    price: 89.99,
+    stock: 35,
+    imageUrl: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=400&fit=crop',
+    sellerId: '2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e',
+    createdAt: datetime('2024-01-15T08:30:00')
+})
+CREATE (knifeSet:Product {
+    id: '5e6f7a8b-9c0d-1e2f-3a4b-5c6d7e8f9a0b',
+    title: 'Kitchen Knife Set with Block',
+    description: 'Professional 15-piece knife set with wooden block, including chef knife, bread knife, and utility knives.',
+    price: 159.99,
+    stock: 28,
+    imageUrl: 'https://images.unsplash.com/photo-1594736797933-d0401ba2fe65?w=400&h=400&fit=crop',
+    sellerId: '2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e',
+    createdAt: datetime('2024-01-15T08:30:00')
+})
+CREATE (cookwareSet:Product {
+    id: '6f7a8b9c-0d1e-2f3a-4b5c-6d7e8f9a0b1c',
+    title: 'Non-Stick Cookware Set',
+    description: '10-piece non-stick cookware set including pots, pans, and utensils. Dishwasher safe and PFOA-free coating.',
+    price: 199.99,
+    stock: 20,
+    imageUrl: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=400&fit=crop',
+    sellerId: '2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e',
+    createdAt: datetime('2024-01-15T08:30:00')
+});
+
+// Create relationships for home & kitchen products
+CREATE (homeGoodsSeller)-[:SELLS]->(coffeeMaker)
+CREATE (homeGoodsSeller)-[:SELLS]->(knifeSet)
+CREATE (homeGoodsSeller)-[:SELLS]->(cookwareSet)
+CREATE (coffeeMaker)-[:HAS_CATEGORY]->(homeKitchen)
+CREATE (knifeSet)-[:HAS_CATEGORY]->(homeKitchen)
+CREATE (cookwareSet)-[:HAS_CATEGORY]->(homeKitchen);
+
+// Fashion products
+CREATE (leatherJacket:Product {
+    id: '7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d',
+    title: 'Designer Leather Jacket',
+    description: 'Premium genuine leather jacket with modern cut and classic styling. Perfect for any season.',
+    price: 249.99,
+    stock: 15,
+    imageUrl: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400&h=400&fit=crop',
+    sellerId: '5e6f7a8b-9c0d-1e2f-3a4b-5c6d7e8f9a0b',
+    createdAt: datetime('2024-01-15T08:30:00')
+})
+CREATE (handbag:Product {
+    id: '8b9c0d1e-2f3a-4b5c-6d7e-8f9a0b1c2d3e',
+    title: 'Luxury Handbag Collection',
+    description: 'Elegant designer handbag with multiple compartments and adjustable strap. Made from premium materials.',
+    price: 179.99,
+    stock: 25,
+    imageUrl: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=400&h=400&fit=crop',
+    sellerId: '5e6f7a8b-9c0d-1e2f-3a4b-5c6d7e8f9a0b',
+    createdAt: datetime('2024-01-15T08:30:00')
+});
+
+// Create relationships for fashion products
+CREATE (fashionBoutique)-[:SELLS]->(leatherJacket)
+CREATE (fashionBoutique)-[:SELLS]->(handbag)
+CREATE (leatherJacket)-[:HAS_CATEGORY]->(fashion)
+CREATE (handbag)-[:HAS_CATEGORY]->(fashion);
+
+// Sports & Outdoors products
+CREATE (tennisRacket:Product {
+    id: '9c0d1e2f-3a4b-5c6d-7e8f-9a0b1c2d3e4f',
+    title: 'Professional Tennis Racket',
+    description: 'Tournament-grade tennis racket with graphite frame and perfect balance for competitive play.',
+    price: 159.99,
+    stock: 18,
+    imageUrl: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400&h=400&fit=crop',
+    sellerId: '6f7a8b9c-0d1e-2f3a-4b5c-6d7e8f9a0b1c',
+    createdAt: datetime('2024-01-15T08:30:00')
+})
+CREATE (backpack:Product {
+    id: '0d1e2f3a-4b5c-6d7e-8f9a-0b1c2d3e4f5a',
+    title: 'Camping Backpack 65L',
+    description: 'Heavy-duty hiking backpack with multiple compartments, rain cover, and ergonomic design for long treks.',
+    price: 119.99,
+    stock: 30,
+    imageUrl: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=400&fit=crop',
+    sellerId: '6f7a8b9c-0d1e-2f3a-4b5c-6d7e8f9a0b1c',
+    createdAt: datetime('2024-01-15T08:30:00')
+});
+
+// Create relationships for sports & outdoors products
+CREATE (sportsGear)-[:SELLS]->(tennisRacket)
+CREATE (sportsGear)-[:SELLS]->(backpack)
+CREATE (tennisRacket)-[:HAS_CATEGORY]->(sportsOutdoors)
+CREATE (backpack)-[:HAS_CATEGORY]->(sportsOutdoors);
+
+// Books & Media products
+CREATE (programmingBook:Product {
+    id: '1e2f3a4b-5c6d-7e8f-9a0b-1c2d3e4f5a6b',
+    title: 'Programming Fundamentals Book',
+    description: 'Comprehensive guide to programming fundamentals with practical examples and exercises.',
+    price: 49.99,
+    stock: 50,
+    imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop',
+    sellerId: '4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a',
+    createdAt: datetime('2024-01-15T08:30:00')
+});
+
+// Create relationships for books & media products
+CREATE (techVendor)-[:SELLS]->(programmingBook)
+CREATE (programmingBook)-[:HAS_CATEGORY]->(booksMedia);
+
+// Health & Beauty products
+CREATE (skincare:Product {
+    id: '2f3a4b5c-6d7e-8f9a-0b1c-2d3e4f5a6b7c',
+    title: 'Organic Skincare Set',
+    description: 'Complete organic skincare routine with cleanser, toner, serum, and moisturizer for all skin types.',
+    price: 79.99,
+    stock: 40,
+    imageUrl: 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=400&h=400&fit=crop',
+    sellerId: '2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e',
+    createdAt: datetime('2024-01-15T08:30:00')
+});
+
+// Create relationships for health & beauty products
+CREATE (homeGoodsSeller)-[:SELLS]->(skincare)
+CREATE (skincare)-[:HAS_CATEGORY]->(healthBeauty);
+
+// Create user-category relationships
+CREATE (electronicsStore)-[:HAS_CATEGORY]->(electronics)
+CREATE (homeGoodsSeller)-[:HAS_CATEGORY]->(homeKitchen)
+CREATE (homeGoodsSeller)-[:HAS_CATEGORY]->(healthBeauty)
+CREATE (techVendor)-[:HAS_CATEGORY]->(electronics)
+CREATE (fashionBoutique)-[:HAS_CATEGORY]->(fashion)
+CREATE (sportsGear)-[:HAS_CATEGORY]->(sportsOutdoors); 

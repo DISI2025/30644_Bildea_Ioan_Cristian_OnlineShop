@@ -1,0 +1,11 @@
+package org.deal.productservice.repository;
+
+import org.deal.productservice.entity.ViewedProductNode;
+import org.springframework.data.neo4j.repository.Neo4jRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.UUID;
+
+@Repository
+public interface ViewedProductNodeRepository extends Neo4jRepository<ViewedProductNode, UUID> {
+} 

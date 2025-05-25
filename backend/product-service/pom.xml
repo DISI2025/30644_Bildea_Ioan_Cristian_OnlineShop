@@ -129,7 +129,19 @@
             <version>29.1.0</version>
         </dependency>
 
-<!--        &lt;!&ndash; State Machine &ndash;&gt;-->
+        <!-- Neo4j -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-neo4j</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-ogm-core</artifactId>
+            <version>4.0.9</version>
+        </dependency>
+
+        <!--        &lt;!&ndash; State Machine &ndash;&gt;-->
 <!--        <dependency>-->
 <!--            <groupId>org.springframework.statemachine</groupId>-->
 <!--            <artifactId>spring-statemachine-core</artifactId>-->
