@@ -7,7 +7,7 @@ interface SnackbarContextProps {
    showErrors: (descriptions?: string[] | null) => void;
    showDealErrors: (errors: DealError[] | null) => void;
    showSuccess: (msg: string, description?: string) => void;
-   showInfo: (msg: string, description?: string) => void;
+   showInfo: (msg: string, description?: string, duration?:  number | null | undefined) => void;
    showWarning: (msg: string, description?: string) => void;
 }
 
@@ -19,18 +19,18 @@ export const SnackbarProvider: React.FC<React.PropsWithChildren<object>> = ({chi
    const openNotificationWithIcon = (
       type: 'success' | 'info' | 'warning' | 'error',
       message: string,
-      description?: string
+      description?: string,
+      duration :  number | null | undefined = 3
    ) => {
       api.open({
          type,
          message,
          description,
          placement: 'topRight',
-         duration: 3,
+         duration: duration,
       });
    };
 
-   // Todo: update this
    const showError = (msg: string, description?: string | DealError | null) => {
       const content = typeof description === 'string' ? description : description?.message;
       openNotificationWithIcon('error', msg, content);
@@ -48,12 +48,12 @@ export const SnackbarProvider: React.FC<React.PropsWithChildren<object>> = ({chi
       openNotificationWithIcon('error', errors.length > 1 ? "There are multiple errors!" : "Something went wrong", description);
    }
 
-   const showSuccess = (msg: string, description?: string) => {
+   const showSuccess = (msg: string, description?: string,) => {
       openNotificationWithIcon('success', msg, description);
    };
 
-   const showInfo = (msg: string, description?: string) => {
-      openNotificationWithIcon('info', msg, description);
+   const showInfo = (msg: string, description?: string, duration :  number | null | undefined = 3) => {
+      openNotificationWithIcon('info', msg, description, duration);
    };
 
    const showWarning = (msg: string, description?: string) => {
