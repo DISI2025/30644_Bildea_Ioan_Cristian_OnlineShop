@@ -27,6 +27,7 @@ import java.util.UUID;
 @Builder(setterPrefix = "with")
 @ToString
 public class Product {
+    public static final String DEFAULT_SORTING_PROPERTY = "title";
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

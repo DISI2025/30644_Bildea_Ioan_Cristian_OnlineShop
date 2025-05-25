@@ -1,6 +1,6 @@
 import React from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {Button, Card, Col, Divider, Empty, InputNumber, Layout, Row, Skeleton, Space, Table, theme, Typography} from 'antd';
+import {Button, Card, Col, Divider, Empty, InputNumber, Layout, Row, Skeleton, Space, Table, theme, Typography, Image} from 'antd';
 import {DeleteOutlined, ShoppingOutlined, ShopOutlined} from '@ant-design/icons';
 import {useNavigate} from 'react-router-dom';
 import {
@@ -89,12 +89,14 @@ const CartPage: React.FC = () => {
             title: 'Product',
             dataIndex: 'product',
             key: 'product',
+            width: 300,
             render: (_: unknown, record: CartItem) => (
                 <Space>
-                    <img
+                    <Image
                         src={record.product.imageUrl}
                         alt={record.product.title}
                         style={{width: 80, height: 80, objectFit: 'cover', borderRadius: 8}}
+                        fallback="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMIAAADDCAYAAADQvc6UAAABRWlDQ1BJQ0MgUHJvZmlsZQAAKJFjYGASSSwoyGFhYGDIzSspCnJ3UoiIjFJgf8LAwSDCIMogwMCcmFxc4BgQ4ANUwgCjUcG3awyMIPqyLsis7PPOq3QdDFcvjV3jOD1boQVTPQrgSkktTgbSf4A4LbmgqISBgTEFyFYuLykAsTuAbJEioKOA7DkgdjqEvQHEToKwj4DVhAQ5A9k3gGyB5IxEoBmML4BsnSQk8XQkNtReEOBxcfXxUQg1Mjc0dyHgXNJBSWpFCYh2zi+oLMpMzyhRcASGUqqCZ16yno6CkYGRAQMDKMwhqj/fAIcloxgHQqxAjIHBEugw5sUIsSQpBobtQPdLciLEVJYzMPBHMDBsayhILEqEO4DxG0txmrERhM29nYGBddr//5/DGRjYNRkY/l7////39v///y4Dmn+LgeHANwDrkl1AuO+pmgAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAAAwqADAAQAAAABAAAAwwAAAAD9b/HnAAAHlklEQVR4Ae3dP3Ik1RnG4W+FgYxN..."
                     />
                     <Space direction="vertical" size={0}>
                         <Text strong style={{fontSize: 16}}>{record.product.title}</Text>
@@ -107,19 +109,22 @@ const CartPage: React.FC = () => {
             title: 'Price',
             dataIndex: 'price',
             key: 'price',
+            width: 100,
+            responsive: ['md'],
             render: (_: unknown, record: CartItem) => <Text strong>${record.product.price.toFixed(2)}</Text>,
         },
         {
             title: 'Quantity',
             dataIndex: 'quantity',
             key: 'quantity',
+            width: 120,
             render: (_: unknown, record: CartItem) => (
                 <InputNumber
                     min={1}
                     max={record.product.stock}
                     value={record.quantity}
                     onChange={(value) => handleQuantityChange(record.product.id, value || 1)}
-                    style={{width: 60}}
+                    style={{width: '100%', maxWidth: 80}}
                 />
             ),
         },
@@ -127,6 +132,7 @@ const CartPage: React.FC = () => {
             title: 'Total',
             dataIndex: 'total',
             key: 'total',
+            width: 120,
             render: (_: unknown, record: CartItem) => (
                 <Text strong style={{color: token.colorPrimary}}>
                     ${(record.product.price * record.quantity).toFixed(2)}
@@ -137,6 +143,8 @@ const CartPage: React.FC = () => {
             title: 'Seller',
             dataIndex: 'seller',
             key: 'seller',
+            width: 200,
+            responsive: ['lg'],
             render: (_: unknown, record: CartItem) => (
                 <SellerInfo sellerId={record.product.sellerId} />
             ),
@@ -144,10 +152,12 @@ const CartPage: React.FC = () => {
         {
             title: 'Actions',
             key: 'actions',
+            width: 80,
             render: (_: unknown, record: CartItem) => (
                 <Button
                     icon={<DeleteOutlined/>}
                     danger
+                    size="small"
                     onClick={() => handleRemoveItem(record.product.id)}
                 />
             ),
@@ -157,12 +167,14 @@ const CartPage: React.FC = () => {
     return (
         <Layout>
             <Content style={{
-                padding: '2rem',
-                marginTop: `calc(${token.layout.headerHeight}px + 2rem)`,
+                padding: window.innerWidth < 768 ? '1rem' : '2rem',
+                marginTop: `calc(${token.layout.headerHeight}px + ${window.innerWidth < 768 ? '1rem' : '2rem'})`,
                 minHeight: 'calc(100vh - 64px)'
             }}>
                 <div style={{maxWidth: 1200, margin: '0 auto'}}>
-                    <Title level={2}>Shopping Cart</Title>
+                    <Title level={2} style={{ textAlign: window.innerWidth < 768 ? 'center' : 'left' }}>
+                        Shopping Cart
+                    </Title>
 
                     {cartItems.length === 0 ? (
                         <Card>
@@ -174,6 +186,7 @@ const CartPage: React.FC = () => {
                                     type="primary"
                                     icon={<ShoppingOutlined/>}
                                     onClick={() => navigate(ROUTES.HOME)}
+                                    size={window.innerWidth < 768 ? 'large' : 'middle'}
                                 >
                                     Continue Shopping
                                 </Button>
@@ -181,25 +194,42 @@ const CartPage: React.FC = () => {
                         </Card>
                     ) : (
                         <>
-                            <Table
-                                dataSource={cartItems}
-                                columns={columns}
-                                rowKey={(record) => record.product.id}
-                                pagination={false}
-                            />
+                            <div style={{ overflowX: 'auto' }}>
+                                <Table
+                                    dataSource={cartItems}
+                                    columns={columns}
+                                    rowKey={(record) => record.product.id}
+                                    pagination={false}
+                                    scroll={{ x: 800 }}
+                                    size={window.innerWidth < 768 ? 'small' : 'middle'}
+                                />
+                            </div>
 
-                            <Row gutter={24} style={{marginTop: 24}}>
-                                <Col xs={24} md={12}>
-                                    <Space>
-                                        <Button onClick={() => navigate(ROUTES.HOME)}>
+                            <Row gutter={[16, 16]} style={{marginTop: 24}}>
+                                <Col xs={24} lg={12} order={window.innerWidth < 768 ? 2 : 1}>
+                                    <Space 
+                                        direction={window.innerWidth < 576 ? 'vertical' : 'horizontal'}
+                                        style={{ width: '100%' }}
+                                        size="middle"
+                                    >
+                                        <Button 
+                                            onClick={() => navigate(ROUTES.HOME)}
+                                            size={window.innerWidth < 768 ? 'large' : 'middle'}
+                                            style={{ width: window.innerWidth < 576 ? '100%' : 'auto' }}
+                                        >
                                             Continue Shopping
                                         </Button>
-                                        <Button danger onClick={handleClearCart}>
+                                        <Button 
+                                            danger 
+                                            onClick={handleClearCart}
+                                            size={window.innerWidth < 768 ? 'large' : 'middle'}
+                                            style={{ width: window.innerWidth < 576 ? '100%' : 'auto' }}
+                                        >
                                             Clear Cart
                                         </Button>
                                     </Space>
                                 </Col>
-                                <Col xs={24} md={12}>
+                                <Col xs={24} lg={12} order={window.innerWidth < 768 ? 1 : 2}>
                                     <Card title="Order Summary">
                                         <div style={{
                                             display: 'flex',
@@ -242,7 +272,8 @@ const CartPage: React.FC = () => {
                                             style={{
                                                 marginTop: 16,
                                                 backgroundColor: token.colorPrimary,
-                                                borderColor: token.colorPrimary
+                                                borderColor: token.colorPrimary,
+                                                height: window.innerWidth < 768 ? '48px' : '40px'
                                             }}
                                         >
                                             Proceed to Checkout

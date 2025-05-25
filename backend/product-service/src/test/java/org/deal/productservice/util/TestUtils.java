@@ -8,6 +8,7 @@ import org.deal.core.request.product.UpdateProductRequest;
 import org.deal.core.request.productcategory.CreateProductCategoryRequest;
 import org.deal.core.request.productcategory.UpdateProductCategoryRequest;
 import org.deal.core.response.DealResponse;
+import org.deal.core.response.PaginationDetails;
 import org.deal.core.util.Mapper;
 import org.deal.productservice.entity.Order;
 import org.deal.productservice.entity.Product;
@@ -47,6 +48,18 @@ public class TestUtils {
                         assertThat(payload, equalTo(expectedData));
                         assertThat(response.getStatus(), equalTo(HttpStatus.OK));
                         assertThat(response.getMessage(), equalTo(SUCCESS));
+                    },
+                    Assertions::fail
+            );
+        }
+
+        static <T> void assertThatPaginatedResponseIsSuccessful(final DealResponse<T> response, final T expectedData, final PaginationDetails details) {
+            Optional.ofNullable(response.getBody().get("payload")).ifPresentOrElse(
+                    payload -> {
+                        assertThat(payload, equalTo(expectedData));
+                        assertThat(response.getStatus(), equalTo(HttpStatus.OK));
+                        assertThat(response.getMessage(), equalTo(SUCCESS));
+                        assertThat(response.getBody().get("pagination"), equalTo(details));
                     },
                     Assertions::fail
             );

@@ -17,12 +17,13 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const authState: AuthState = useSelector(selectAuthState);
 
   return (
-    <AntLayout style={{ minHeight: '100vh' }}>
+    <AntLayout style={{ minHeight: '100vh', width: '100%' }}>
       {authState.loggedIn ? <Navbar /> : <SimpleHeader/>}
       <Content
         style={{
-          padding: `${parseInt(token.layout.headerHeight) + parseInt(token.spacing.md)}px ${token.spacing.lg} ${token.spacing.lg}`,
-          marginTop: 0,
+          flex: 1,
+          width: '100%',
+          backgroundColor: token.colorBgLayout,
         }}
       >
         {children}

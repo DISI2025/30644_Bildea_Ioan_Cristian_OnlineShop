@@ -44,9 +44,9 @@ export const customTokens = {
       lg: '0 0.5rem 1rem rgba(0, 0, 0, 0.15)',
     },
     dark: {
-      sm: '0 0.125rem 0.25rem rgba(0, 0, 0, 0.3)',
-      md: '0 0.125rem 0.5rem rgba(0, 0, 0, 0.4)',
-      lg: '0 0.5rem 1rem rgba(0, 0, 0, 0.5)',
+      sm: '0 0.125rem 0.25rem rgba(0, 0, 0, 0.5)',
+      md: '0 0.25rem 0.75rem rgba(0, 0, 0, 0.6)',
+      lg: '0 0.5rem 1.5rem rgba(0, 0, 0, 0.7)',
     },
   },
 
@@ -54,19 +54,19 @@ export const customTokens = {
   colors: {
     primary: {
       light: '#1677ff',
-      dark: '#4096ff',
+      dark: '#40a9ff',
     },
     success: {
       light: '#52c41a',
-      dark: '#49aa19',
+      dark: '#52c41a',
     },
     warning: {
       light: '#faad14',
-      dark: '#d89614',
+      dark: '#faad14',
     },
     error: {
       light: '#ff4d4f',
-      dark: '#d32029',
+      dark: '#ff4d4f',
     },
     text: {
       light: {
@@ -75,7 +75,7 @@ export const customTokens = {
         disabled: 'rgba(0, 0, 0, 0.25)',
       },
       dark: {
-        primary: 'rgba(255, 255, 255, 0.85)',
+        primary: 'rgba(255, 255, 255, 0.92)',
         secondary: 'rgba(255, 255, 255, 0.65)',
         disabled: 'rgba(255, 255, 255, 0.25)',
       },
@@ -88,8 +88,8 @@ export const customTokens = {
       },
       dark: {
         primary: '#141414',
-        secondary: '#1f1f1f',
-        tertiary: '#262626',
+        secondary: '#1a1a1a',
+        tertiary: '#1f1f1f',
       },
     },
     border: {
@@ -98,7 +98,7 @@ export const customTokens = {
         dark: '#8c8c8c',
       },
       dark: {
-        light: '#434343',
+        light: '#404040',
         dark: '#595959',
       },
     },

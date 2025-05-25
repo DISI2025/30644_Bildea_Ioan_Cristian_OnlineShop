@@ -1,11 +1,10 @@
 package org.deal.productservice.service;
 
-import org.deal.core.client.DealClient;
-import org.deal.core.client.DealService;
 import org.deal.core.dto.ProductDTO;
 import org.deal.core.dto.UserDTO;
-import org.deal.core.request.auth.ValidateTokenRequest;
+import org.deal.core.request.product.ProductsFilter;
 import org.deal.core.util.Mapper;
+import org.deal.core.util.SortDir;
 import org.deal.productservice.entity.Product;
 import org.deal.productservice.repository.ProductCategoryRepository;
 import org.deal.productservice.repository.ProductRepository;
@@ -17,12 +16,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.http.HttpMethod;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import static org.deal.productservice.util.TestUtils.ProductUtils.createProductRequest;
 import static org.deal.productservice.util.TestUtils.ProductUtils.updateProductRequest;
@@ -49,9 +52,6 @@ class ProductServiceTest extends BaseUnitTest {
 
     @InjectMocks
     private ProductService victim;
-
-    @Mock
-    private DealClient dealClient;
 
     @Mock
     private DealContext dealContext;
@@ -243,33 +243,17 @@ class ProductServiceTest extends BaseUnitTest {
         // Arrange
         var product = Instancio.create(Product.class);
         var productDTO = Mapper.mapTo(product, ProductDTO.class);
-        var jwtToken = "Bearer token.jwt.test";
-
         var userDTO = Instancio.create(UserDTO.class);
 
         when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
-        when(dealContext.getToken()).thenReturn(jwtToken);
-        when(dealClient.call(
-                DealService.IS,
-                "/auth/validate-token",
-                HttpMethod.POST,
-                new ValidateTokenRequest(jwtToken),
-                UserDTO.class
-        )).thenReturn(userDTO);
+        when(dealContext.getUser()).thenReturn(userDTO);
 
         // Act
         var result = victim.findDetailsById(product.getId());
 
         // Assert
         verify(productRepository).findById(product.getId());
-        verify(dealContext).getToken();
-        verify(dealClient).call(
-                DealService.IS,
-                "/auth/validate-token",
-                HttpMethod.POST,
-                new ValidateTokenRequest(jwtToken),
-                UserDTO.class
-        );
+        verify(dealContext).getUser();
 
         result.ifPresentOrElse(
                 details -> {
@@ -292,10 +276,56 @@ class ProductServiceTest extends BaseUnitTest {
 
         // Assert
         verify(productRepository).findById(id);
-        verify(dealContext, never()).getToken();
-        verify(dealClient, never()).call(any(), any(), any(), any(), any());
+        verify(dealContext, never()).getUser();
 
         assertTrue(result.isEmpty());
     }
 
+    @Test
+    void testFindAll_withNameFilter_shouldReturnFilteredProducts() {
+        var product = Instancio.create(Product.class);
+        Page<Product> page = new PageImpl<>(List.of(product));
+        when(productRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
+
+        var filter = new ProductsFilter("title", "", SortDir.ASC, 0, 1);
+        var result = victim.findAll(filter);
+
+        assertThat(result.getContent(), hasItem(Mapper.mapTo(product, ProductDTO.class)));
+        verify(productRepository).findAll(any(Specification.class), any(Pageable.class));
+    }
+
+    @Test
+    void testFindAll_withCategoryFilter_shouldReturnFilteredProducts() {
+        var product = Instancio.create(Product.class);
+        Page<Product> page = new PageImpl<>(List.of(product));
+        when(productRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
+
+        var filter = new ProductsFilter("title", "", SortDir.ASC, 0, 1);
+        var result = victim.findAll(filter);
+
+        assertThat(result.getContent(), hasItem(Mapper.mapTo(product, ProductDTO.class)));
+        verify(productRepository).findAll(any(Specification.class), any(Pageable.class));
+    }
+
+    @Test
+    void testFindAll_withAllFilters_shouldReturnSortedProducts() {
+        var product1 = Instancio.create(Product.class);
+        var product2 = Instancio.create(Product.class);
+        product1.setTitle("Banana");
+        product2.setTitle("Apple");
+        Page<Product> page = new PageImpl<>(List.of(product1, product2));
+        when(productRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(page);
+
+
+        var filter = new ProductsFilter("title", "", SortDir.ASC, 0, 1);
+        var result = victim.findAll(filter);
+
+        var expected = Stream.of(product1, product2)
+                .map(p -> Mapper.mapTo(p, ProductDTO.class))
+                .sorted((a, b) -> b.title().compareTo(a.title()))
+                .toList();
+
+        assertThat(result.getContent(), equalTo(expected));
+        verify(productRepository).findAll(any(Specification.class), any(Pageable.class));
+    }
 }

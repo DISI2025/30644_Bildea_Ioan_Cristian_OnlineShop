@@ -1,9 +1,13 @@
 package org.deal.productservice.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.deal.core.dto.ProductDTO;
 import org.deal.core.exception.DealError;
+import org.deal.core.request.product.ProductsFilter;
+import org.deal.core.response.PaginationDetails;
 import org.deal.core.response.product.ProductDetailsResponse;
 import org.deal.core.util.Mapper;
+import org.deal.core.util.SortDir;
 import org.deal.productservice.entity.Product;
 import org.deal.productservice.service.ProductService;
 import org.instancio.Instancio;
@@ -12,9 +16,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -22,6 +29,7 @@ import static org.deal.core.util.Constants.ReturnMessages.failedToSave;
 import static org.deal.core.util.Constants.ReturnMessages.notFound;
 import static org.deal.productservice.util.TestUtils.ProductUtils.createProductRequest;
 import static org.deal.productservice.util.TestUtils.ProductUtils.updateProductRequest;
+import static org.deal.productservice.util.TestUtils.ResponseUtils.assertThatPaginatedResponseIsSuccessful;
 import static org.deal.productservice.util.TestUtils.ResponseUtils.assertThatResponseFailed;
 import static org.deal.productservice.util.TestUtils.ResponseUtils.assertThatResponseIsSuccessful;
 import static org.deal.productservice.util.TestUtils.convertAll;
@@ -36,29 +44,49 @@ class ProductControllerTest {
     @Mock
     private ProductService productService;
 
+    @Mock
+    private HttpServletRequest request;
+
     @InjectMocks
     private ProductController victim;
 
     @Test
-    void testGetProducts_shouldReturnSuccess() {
-        var expectedProducts = List.of(Instancio.create(Product.class), Instancio.create(Product.class));
-        when(productService.findAll()).thenReturn(Optional.of(convertAll(expectedProducts, ProductDTO.class)));
+    void getProducts_shouldReturnPaginatedResponseWithCorrectDataAndPaginationUrls() {
+        var productDTO1 = Instancio.create(ProductDTO.class);
+        var productDTO2 = Instancio.create(ProductDTO.class);
+        var content = List.of(productDTO1, productDTO2);
+        int currentPage = 1;
+        int pageSize = 5;
+        int totalPages = 3;
+        long totalElements = 12;
+        var page = new PageImpl<>(content, PageRequest.of(currentPage, pageSize), totalElements);
+        var filter = new ProductsFilter("title", "", SortDir.ASC, currentPage, pageSize);
 
-        var response = victim.getProducts();
+        when(productService.findAll(filter)).thenReturn(page);
+        when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost/products"));
+        when(request.getParameterMap()).thenReturn(Map.of(
+                "property", new String[]{"title"},
+                "page", new String[]{String.valueOf(currentPage)},
+                "size", new String[]{String.valueOf(pageSize)},
+                "sort", new String[]{"ASC"},
+                "search", new String[]{"smart"}
+        ));
 
-        verify(productService).findAll();
-        assertThatResponseIsSuccessful(response, convertAll(expectedProducts, ProductDTO.class));
+        var response = victim.getProducts(filter, request);
+
+        assertThatPaginatedResponseIsSuccessful(response, content,
+                                                PaginationDetails.builder()
+                                                        .withPage(currentPage)
+                                                        .withSize(filter.size())
+                                                        .withTotalElements(page.getTotalElements())
+                                                        .withTotalPages(totalPages)
+                                                        .withHasNext(page.hasNext())
+                                                        .withHasPrevious(page.hasPrevious())
+                                                        .withNextPageUrl("http://localhost/products?page=2&size=5&property=title&search=smart&sort=ASC")
+                                                        .withPreviousPageUrl("http://localhost/products?page=0&size=5&property=title&search=smart&sort=ASC")
+                                                        .build());
     }
 
-    @Test
-    void testGetProducts_noProductsFound_returnsFailure() {
-        when(productService.findAll()).thenReturn(Optional.empty());
-
-        var response = victim.getProducts();
-
-        verify(productService).findAll();
-        assertThatResponseFailed(response, List.of(new DealError(notFound(ProductDTO.class))), HttpStatus.NOT_FOUND);
-    }
 
     @Test
     void testGetProductById_productFound_returnsSuccess() {

@@ -19,7 +19,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
   gutter
 }) => {
   const { token } = useToken();
-  const defaultGutter: [number, number] = [token.padding, token.padding];
+  const defaultGutter: [number, number] = [16, 16];
   const gridGutter = gutter || defaultGutter;
 
   if (loading) {
@@ -27,9 +27,11 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       <div style={{
         display: 'flex', 
         justifyContent: 'center', 
-        padding: `${token.paddingXL}px 0`
+        padding: `${token.paddingXL}px 0`,
+        minHeight: '200px',
+        alignItems: 'center'
       }}>
-        <Spin size="large" />
+        <Spin size="large" tip="Loading products..." />
       </div>
     );
   }
@@ -38,7 +40,13 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     return (
       <Empty 
         description="No products found" 
-        style={{ padding: `${token.paddingXL}px 0` }} 
+        style={{ 
+          padding: `${token.paddingXL}px 0`,
+          backgroundColor: token.colorBgContainer,
+          borderRadius: token.borderRadiusLG,
+          border: `1px solid ${token.colorBorderSecondary}`
+        }}
+        image={Empty.PRESENTED_IMAGE_SIMPLE}
       />
     );
   }
@@ -47,7 +55,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
     <Row 
       gutter={gridGutter} 
       style={{ 
-        backgroundColor: token.colorBgLayout
+        backgroundColor: 'transparent'
       }}
     >
       {products.map((product) => (
@@ -55,7 +63,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
           key={product.id} 
           xs={24} 
           sm={12} 
-          md={8} 
+          md={12} 
           lg={24 / columns} 
           xl={24 / columns} 
           xxl={24 / columns}

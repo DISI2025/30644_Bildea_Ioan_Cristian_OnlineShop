@@ -1,6 +1,5 @@
-import React, {useMemo, useState} from 'react';
-import {Alert, Card, Col, Divider, Empty, Layout, Row, Skeleton, Space, theme, Typography} from 'antd';
-import {AppstoreOutlined, UserOutlined} from '@ant-design/icons';
+import React, {useMemo, useState, useCallback} from 'react';
+import {Alert, Card, Col, Divider, Empty, Row, Skeleton, Space, theme, Typography, Pagination} from 'antd';
 import {useSelector} from 'react-redux';
 import ProductGrid from '../components/product/ProductGrid';
 import {SearchFilters} from '../components/common';
@@ -8,16 +7,17 @@ import {
     useGetProductCategoriesQuery,
     useGetProductsBySellerIdQuery,
     useGetProductsQuery,
+    useGetProductsPaginatedQuery,
     useGetUsersQuery
 } from '../store/api';
 import {selectAuthState} from '../store/slices/auth-slice';
 import {MainUser, UserRole} from '../types/entities';
 import UserDetailsModal from '../components/admin/UserDetailsModal';
 import UserCard from "../components/admin/UserCard.tsx";
+import {ProductsFilter} from '../types/transfer';
 
-const {Content} = Layout;
 const {useToken} = theme;
-const {Title, Text, Paragraph} = Typography;
+const {Text} = Typography;
 
 type SortOption = 'name-asc' | 'name-desc' | 'price-low' | 'price-high';
 
@@ -27,77 +27,80 @@ export const HomePage: React.FC = () => {
     const isAdmin = authState.user?.role === UserRole.ADMIN;
     const currentUserId = authState.user?.id || '';
 
-    // Search and filter states
+    const [currentPage, setCurrentPage] = useState(1);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState<string>('');
     const [sortOption, setSortOption] = useState<SortOption>('name-asc');
     const [selectedUser, setSelectedUser] = useState<MainUser | null>(null);
     const [isUserModalVisible, setIsUserModalVisible] = useState(false);
 
-    // API queries
-    const {data: allProductsResponse, error: productsError, isLoading: isLoadingProducts} = useGetProductsQuery();
+    const getProductsFilter = useCallback((): ProductsFilter => {
+        const filter: ProductsFilter = {
+            page: currentPage - 1,
+            size: 4
+        };
+
+        if (searchTerm) {
+            filter.search = searchTerm;
+        }
+
+        switch (sortOption) {
+            case 'name-asc':
+                filter.property = 'title';
+                filter.sort = 'ASC';
+                break;
+            case 'name-desc':
+                filter.property = 'title';
+                filter.sort = 'DESC';
+                break;
+            case 'price-low':
+                filter.property = 'price';
+                filter.sort = 'ASC';
+                break;
+            case 'price-high':
+                filter.property = 'price';
+                filter.sort = 'DESC';
+                break;
+        }
+
+        return filter;
+    }, [currentPage, searchTerm, sortOption]);
+
+    const productsFilter = getProductsFilter();
+    const {data: paginatedProductsResponse, error: productsError, isLoading: isLoadingProducts} = useGetProductsPaginatedQuery(productsFilter, {
+        skip: isAdmin
+    });
+    
+    const shouldSkipAllProducts = isAdmin || !!searchTerm || sortOption !== 'name-asc';
+    const {data: allProductsResponse} = useGetProductsQuery(undefined, {
+        skip: shouldSkipAllProducts
+    });
+
     const {data: usersResponse, error: usersError, isLoading: isLoadingUsers} = useGetUsersQuery(undefined, {
         skip: !isAdmin
     });
+    
     const {data: userProductsResponse} = useGetProductsBySellerIdQuery(currentUserId, {
         skip: isAdmin || !currentUserId
     });
+    
     const {data: categoriesResponse, isLoading: isLoadingCategories} = useGetProductCategoriesQuery();
 
+    const paginatedProducts = paginatedProductsResponse?.payload || [];
+    const paginationDetails = paginatedProductsResponse?.pagination;
     const allProducts = allProductsResponse?.payload || [];
     const allUsers = usersResponse?.payload || [];
     const userProducts = userProductsResponse?.payload || [];
     const categories = categoriesResponse?.payload || [];
 
-    // Filter products to exclude current user's products for regular users
     const displayProducts = useMemo(() => {
         if (isAdmin) return [];
 
-        // TODO: Implement backend filtering to exclude current user's products
-        // For now, filtering on frontend
+        const products = paginatedProducts.length > 0 ? paginatedProducts : allProducts;
+        
         const userProductIds = userProducts.map(p => p.id);
-        return allProducts.filter(product => !userProductIds.includes(product.id));
-    }, [allProducts, userProducts, isAdmin]);
-
-    // Filter and sort products based on search criteria
-    const filteredAndSortedProducts = useMemo(() => {
-        let filtered = [...displayProducts];
-
-        // TODO: Move search filtering to backend endpoint
-        // Search by product name
-        if (searchTerm) {
-            filtered = filtered.filter(product =>
-                product.title.toLowerCase().includes(searchTerm.toLowerCase())
-            );
-        }
-
-        // TODO: Move category filtering to backend endpoint
-        // Filter by category
-        if (selectedCategory) {
-            filtered = filtered.filter(product =>
-                product.categories.some(cat => cat.id === selectedCategory)
-            );
-        }
-
-        // TODO: Move sorting to backend endpoint
-        // Sort products
-        filtered.sort((a, b) => {
-            switch (sortOption) {
-                case 'name-asc':
-                    return a.title.localeCompare(b.title);
-                case 'name-desc':
-                    return b.title.localeCompare(a.title);
-                case 'price-low':
-                    return a.price - b.price;
-                case 'price-high':
-                    return b.price - a.price;
-                default:
-                    return 0;
-            }
-        });
-
-        return filtered;
-    }, [displayProducts, searchTerm, selectedCategory, sortOption]);
+        return products.filter(product => !userProductIds.includes(product.id));
+    }, [paginatedProducts, allProducts, userProducts, isAdmin]);
 
     const filteredAndSortedUsers = useMemo(() => {
         if (!isAdmin) return [];
@@ -134,9 +137,9 @@ export const HomePage: React.FC = () => {
                     return (a.fullName || a.username).localeCompare(b.fullName || b.username);
                 case 'name-desc':
                     return (b.fullName || b.username).localeCompare(a.fullName || a.username);
-                case 'price-low': // Sort by creation date (oldest first)
+                case 'price-low':
                     return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-                case 'price-high': // Sort by creation date (newest first)
+                case 'price-high':
                     return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
                 default:
                     return 0;
@@ -148,20 +151,33 @@ export const HomePage: React.FC = () => {
 
     const handleSearchChange = (value: string) => {
         setSearchTerm(value);
+        setCurrentPage(1);
     };
 
     const handleCategoryChange = (value: string) => {
         setSelectedCategory(value);
+        if (!isAdmin) {
+            return;
+        }
+        setCurrentPage(1);
     };
 
     const handleSortChange = (value: SortOption) => {
         setSortOption(value);
+        setCurrentPage(1);
     };
 
     const handleClearAll = () => {
         setSearchTerm('');
-        setSelectedCategory('');
+        if (isAdmin) {
+            setSelectedCategory('');
+        }
         setSortOption('name-asc');
+        setCurrentPage(1);
+    };
+
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
     };
 
     const handleUserClick = (user: MainUser) => {
@@ -178,15 +194,15 @@ export const HomePage: React.FC = () => {
         if (isAdmin) {
             if (isLoadingUsers) {
                 return (
-                    <Row gutter={[token.padding, token.padding]}>
+                    <Row gutter={[12, 12]}>
                         {Array.from({length: 8}).map((_, index) => (
                             <Col xs={24} sm={12} md={8} lg={6} xl={6} key={index}>
                                 <Card style={{
-                                    height: '320px',
+                                    height: '280px',
                                     borderRadius: token.borderRadiusLG,
                                     border: `1px solid ${token.colorBorder}`
                                 }}>
-                                    <Skeleton active avatar paragraph={{rows: 4}}/>
+                                    <Skeleton active avatar paragraph={{rows: 3}}/>
                                 </Card>
                             </Col>
                         ))}
@@ -201,7 +217,7 @@ export const HomePage: React.FC = () => {
                         description="Failed to load users. Please try again later."
                         type="error"
                         showIcon
-                        style={{marginTop: token.marginLG}}
+                        style={{marginTop: token.marginMD}}
                     />
                 );
             }
@@ -211,13 +227,13 @@ export const HomePage: React.FC = () => {
                     <Empty
                         image={Empty.PRESENTED_IMAGE_SIMPLE}
                         description="No users found matching your search criteria"
-                        style={{marginTop: token.marginXXL}}
+                        style={{marginTop: token.marginLG}}
                     />
                 );
             }
 
             return (
-                <Row gutter={[token.padding, token.padding]}>
+                <Row gutter={[12, 12]}>
                     {filteredAndSortedUsers.map(user => (
                         <Col xs={24} sm={12} md={8} lg={6} xl={6} key={user.id}>
                             <UserCard user={user} onClick={handleUserClick}/>
@@ -237,130 +253,128 @@ export const HomePage: React.FC = () => {
                         description="Failed to load products. Please try again later."
                         type="error"
                         showIcon
+                        style={{marginTop: token.marginMD}}
+                    />
+                );
+            }
+
+            if (displayProducts.length === 0) {
+                return (
+                    <Empty
+                        image={Empty.PRESENTED_IMAGE_SIMPLE}
+                        description="No products found matching your search criteria"
                         style={{marginTop: token.marginLG}}
                     />
                 );
             }
 
-            if (filteredAndSortedProducts.length === 0 && displayProducts.length > 0) {
-                return (
-                    <Empty
-                        image={Empty.PRESENTED_IMAGE_SIMPLE}
-                        description="No products found matching your search criteria"
-                        style={{marginTop: token.marginXXL}}
-                    />
-                );
-            }
-
             return (
-                <ProductGrid
-                    products={filteredAndSortedProducts}
-                    loading={false}
-                    columns={4}
-                />
+                <>
+                    <ProductGrid
+                        products={displayProducts}
+                        loading={false}
+                        columns={4}
+                        gutter={[12, 12]}
+                    />
+                    
+                    {paginationDetails && paginationDetails.totalPages > 1 && (
+                        <div style={{ 
+                            display: 'flex', 
+                            justifyContent: 'center', 
+                            marginTop: token.marginMD 
+                        }}>
+                            <Pagination
+                                current={currentPage}
+                                total={paginationDetails.totalElements}
+                                pageSize={paginationDetails.size}
+                                onChange={handlePageChange}
+                                showSizeChanger={false}
+                                showQuickJumper={false}
+                                showTotal={(total, range) => 
+                                    `${range[0]}-${range[1]} of ${total} products`
+                                }
+                                style={{
+                                    fontSize: token.fontSize,
+                                }}
+                            />
+                        </div>
+                    )}
+                </>
             );
         }
     };
 
     return (
-        <Layout style={{minHeight: '100vh'}}>
-            <Content
-                style={{
-                    padding: `${token.paddingLG}px ${token.paddingMD}px`,
-                    backgroundColor: token.colorBgLayout,
-                    minHeight: 'calc(100vh - 64px)', // Account for navbar height
-                    width: '100%',
-                    overflow: 'auto'
-                }}
-            >
-                <div style={{
-                    maxWidth: token.screenXL,
-                    margin: '0 auto',
-                    width: '100%',
-                    padding: `0 ${token.paddingMD}px`
+        <div style={{ 
+            paddingTop: `calc(${token.layout.headerHeight} + ${token.paddingSM}px)`,
+            paddingLeft: token.paddingMD,
+            paddingRight: token.paddingMD,
+            paddingBottom: token.paddingSM,
+            height: '100%',
+            overflow: 'auto',
+        }}>
+            <div style={{
+                maxWidth: token.screenXL,
+                margin: '0 auto',
+                width: '100%',
+            }}>
+
+                <SearchFilters
+                    isAdmin={isAdmin}
+                    searchTerm={searchTerm}
+                    selectedCategory={selectedCategory}
+                    sortOption={sortOption}
+                    categories={isAdmin ? categories : []}
+                    isLoadingCategories={isLoadingCategories}
+                    onSearchChange={handleSearchChange}
+                    onCategoryChange={handleCategoryChange}
+                    onSortChange={handleSortChange}
+                    onClearAll={handleClearAll}
+                />
+
+                <Card style={{
+                    marginBottom: token.marginMD,
+                    backgroundColor: token.colorBgContainer,
+                    borderRadius: token.borderRadiusLG,
+                    border: `1px solid ${token.colorBorder}`
                 }}>
-                    {/* Header Section */}
-                    <div style={{textAlign: 'center', marginBottom: token.marginXL}}>
-                        <Title level={2} style={{marginBottom: token.marginXS, color: token.colorText}}>
-                            {isAdmin ? (
-                                <>
-                                    <UserOutlined style={{marginRight: token.marginSM}}/>
-                                    User Management Dashboard
-                                </>
-                            ) : (
-                                <>
-                                    <AppstoreOutlined style={{marginRight: token.marginSM}}/>
-                                    Discover Amazing Products
-                                </>
-                            )}
-                        </Title>
-                        <Paragraph style={{
-                            fontSize: token.fontSizeLG,
-                            color: token.colorTextSecondary,
-                            marginBottom: 0
-                        }}>
-                            {isAdmin
-                                ? `Manage and view all ${allUsers.length} registered users in the platform`
-                                : `Browse through ${displayProducts.length} products from various sellers`
-                            }
-                        </Paragraph>
-                    </div>
-
-                    <Divider style={{marginBottom: token.marginLG}}/>
-
-                    {/* Filters Section */}
-                    <SearchFilters
-                        isAdmin={isAdmin}
-                        searchTerm={searchTerm}
-                        selectedCategory={selectedCategory}
-                        sortOption={sortOption}
-                        categories={categories}
-                        isLoadingCategories={isLoadingCategories}
-                        onSearchChange={handleSearchChange}
-                        onCategoryChange={handleCategoryChange}
-                        onSortChange={handleSortChange}
-                        onClearAll={handleClearAll}
-                    />
-
-                    {/* Results Summary */}
-                    <Card style={{
-                        marginBottom: token.marginLG,
-                        backgroundColor: token.colorBgContainer,
-                        borderRadius: token.borderRadiusLG,
-                        border: `1px solid ${token.colorBorder}`
-                    }}>
-                        <Space split={<Divider type="vertical"/>} wrap>
-                            <Text style={{color: token.colorText}}>
-                                <strong>
-                                    {isAdmin ? filteredAndSortedUsers.length : filteredAndSortedProducts.length}
-                                </strong> {isAdmin ? 'users' : 'products'} found
+                    <Space split={<Divider type="vertical"/>} wrap>
+                        <Text style={{color: token.colorText}}>
+                            <strong>
+                                {isAdmin 
+                                    ? filteredAndSortedUsers.length 
+                                    : paginationDetails?.totalElements || displayProducts.length
+                                }
+                            </strong> {isAdmin ? 'users' : 'products'} found
+                        </Text>
+                        {searchTerm && (
+                            <Text type="secondary">
+                                Search: "{searchTerm}"
                             </Text>
-                            {searchTerm && (
-                                <Text type="secondary">
-                                    Search: "{searchTerm}"
-                                </Text>
-                            )}
-                            {selectedCategory && (
-                                <Text type="secondary">
-                                    Filtered
-                                    by: {isAdmin ? selectedCategory : categories.find(c => c.id === selectedCategory)?.categoryName}
-                                </Text>
-                            )}
-                        </Space>
-                    </Card>
+                        )}
+                        {selectedCategory && isAdmin && (
+                            <Text type="secondary">
+                                Filtered by: {selectedCategory}
+                            </Text>
+                        )}
+                        {!isAdmin && paginationDetails && (
+                            <Text type="secondary">
+                                Page {currentPage} of {paginationDetails.totalPages}
+                            </Text>
+                        )}
+                    </Space>
+                </Card>
 
-                    {/* Content Section */}
-                    <div style={{paddingBottom: token.paddingLG}}>
-                        {renderContent()}
-                    </div>
+                <div style={{marginBottom: token.marginMD}}>
+                    {renderContent()}
                 </div>
-            </Content>
+            </div>
 
             <UserDetailsModal
                 user={selectedUser}
                 visible={isUserModalVisible}
                 onClose={handleCloseUserModal}
             />
-        </Layout>
+        </div>
     );
 };

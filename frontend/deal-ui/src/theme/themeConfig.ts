@@ -44,20 +44,42 @@ export const darkTheme: ThemeConfig = {
         colorPrimary: '#ad26f0',
         colorPrimaryHover: '#b742f2',
         colorPrimaryActive: '#9a1fd5',
-        colorPrimaryBg: '#1f1b22',
-        colorPrimaryBorder: '#531a70',
+        colorPrimaryBg: '#2a1f3d',
+        colorPrimaryBorder: '#6b46c1',
 
         colorLink: '#c165f5',
         colorLinkHover: '#d28df7',
-        colorSuccess: '#49aa19',
-        colorWarning: '#d89614',
-        colorError: '#d32029',
-        colorInfo: '#177ddc',
+        colorSuccess: '#52c41a',
+        colorWarning: '#faad14',
+        colorError: '#ff4d4f',
+        colorInfo: '#40a9ff',
 
         colorBgContainer: '#141414',
-        colorBgLayout: '#101010',
-        colorText: 'rgba(255, 255, 255, 0.85)',
-        colorTextSecondary: 'rgba(255, 255, 255, 0.45)',
+        colorBgLayout: '#0a0a0a',
+        colorBgElevated: '#1a1a1a',
+        colorBgMask: 'rgba(0, 0, 0, 0.8)',
+        
+        colorFillQuaternary: '#1a1a1a',
+        colorFillTertiary: '#242424',
+        colorFillSecondary: '#2f2f2f',
+        colorFill: '#3a3a3a',
+
+        colorText: 'rgba(255, 255, 255, 0.92)',
+        colorTextSecondary: 'rgba(255, 255, 255, 0.65)',
+        colorTextTertiary: 'rgba(255, 255, 255, 0.45)',
+        colorTextQuaternary: 'rgba(255, 255, 255, 0.25)',
+        
+        colorBorder: '#2a2a2a',
+        colorBorderSecondary: '#1f1f1f',
+
+        colorSuccessBg: '#162312',
+        colorSuccessBorder: '#274916',
+        colorWarningBg: '#2b1d11',
+        colorWarningBorder: '#594214',
+        colorErrorBg: '#2c1618',
+        colorErrorBorder: '#58181c',
+        colorInfoBg: '#111a2c',
+        colorInfoBorder: '#153450',
 
         fontFamily: 'Roboto, sans-serif',
         fontSize: 14,
@@ -71,6 +93,21 @@ export const darkTheme: ThemeConfig = {
         },
         Input: {
             controlHeight: 40,
+        },
+        Card: {
+            colorBgContainer: '#141414',
+            colorBorderSecondary: '#2a2a2a',
+        },
+        Menu: {
+            colorBgContainer: '#141414',
+            colorItemBg: 'transparent',
+            colorItemBgHover: '#1a1a1a',
+            colorItemBgSelected: '#2a1f3d',
+        },
+        Layout: {
+            colorBgHeader: '#0a0a0a',
+            colorBgBody: '#0f0f0f',
+            colorBgTrigger: '#1a1a1a',
         }
     },
     algorithm: antdTheme.darkAlgorithm,

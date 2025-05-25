@@ -9,10 +9,31 @@ export interface BaseResponse {
 
 export interface DealResponse<T> extends BaseResponse {
     payload: T;
+    pagination?: PaginationDetails;
 }
 
 export type DealError = {
     message: string;
+}
+
+//<---Pagination--->
+export interface PaginationDetails {
+    page: number;
+    size: number;
+    totalElements: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrevious: boolean;
+    nextPageUrl?: string;
+    previousPageUrl?: string;
+}
+
+export interface ProductsFilter {
+    property?: string;
+    search?: string;
+    sort?: 'ASC' | 'DESC';
+    page?: number;
+    size?: number;
 }
 
 //<---Auth--->

@@ -12,6 +12,7 @@ import {
     DealResponse,
     ForgotPasswordRequest,
     PaymentIntentResponse,
+    ProductsFilter,
     ResetPasswordRequest, UpdateProductCategoryRequest,
     UpdateProductRequest,
     UpdateUserRequest,
@@ -145,7 +146,23 @@ export const api = createApi({
 
         // Product endpoints
         getProducts: builder.query<DealResponse<Product[]>, void>({
-            query: () => DEAL_ENDPOINTS.PRODUCTS,
+            query: () => `${DEAL_ENDPOINTS.PRODUCTS}?size=2147483647`,
+            transformErrorResponse: (response) => response.data as BaseResponse,
+        }),
+
+        getProductsPaginated: builder.query<DealResponse<Product[]>, ProductsFilter>({
+            query: (filter) => {
+                const params = new URLSearchParams();
+                
+                if (filter.property) params.append('property', filter.property);
+                if (filter.search) params.append('search', filter.search);
+                if (filter.sort) params.append('sort', filter.sort);
+                if (filter.page !== undefined) params.append('page', filter.page.toString());
+                if (filter.size !== undefined) params.append('size', filter.size.toString());
+                
+                const queryString = params.toString();
+                return queryString ? `${DEAL_ENDPOINTS.PRODUCTS}?${queryString}` : DEAL_ENDPOINTS.PRODUCTS;
+            },
             transformErrorResponse: (response) => response.data as BaseResponse,
         }),
 
@@ -241,6 +258,7 @@ export const {
     useUpdateProductCategoryMutation,
     useDeleteProductCategoryMutation,
     useGetProductsQuery,
+    useGetProductsPaginatedQuery,
     useGetProductByIdQuery,
     useGetProductsBySellerIdQuery,
     useCreateProductMutation,
