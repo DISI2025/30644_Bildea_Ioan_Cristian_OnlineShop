@@ -1,5 +1,6 @@
 package org.deal.productservice.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -41,5 +42,6 @@ public class OrderItem {
     @ManyToOne(targetEntity = Order.class,
             fetch = FetchType.EAGER,
             cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @JsonIgnore
     private Order order;
 }

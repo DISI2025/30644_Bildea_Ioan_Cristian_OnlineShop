@@ -1,6 +1,7 @@
 package org.deal.productservice.service;
 
-
+import org.deal.core.client.DealClient;
+import org.deal.core.response.DealResponse;
 import org.deal.core.util.OrderStatus;
 import org.deal.productservice.entity.Order;
 import org.deal.productservice.util.BaseUnitTest;
@@ -28,6 +29,9 @@ class OrdersProcessorTest extends BaseUnitTest {
     private OrderService orderService;
     @InjectMocks
     private OrdersProcessor victim;
+    @Mock
+    private DealClient dealClient;
+
 
     @BeforeEach
     void setUp() {
@@ -64,14 +68,19 @@ class OrdersProcessorTest extends BaseUnitTest {
         Order order2 = Instancio.create(Order.class);
         order2.setStatus(OrderStatus.PROCESSING);
 
+        when(dealClient.call(any(), any(), any(), any(), any()))
+                .thenReturn(DealResponse.ok("success"));
+
         when(orderService.findNotFinishedOrders()).thenReturn(List.of(order1, order2));
 
         victim.processOrders();
 
         verify(orderService).findNotFinishedOrders();
+
         verify(orderService).updateOrderStatus(eq(order1), any(OrderStatus.class));
         verify(orderService).updateOrderStatus(eq(order2), any(OrderStatus.class));
     }
+
 
     @Test
     void testProcessOrders_orderStatusNoTransition_shouldSkipUpdate() {

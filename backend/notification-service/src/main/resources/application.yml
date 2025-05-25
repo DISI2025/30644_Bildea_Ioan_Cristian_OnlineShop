@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: notification-service
+server:
+  port: 8084
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+eureka:
+  instance:
+    prefer-ip-address: true
+
+
+whitelisted-paths: /swagger-ui/**, /v3/api-docs/**, /v3/api-docs.yaml, /swagger-ui.html, /bus/**, /actuator/**
+
+base-token: cHJvZHVjdC1zZXJ2aWNlLXRva2Vu
