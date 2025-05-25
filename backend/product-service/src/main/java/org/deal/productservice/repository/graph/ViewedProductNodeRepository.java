@@ -1,6 +1,6 @@
-package org.deal.productservice.repository;
+package org.deal.productservice.repository.graph;
 
-import org.deal.productservice.entity.ViewedProductNode;
+import org.deal.productservice.entity.graph.ViewedProductNode;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.stereotype.Repository;
 

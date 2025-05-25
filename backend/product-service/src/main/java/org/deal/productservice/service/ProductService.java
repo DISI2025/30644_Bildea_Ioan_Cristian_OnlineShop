@@ -1,24 +1,20 @@
 package org.deal.productservice.service;
 
-import jakarta.persistence.criteria.Path;
 import lombok.RequiredArgsConstructor;
 import org.deal.core.dto.ProductDTO;
 import org.deal.core.request.product.CreateProductRequest;
 import org.deal.core.request.product.ProductsFilter;
 import org.deal.core.request.product.UpdateProductRequest;
-import org.deal.core.response.PaginationDetails;
 import org.deal.core.response.product.ProductDetailsResponse;
 import org.deal.core.util.Mapper;
-import org.deal.core.util.SortDir;
 import org.deal.productservice.entity.Product;
 import org.deal.productservice.entity.ProductCategory;
 import org.deal.productservice.repository.ProductCategoryRepository;
 import org.deal.productservice.repository.ProductRepository;
 import org.deal.productservice.security.DealContext;
+import org.deal.productservice.util.PaginationUtils;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,24 +47,10 @@ public class ProductService {
     }
 
     public Page<ProductDTO> findAll(final ProductsFilter filter) {
-        final String sortProperty = Optional.ofNullable(filter.property()).orElse(Product.DEFAULT_SORTING_PROPERTY);
-        final SortDir sortDir = Optional.ofNullable(filter.sort()).orElse(SortDir.ASC);
-        final int page = Optional.ofNullable(filter.page()).orElse(PaginationDetails.DEFAULT_PAGE);
-        final int size = Optional.ofNullable(filter.size()).orElse(PaginationDetails.DEFAULT_PAGE_SIZE);
-        final String searchValue = Optional.ofNullable(filter.search()).orElse("");
+        final Specification<Product> specification = PaginationUtils.buildSpecification(filter);
+        final Pageable pageable = PaginationUtils.buildPageableRequest(filter);
 
-        final Sort sort = Sort.by(Sort.Direction.fromString(sortDir.name()), sortProperty);
-        final Pageable pageable = PageRequest.of(page, size, sort);
-
-        final Specification<Product> spec = (root, query, cb) -> {
-            if (!searchValue.isBlank()) {
-                Path<String> path = root.get(sortProperty);
-                return cb.like(cb.lower(path), "%" + searchValue.toLowerCase() + "%");
-            }
-            return cb.conjunction();
-        };
-
-        return productRepository.findAll(spec, pageable).map(this::mapToDTO);
+        return productRepository.findAll(specification, pageable).map(this::mapToDTO);
     }
 
     public Optional<ProductDetailsResponse> findDetailsById(final UUID id) {
@@ -118,12 +100,11 @@ public class ProductService {
                         Set<ProductCategory> newCategories = productCategoryRepository.findAllByName(request.getCategories());
                         request.setCategories(null);
                         product.setCategories(newCategories);
+                        productSyncService.syncUpdate(product);
                     }
 
                     Mapper.updateValues(product, request);
                     final Product updatedProduct = productRepository.save(product);
-                    productSyncService.syncUpdate(updatedProduct);
-
                     return mapToDTO(updatedProduct);
                 });
     }

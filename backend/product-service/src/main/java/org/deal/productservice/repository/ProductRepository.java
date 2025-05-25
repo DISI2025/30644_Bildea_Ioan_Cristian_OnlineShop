@@ -2,6 +2,8 @@ package org.deal.productservice.repository;
 
 import jakarta.transaction.Transactional;
 import org.deal.productservice.entity.Product;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -23,4 +25,7 @@ public interface ProductRepository extends JpaRepository<Product, UUID>, JpaSpec
 
     @Query(value = "SELECT p from Product p WHERE p.id in :ids")
     List<Product> findMultipleById(final List<UUID> ids);
+
+    @Query(value = "SELECT p from Product p WHERE p.id in :ids")
+    Page<Product> findMultipleById(final List<UUID> ids, final Pageable pageable);
 }

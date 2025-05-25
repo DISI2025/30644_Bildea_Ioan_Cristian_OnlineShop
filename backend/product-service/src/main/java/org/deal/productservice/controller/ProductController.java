@@ -11,6 +11,7 @@ import org.deal.core.response.DealResponse;
 import org.deal.core.response.PaginationDetails;
 import org.deal.core.response.product.ProductDetailsResponse;
 import org.deal.productservice.service.ProductService;
+import org.deal.productservice.util.PaginationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,15 +24,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static org.deal.core.util.Constants.ReturnMessages.failedToSave;
 import static org.deal.core.util.Constants.ReturnMessages.notFound;
@@ -50,26 +45,7 @@ public class ProductController {
         List<ProductDTO> products = page.getContent();
         var size = Optional.ofNullable(filter.size()).orElse(PaginationDetails.DEFAULT_PAGE_SIZE);
 
-        int currentPage = page.getNumber();
-        int totalPages = page.getTotalPages();
-
-        return DealResponse.successPaginatedResponse(
-                products,
-                PaginationDetails.builder()
-                        .withPage(currentPage)
-                        .withSize(size)
-                        .withTotalElements(page.getTotalElements())
-                        .withTotalPages(totalPages)
-                        .withHasNext(page.hasNext())
-                        .withHasPrevious(page.hasPrevious())
-                        .withNextPageUrl(currentPage + 1 < totalPages ?
-                                         buildPageUrl(request, currentPage + 1, size) :
-                                         null)
-                        .withPreviousPageUrl(currentPage > 0 ?
-                                             buildPageUrl(request, currentPage - 1, size) :
-                                             null)
-                        .build()
-        );
+        return DealResponse.successPaginatedResponse(products, PaginationUtils.buildPaginationDetails(page, request, size));
     }
 
     @GetMapping("/{id}")
@@ -124,27 +100,5 @@ public class ProductController {
                 .orElse(DealResponse.failureResponse(
                         new DealError(notFound(ProductDTO.class, "id", id)),
                         NOT_FOUND));
-    }
-
-    private String buildPageUrl(final HttpServletRequest request, final int page, final int size) {
-        String baseUrl = request.getRequestURL().toString();
-        Map<String, String[]> parameterMap = new HashMap<>(request.getParameterMap());
-        parameterMap.remove("page");
-        parameterMap.remove("size");
-
-        String remainingQuery = parameterMap.entrySet().stream()
-                .flatMap(entry -> Arrays.stream(entry.getValue())
-                        .map(value -> entry.getKey() + "=" + URLEncoder.encode(value, StandardCharsets.UTF_8)))
-                .collect(Collectors.joining("&"));
-
-        StringBuilder urlBuilder = new StringBuilder(baseUrl)
-                .append("?page=").append(page)
-                .append("&size=").append(size);
-
-        if (!remainingQuery.isEmpty()) {
-            urlBuilder.append("&").append(remainingQuery);
-        }
-
-        return urlBuilder.toString();
     }
 }

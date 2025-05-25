@@ -2,11 +2,11 @@ package org.deal.productservice.service;
 
 import lombok.RequiredArgsConstructor;
 import org.deal.productservice.entity.Product;
-import org.deal.productservice.entity.ProductCategoryNode;
-import org.deal.productservice.entity.ProductNode;
-import org.deal.productservice.entity.UserNode;
-import org.deal.productservice.repository.ProductCategoryNodeRepository;
-import org.deal.productservice.repository.ProductNodeRepository;
+import org.deal.productservice.entity.graph.ProductCategoryNode;
+import org.deal.productservice.entity.graph.ProductNode;
+import org.deal.productservice.entity.graph.UserNode;
+import org.deal.productservice.repository.graph.ProductCategoryNodeRepository;
+import org.deal.productservice.repository.graph.ProductNodeRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,58 +25,39 @@ public class ProductSyncService {
     public void syncCreate(final Product product) {
         final Set<ProductCategoryNode> categoryNodes = product.getCategories().stream()
                 .map(category -> ProductCategoryNode.builder()
-                        .withId(category.getId())
-                        .withCategoryName(category.getCategoryName())
+                        .withProductCategoryId(category.getId())
                         .build())
                 .collect(Collectors.toSet());
-
         productCategoryNodeRepository.saveAll(categoryNodes);
 
         final UserNode seller = UserNode.builder()
-                .withId(product.getSellerId())
+                .withUserId(product.getSellerId())
                 .build();
-
         final ProductNode productNode = ProductNode.builder()
-                .withId(product.getId())
-                .withTitle(product.getTitle())
-                .withDescription(product.getDescription())
-                .withPrice(product.getPrice())
-                .withStock(product.getStock())
-                .withImageUrl(product.getImageUrl())
-                .withCreatedAt(product.getCreatedAt())
+                .withProductId(product.getId())
                 .withCategories(categoryNodes)
                 .withSeller(seller)
                 .build();
-
         productNodeRepository.save(productNode);
     }
 
     @Transactional
     public void syncUpdate(final Product product) {
-        productNodeRepository.findById(product.getId())
+        productNodeRepository.findByProductId(product.getId())
                 .ifPresent(productNode -> {
-                    final Set<ProductCategoryNode> categoryNodes = product.getCategories().stream()
+                    final Set<ProductCategoryNode> newCategoryNodes = product.getCategories().stream()
                             .map(category -> ProductCategoryNode.builder()
-                                    .withId(category.getId())
-                                    .withCategoryName(category.getCategoryName())
+                                    .withProductCategoryId(category.getId())
                                     .build())
                             .collect(Collectors.toSet());
 
-                    productCategoryNodeRepository.saveAll(categoryNodes);
-
-                    productNode.setTitle(product.getTitle());
-                    productNode.setDescription(product.getDescription());
-                    productNode.setPrice(product.getPrice());
-                    productNode.setStock(product.getStock());
-                    productNode.setImageUrl(product.getImageUrl());
-                    productNode.setCategories(categoryNodes);
-
+                    productNode.setCategories(newCategoryNodes);
                     productNodeRepository.save(productNode);
                 });
     }
 
     @Transactional
     public void syncDelete(final UUID productId) {
-        productNodeRepository.deleteById(productId);
+        productNodeRepository.deleteByProductId(productId);
     }
 } 

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.Cache;
 import okhttp3.OkHttpClient;
 import org.deal.core.client.DealClient;
-import org.neo4j.cypherdsl.core.renderer.Dialect;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
@@ -34,11 +33,5 @@ public class AppConfig {
     @Bean
     public DealClient dealClient(final OkHttpClient okHttpClient, final DiscoveryClient discoveryClient) {
         return new DealClient(okHttpClient, new ObjectMapper(), discoveryClient);
-    }
-
-    @Bean
-    public org.neo4j.cypherdsl.core.renderer.Configuration cypherDslConfiguration() {
-        return org.neo4j.cypherdsl.core.renderer.Configuration.newConfig()
-                .withDialect(Dialect.NEO4J_5).build();
     }
 }
