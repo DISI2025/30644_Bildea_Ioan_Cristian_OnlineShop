@@ -5,8 +5,8 @@ import {useTheme} from "./context/ThemeContext.tsx";
 import {StripeProvider} from './context/StripeContext';
 
 function App() {
-    const { theme } = useTheme();
-   // TODO: <AssignCategoryPage /> add to Router
+    const {theme} = useTheme();
+
     return (
         <ConfigProvider theme={theme}>
             <StripeProvider>
@@ -17,6 +17,6 @@ function App() {
         </ConfigProvider>
 
     );
-}    
+}
 
 export default App;

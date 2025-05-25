@@ -5,6 +5,7 @@ import {authSlice} from "./slices/auth-slice.ts";
 import productCategoryReducer from "./slices/product-category-slice.ts";
 import productReducer from "./slices/product-slice.ts";
 import cartReducer from "./slices/cart-slice.ts";
+import webSocketReducer from "./slices/websocket-slice.ts";
 
 const store = configureStore({
    reducer: {
@@ -12,7 +13,8 @@ const store = configureStore({
       auth: authSlice.reducer,
       productCategory: productCategoryReducer,
       product: productReducer,
-      cart: cartReducer
+      cart: cartReducer,
+      webSocket: webSocketReducer
    },
    middleware: (getDefaultMiddleware) => getDefaultMiddleware({serializableCheck: false,})
       .concat(api.middleware),

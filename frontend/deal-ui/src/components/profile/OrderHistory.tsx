@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Badge,
     Card,
@@ -23,11 +24,13 @@ import {
     UserOutlined,
     ShopOutlined,
     DownOutlined,
-    UpOutlined
+    UpOutlined,
+    EyeOutlined
 } from '@ant-design/icons';
 import {useGetOrdersByBuyerIdQuery, useGetOrdersQuery, useGetProductsBySellerIdQuery, useGetUserByIdQuery} from '../../store/api';
 import {Order, OrderItem} from '../../types/entities';
 import {OrderStatus} from '../../utils/constants';
+import { ROUTES } from '../../routes/AppRouter';
 
 const {Title, Text} = Typography;
 const {useToken} = theme;
@@ -39,19 +42,17 @@ interface OrderHistoryProps {
 
 const OrderHistory: React.FC<OrderHistoryProps> = ({userId, isSeller}) => {
     const {token} = useToken();
+    const navigate = useNavigate();
     const [expandedOrders, setExpandedOrders] = useState<Record<string, boolean>>({});
 
-    // Get buyer orders directly using the optimized endpoint
     const {data: buyerOrdersResponse, isLoading: isLoadingBuyerOrders, error: buyerOrdersError} = useGetOrdersByBuyerIdQuery(userId);
     const buyerOrders = buyerOrdersResponse?.payload || [];
 
-    // Get all orders for seller view (we still need to filter these on frontend)
     const {data: allOrdersResponse, isLoading: isLoadingAllOrders, error: allOrdersError} = useGetOrdersQuery(undefined, {
         skip: !isSeller
     });
     const allOrders = allOrdersResponse?.payload || [];
 
-    // Get seller's products to match against orders
     const {data: sellerProductsResponse} = useGetProductsBySellerIdQuery(userId, {
         skip: !isSeller
     });
@@ -64,7 +65,6 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({userId, isSeller}) => {
         }));
     };
 
-    // Filter orders for seller (orders containing this seller's products)
     const sellerOrders = allOrders.filter(order =>
         order.items.some(item =>
             sellerProducts.some(product => product.id === item.product.id)
@@ -179,16 +179,26 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({userId, isSeller}) => {
                                     ${orderTotal.toFixed(2)}
                                 </Text>
                             </Space>
-                            <Badge count={order.items.length} style={{backgroundColor: token.colorPrimary}}>
+                            <Space direction="vertical" size="small">
+                                <Badge count={order.items.length} style={{backgroundColor: token.colorPrimary}}>
+                                    <Button
+                                        type="text"
+                                        size="small"
+                                        icon={isExpanded ? <UpOutlined/> : <DownOutlined/>}
+                                        onClick={() => toggleExpand(order.id)}
+                                    >
+                                        {isExpanded ? 'Hide Details' : 'View Details'}
+                                    </Button>
+                                </Badge>
                                 <Button
-                                    type="text"
+                                    type="primary"
                                     size="small"
-                                    icon={isExpanded ? <UpOutlined/> : <DownOutlined/>}
-                                    onClick={() => toggleExpand(order.id)}
+                                    icon={<EyeOutlined/>}
+                                    onClick={() => navigate(ROUTES.ORDER_DETAILS.replace(':orderId', order.id))}
                                 >
-                                    {isExpanded ? 'Hide Details' : 'View Details'}
+                                    View Order
                                 </Button>
-                            </Badge>
+                            </Space>
                         </Space>
                     </div>
                 </div>
@@ -269,7 +279,6 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({userId, isSeller}) => {
         </Card>
     );
 
-    // Use the appropriate loading and error states
     const isLoading = isLoadingBuyerOrders || (isSeller && isLoadingAllOrders);
     const error = buyerOrdersError || (isSeller && allOrdersError);
 
