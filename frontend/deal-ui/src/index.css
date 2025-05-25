@@ -676,3 +676,67 @@ button:focus-visible {
     margin-bottom: 8px !important;
   }
 }
+
+/* Order notification animations */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1);
+    filter: brightness(1.1);
+  }
+}
+
+@keyframes slideInRight {
+  0% {
+    transform: translateX(100%) scale(0.95);
+    opacity: 0;
+    filter: blur(2px);
+  }
+  50% {
+    transform: translateX(20%) scale(1.02);
+    opacity: 0.8;
+    filter: blur(1px);
+  }
+  100% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+    filter: blur(0);
+  }
+}
+
+/* Enhanced notification styles for better theme integration */
+.ant-notification {
+  backdrop-filter: blur(8px);
+}
+
+.ant-notification-notice {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ant-notification-notice:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+/* Dark theme specific notification styles */
+[data-theme="dark"] .ant-notification-notice {
+  backdrop-filter: blur(12px);
+}
+
+[data-theme="dark"] .ant-notification-notice:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* Light theme specific notification styles */
+[data-theme="light"] .ant-notification-notice {
+  backdrop-filter: blur(8px);
+}
+
+[data-theme="light"] .ant-notification-notice:hover {
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+}

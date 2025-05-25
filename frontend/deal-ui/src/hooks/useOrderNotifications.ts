@@ -23,7 +23,7 @@ interface OrderNotification {
 export const useOrderNotifications = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const {showClickableInfo} = useSnackbar();
+    const {showOrderNotification} = useSnackbar();
     const {loggedIn, user} = useSelector((state: RootState) => state.auth);
     const clientRef = useRef<Client | null>(null);
 
@@ -60,11 +60,10 @@ export const useOrderNotifications = () => {
                         };
 
                         dispatch(orderReceived(order));
-                        showClickableInfo(
-                            'Order Status', 
-                            `Order ${order.id.slice(-8)} is currently ${order.status}. Click to view details.`, 
-                            () => navigate(ROUTES.ORDER_DETAILS.replace(':orderId', order.id)), 
-                            8
+                        showOrderNotification(
+                            order.id,
+                            order.status,
+                            () => navigate(ROUTES.ORDER_DETAILS.replace(':orderId', order.id))
                         );
                     } catch (error) {
                         dispatch(setError('Error processing notification'));
@@ -95,5 +94,5 @@ export const useOrderNotifications = () => {
                 clientRef.current = null;
             }
         };
-    }, [loggedIn, user?.id, user?.role, dispatch, showClickableInfo, navigate]);
+    }, [loggedIn, user?.id, user?.role, dispatch, showOrderNotification, navigate]);
 }
