@@ -2,8 +2,12 @@ package org.deal.productservice.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.deal.core.client.DealClient;
+import org.deal.core.client.DealService;
+import org.deal.core.dto.OrderDTO;
 import org.deal.productservice.config.OrderStateMachine;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpMethod;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +21,7 @@ public class OrdersProcessor {
     @Value("${orders-cron-active}")
     private boolean cronjobEnabled;
     private final OrderService orderService;
+    private final DealClient dealClient;
 
     @Scheduled(fixedRate = 30, initialDelay = 15, timeUnit = TimeUnit.SECONDS)
     public void processOrders() {
@@ -36,6 +41,8 @@ public class OrdersProcessor {
                     orderService.updateOrderStatus(order, newStatus);
 
                     // TODO: Call notifications service with the updated Order, send through websocket on UI
+                    dealClient.call(DealService.NS, "/notify", HttpMethod.POST, order, OrderDTO.class);
+
                     // and also maybe an email using our mail service
                 }));
     }
