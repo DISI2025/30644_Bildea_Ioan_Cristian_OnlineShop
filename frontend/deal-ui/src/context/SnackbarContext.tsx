@@ -8,6 +8,7 @@ interface SnackbarContextProps {
    showDealErrors: (errors: DealError[] | null) => void;
    showSuccess: (msg: string, description?: string) => void;
    showInfo: (msg: string, description?: string, duration?:  number | null | undefined) => void;
+   showClickableInfo: (msg: string, description?: string, onClick?: () => void, duration?: number | null | undefined) => void;
    showWarning: (msg: string, description?: string) => void;
 }
 
@@ -56,12 +57,24 @@ export const SnackbarProvider: React.FC<React.PropsWithChildren<object>> = ({chi
       openNotificationWithIcon('info', msg, description, duration);
    };
 
+   const showClickableInfo = (msg: string, description?: string, onClick?: () => void, duration :  number | null | undefined = 5) => {
+      api.open({
+         type: 'info',
+         message: msg,
+         description,
+         placement: 'topRight',
+         duration: duration,
+         style: onClick ? { cursor: 'pointer' } : undefined,
+         onClick: onClick,
+      });
+   };
+
    const showWarning = (msg: string, description?: string) => {
       openNotificationWithIcon('warning', msg, description);
    };
 
    return (
-      <SnackbarContext.Provider value={{showError, showErrors, showSuccess, showInfo, showWarning, showDealErrors}}>
+      <SnackbarContext.Provider value={{showError, showErrors, showSuccess, showInfo, showClickableInfo, showWarning, showDealErrors}}>
          {contextHolder}
          {children}
       </SnackbarContext.Provider>
