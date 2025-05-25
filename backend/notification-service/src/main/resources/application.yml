@@ -14,3 +14,5 @@ eureka:
 
 
 whitelisted-paths: /swagger-ui/**, /v3/api-docs/**, /v3/api-docs.yaml, /swagger-ui.html, /bus/**, /actuator/**
+
+base-token: cHJvZHVjdC1zZXJ2aWNlLXRva2Vu

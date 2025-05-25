@@ -2,6 +2,7 @@ package org.deal.notificationservice.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
@@ -9,60 +10,45 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.deal.core.client.DealClient;
-import org.deal.core.client.DealService;
-import org.deal.core.dto.UserDTO;
 import org.deal.core.exception.DealError;
-import org.deal.core.exception.DealException;
-import org.deal.core.request.auth.ValidateTokenRequest;
 import org.deal.core.response.DealResponse;
-import org.deal.notificationservice.security.DealContext;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.http.server.PathContainer;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.util.pattern.PathPatternParser;
 
-import java.util.List;
+import java.io.IOException;
+
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class JwtAuthenticationFilter extends OncePerRequestFilter {
+public class BaseTokenAuthenticationFilter extends OncePerRequestFilter {
 
-    @Value("${whitelisted-paths}")
-    private List<String> whitelistedPaths;
+    @Value("${base-token}")
+    private String baseToken;
 
     private final ObjectMapper objectMapper;
-    private final DealClient dealClient;
-    private final DealContext dealContext;
-    private final PathPatternParser pathPatternParser;
 
     @SneakyThrows
     @Override
     protected void doFilterInternal(
-            @NonNull final HttpServletRequest request,
-            @NonNull final HttpServletResponse response,
-            @NonNull final FilterChain filterChain) {
-        log.info("[AuthFilter] {} {}", request.getMethod(), request.getRequestURI());
+            final @NonNull HttpServletRequest request,
+            final @NonNull HttpServletResponse response,
+            final @NonNull FilterChain filterChain) throws ServletException, IOException {
+
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+
         if (!isValidHeader(authHeader)) {
             handleInvalidAuth(response, DealError.BAD_TOKEN, HttpServletResponse.SC_BAD_REQUEST);
             return;
         }
 
-        String jwtToken = getJwtFromHeader(authHeader);
+        String tokenFromHeader = getTokenFromHeader(authHeader).trim();
 
-        try {
-            UserDTO principal = dealClient.call(DealService.IS, "/auth/validate-token", HttpMethod.POST, new ValidateTokenRequest(jwtToken), UserDTO.class);
-            dealContext.setUser(principal);
-            dealContext.setToken(jwtToken);
-        } catch (DealException e) {
-            log.error("[AuthFilter] {}", e.getMessage());
+        if (!baseToken.equals(tokenFromHeader)) {
             handleInvalidAuth(response, DealError.BAD_CREDENTIAL_EXCEPTION, HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
@@ -71,17 +57,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private boolean isValidHeader(final String header) {
-        return StringUtils.isNotBlank(header) && header.startsWith("Bearer ");
+        return StringUtils.isNotBlank(header) && header.startsWith("Basic ");
     }
 
-    private String getJwtFromHeader(final String header) {
-        return header.substring(7);
+    private String getTokenFromHeader(final String header) {
+        return header.substring(6);
     }
 
     @SneakyThrows
     private void handleInvalidAuth(final HttpServletResponse response, final DealError error, final int status) {
         var res = DealResponse.failureResponse(error);
-
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(status);
         response.getWriter().write(objectMapper.writeValueAsString(res.getBody()));
@@ -93,9 +78,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (request.getRequestURI().startsWith("/ws-notifications")) {
             return true;
         }
-
-        return whitelistedPaths.stream()
-                .map(pathPatternParser::parse)
-                .anyMatch(pattern -> pattern.matches(PathContainer.parsePath(request.getRequestURI())));
+        return false;
     }
+
 }

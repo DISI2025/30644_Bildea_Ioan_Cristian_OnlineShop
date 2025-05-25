@@ -28,3 +28,4 @@ eureka:
 whitelisted-paths: /swagger-ui/**, /v3/api-docs/**, /v3/api-docs.yaml, /swagger-ui.html, /bus/**, /actuator/**
 orders-cron-active: true
 stripe-key: sk_test_51RRHph67CPFfX2OAI3N6tqY2WlHkd3VH4s7m9MBCty88dYbNp5pbFFGFtfupeQSiZKQwAqiripuU8U5ZkX87cbW8000otYzES3
+notification-token: cHJvZHVjdC1zZXJ2aWNlLXRva2Vu
