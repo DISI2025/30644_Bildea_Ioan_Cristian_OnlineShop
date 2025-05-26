@@ -13,6 +13,7 @@ import {
     ForgotPasswordRequest,
     PaymentIntentResponse,
     ProductsFilter,
+    RecommendationResponse,
     ResetPasswordRequest, UpdateProductCategoryRequest,
     UpdateProductRequest,
     UpdateUserRequest,
@@ -239,6 +240,17 @@ export const api = createApi({
             }),
             transformErrorResponse: (response) => response.data as BaseResponse,
         }),
+
+        // Recommendation endpoints
+        getRecommendationsForUser: builder.query<DealResponse<RecommendationResponse>, { userId: string; limit?: number }>({
+            query: ({ userId, limit = 10 }) => `${DEAL_ENDPOINTS.RECOMMENDATIONS}/user/${userId}?limit=${limit}`,
+            transformErrorResponse: (response) => response.data as BaseResponse,
+        }),
+
+        getPopularProducts: builder.query<DealResponse<RecommendationResponse>, { limit?: number }>({
+            query: ({ limit = 10 }) => `${DEAL_ENDPOINTS.RECOMMENDATIONS}/popular?limit=${limit}`,
+            transformErrorResponse: (response) => response.data as BaseResponse,
+        }),
     }),
 });
 
@@ -269,5 +281,7 @@ export const {
     useGetOrderByIdQuery,
     useCreateOrderMutation,
     useCreatePaymentIntentMutation,
-    useDeleteOrderMutation
+    useDeleteOrderMutation,
+    useGetRecommendationsForUserQuery,
+    useGetPopularProductsQuery
 } = api;

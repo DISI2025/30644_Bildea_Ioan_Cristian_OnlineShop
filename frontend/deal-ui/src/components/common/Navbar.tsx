@@ -3,7 +3,7 @@ import {Flex, Layout, Menu, theme, Drawer, Button, Space} from 'antd';
 import {useLocation, useNavigate} from 'react-router-dom';
 import {useTheme} from '../../context/ThemeContext.tsx';
 import {ROUTES} from '../../routes/AppRouter.tsx';
-import {HomeOutlined, ProductOutlined, ShoppingOutlined, InfoCircleOutlined, ContactsOutlined, MenuOutlined, CloseOutlined} from '@ant-design/icons';
+import {HomeOutlined, ProductOutlined, ShoppingOutlined, InfoCircleOutlined, ContactsOutlined, MenuOutlined, CloseOutlined, StarOutlined} from '@ant-design/icons';
 import {Logo} from './Logo.tsx';
 import {NavbarController} from './NavbarController.tsx';
 import {AuthState, selectAuthState} from "../../store/slices/auth-slice.ts";
@@ -58,6 +58,15 @@ export const Navbar: React.FC = () => {
                 </div>
             ),
                 requiresSeller: true,
+        },
+        {
+            key: ROUTES.RECOMMENDATIONS,
+            label: (
+                <div style={{display: 'flex', alignItems: 'center', gap: token.spacing.xs}}>
+                    <StarOutlined style={{fontSize: token.customFontSize.md}}/>
+                    <span>Recommendations</span>
+                </div>
+            ),
         },
         {
             key: ROUTES.ABOUT,

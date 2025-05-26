@@ -139,47 +139,50 @@ VALUES
 ('6d7e8f9a-0b1c-2d3e-4f5a-6b7c8d9e0f1a', '1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d', 'DONE'),
 ('7e8f9a0b-1c2d-3e4f-5a6b-7c8d9e0f1a2b', '3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f', 'DONE'),
 ('8f9a0b1c-2d3e-4f5a-6b7c-8d9e0f1a2b3c', '7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d', 'DONE'),
-('9a0b1c2d-3e4f-5a6b-7c8d-9e0f1a2b3c4d', '8b9c0d1e-2f3a-4b5c-6d7e-8f9a0b1c2d3e', 'DONE'),
-('0b1c2d3e-4f5a-6b7c-8d9e-0f1a2b3c4d5e', 'a7b82e2e-4d7c-4662-b8b9-0c9f14a75994', 'DONE'),
-('1c2d3e4f-5a6b-7c8d-9e0f-1a2b3c4d5e6f', '6f4dc56f-e33b-45c2-bc10-77234c6fc9a3', 'DONE'),
+('9a0b1c2d-3e4f-5a6b-7c8d-9e0f1a2b3c4d', 'a7b82e2e-4d7c-4662-b8b9-0c9f14a75994', 'DONE'),
+('0b1c2d3e-4f5a-6b7c-8d9e-0f1a2b3c4d5e', '6f4dc56f-e33b-45c2-bc10-77234c6fc9a3', 'DONE'),
+('1c2d3e4f-5a6b-7c8d-9e0f-1a2b3c4d5e6f', '8b5c4a3e-2f1e-4d8c-9a7b-6e5f4c3d2e1a', 'DONE'),
 ('2d3e4f5a-6b7c-8d9e-0f1a-2b3c4d5e6f7a', '1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d', 'DONE');
 
--- Insert order items
+-- Insert order items with proper relationships
 INSERT INTO order_item (id, quantity, product_id, order_id)
 VALUES 
--- Order 1 items (alfonso_customer)
+-- Order 1 items (alfonso_customer) - Electronics
 ('a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d', 2, '1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d', '3a4b5c6d-7e8f-9a0b-1c2d-3e4f5a6b7c8d'),
+('a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6e', 1, '3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f', '3a4b5c6d-7e8f-9a0b-1c2d-3e4f5a6b7c8d'),
 
--- Order 2 items (michael_customer)
+-- Order 2 items (michael_customer) - Home & Kitchen
 ('b2c3d4e5-f6a7-8b9c-0d1e-2f3a4b5c6d7e', 1, '4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a', '4b5c6d7e-8f9a-0b1c-2d3e-4f5a6b7c8d9e'),
 ('c3d4e5f6-a7b8-9c0d-1e2f-3a4b5c6d7e8f', 1, '6f7a8b9c-0d1e-2f3a-4b5c-6d7e8f9a0b1c', '4b5c6d7e-8f9a-0b1c-2d3e-4f5a6b7c8d9e'),
 
--- Order 3 items (sarah_customer)
+-- Order 3 items (sarah_customer) - Electronics + Fashion
 ('d4e5f6a7-b8c9-0d1e-2f3a-4b5c6d7e8f9a', 1, '2b3c4d5e-6f7a-8b9c-0d1e-2f3a4b5c6d7e', '5c6d7e8f-9a0b-1c2d-3e4f-5a6b7c8d9e0f'),
 ('e5f6a7b8-c9d0-1e2f-3a4b-5c6d7e8f9a0b', 1, '7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d', '5c6d7e8f-9a0b-1c2d-3e4f-5a6b7c8d9e0f'),
 
--- Order 4 items (alex_customer)
+-- Order 4 items (alex_customer) - Fashion
 ('f6a7b8c9-d0e1-2f3a-4b5c-6d7e8f9a0b1c', 1, '8b9c0d1e-2f3a-4b5c-6d7e-8f9a0b1c2d3e', '6d7e8f9a-0b1c-2d3e-4f5a-6b7c8d9e0f1a'),
 ('a7b8c9d0-e1f2-3a4b-5c6d-7e8f9a0b1c2d', 1, '7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d', '6d7e8f9a-0b1c-2d3e-4f5a-6b7c8d9e0f1a'),
 
--- Order 5 items (emma_customer)
+-- Order 5 items (emma_customer) - Sports + Fashion
 ('b8c9d0e1-f2a3-4b5c-6d7e-8f9a0b1c2d3e', 1, '9c0d1e2f-3a4b-5c6d-7e8f-9a0b1c2d3e4f', '7e8f9a0b-1c2d-3e4f-5a6b-7c8d9e0f1a2b'),
 ('c9d0e1f2-a3b4-5c6d-7e8f-9a0b1c2d3e4f', 1, '8b9c0d1e-2f3a-4b5c-6d7e-8f9a0b1c2d3e', '7e8f9a0b-1c2d-3e4f-5a6b-7c8d9e0f1a2b'),
 
--- Order 6 items (david_customer)
+-- Order 6 items (david_customer) - Sports + Home & Kitchen
 ('d0e1f2a3-b4c5-6d7e-8f9a-0b1c2d3e4f5a', 1, '0d1e2f3a-4b5c-6d7e-8f9a-0b1c2d3e4f5a', '8f9a0b1c-2d3e-4f5a-6b7c-8d9e0f1a2b3c'),
 ('e1f2a3b4-c5d6-7e8f-9a0b-1c2d3e4f5a6b', 1, '5e6f7a8b-9c0d-1e2f-3a4b-5c6d7e8f9a0b', '8f9a0b1c-2d3e-4f5a-6b7c-8d9e0f1a2b3c'),
 
--- Order 7 items (lisa_customer)  
+-- Order 7 items (alfonso_customer second order) - Electronics + Health & Beauty
 ('f2a3b4c5-d6e7-8f9a-0b1c-2d3e4f5a6b7c', 1, '3c4d5e6f-7a8b-9c0d-1e2f-3a4b5c6d7e8f', '9a0b1c2d-3e4f-5a6b-7c8d-9e0f1a2b3c4d'),
 ('a3b4c5d6-e7f8-9a0b-1c2d-3e4f5a6b7c8d', 1, '2f3a4b5c-6d7e-8f9a-0b1c-2d3e4f5a6b7c', '9a0b1c2d-3e4f-5a6b-7c8d-9e0f1a2b3c4d'),
 
--- Order 8 items (alfonso_customer second order)
+-- Order 8 items (michael_customer second order) - Books + Home & Kitchen
 ('b4c5d6e7-f8a9-0b1c-2d3e-4f5a6b7c8d9e', 2, '1e2f3a4b-5c6d-7e8f-9a0b-1c2d3e4f5a6b', '0b1c2d3e-4f5a-6b7c-8d9e-0f1a2b3c4d5e'),
-('c5d6e7f8-a9b0-1c2d-3e4f-5a6b7c8d9e0f', 3, '4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a', '0b1c2d3e-4f5a-6b7c-8d9e-0f1a2b3c4d5e'),
+('c5d6e7f8-a9b0-1c2d-3e4f-5a6b7c8d9e0f', 1, '4d5e6f7a-8b9c-0d1e-2f3a-4b5c6d7e8f9a', '0b1c2d3e-4f5a-6b7c-8d9e-0f1a2b3c4d5e'),
 
--- Order 9 items (michael_customer second order)
+-- Order 9 items (sarah_customer second order) - Home & Kitchen
 ('d6e7f8a9-b0c1-2d3e-4f5a-6b7c8d9e0f1a', 1, '6f7a8b9c-0d1e-2f3a-4b5c-6d7e8f9a0b1c', '1c2d3e4f-5a6b-7c8d-9e0f-1a2b3c4d5e6f'),
+('d6e7f8a9-b0c1-2d3e-4f5a-6b7c8d9e0f1b', 1, '5e6f7a8b-9c0d-1e2f-3a4b-5c6d7e8f9a0b', '1c2d3e4f-5a6b-7c8d-9e0f-1a2b3c4d5e6f'),
 
--- Order 10 items (alex_customer second order)
-('e7f8a9b0-c1d2-3e4f-5a6b-7c8d9e0f1a2b', 1, '9c0d1e2f-3a4b-5c6d-7e8f-9a0b1c2d3e4f', '2d3e4f5a-6b7c-8d9e-0f1a-2b3c4d5e6f7a');
+-- Order 10 items (alex_customer second order) - Sports + Electronics
+('e7f8a9b0-c1d2-3e4f-5a6b-7c8d9e0f1a2b', 1, '9c0d1e2f-3a4b-5c6d-7e8f-9a0b1c2d3e4f', '2d3e4f5a-6b7c-8d9e-0f1a-2b3c4d5e6f7a'),
+('e7f8a9b0-c1d2-3e4f-5a6b-7c8d9e0f1a2c', 1, '1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d', '2d3e4f5a-6b7c-8d9e-0f1a-2b3c4d5e6f7a');

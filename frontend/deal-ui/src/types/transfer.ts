@@ -160,3 +160,16 @@ export interface PaymentIntentResponse {
     status: string;
     orderId: string;
 }
+
+//<---Recommendations--->
+export interface RecommendationResponse {
+    recommendedProducts: any[]; // Using any[] to match the existing Product type
+    preferredCategories: Record<string, number>;
+    recommendationType: 'PERSONALIZED' | 'POPULAR';
+    totalRecommendations: number;
+}
+
+export interface RecommendationRequest {
+    userId: string;
+    limit?: number;
+}
