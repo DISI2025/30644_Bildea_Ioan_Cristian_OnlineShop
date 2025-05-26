@@ -4,6 +4,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import utils.TestData;
 
 public class SignUpPage extends BasePage {
     private final By usernameField = By.id("username");
@@ -28,7 +29,7 @@ public class SignUpPage extends BasePage {
 
     // methods
     public void navigateToSignUpPage() {
-        driver.get("http://localhost:5173/register");
+        driver.get(TestData.EnvData.BASE_URL + "/register");
     }
 
     public boolean isSignUpPageDisplayed() {

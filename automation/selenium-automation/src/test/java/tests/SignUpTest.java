@@ -4,10 +4,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 import pages.HomePage;
 import pages.SignUpPage;
 import utils.TestData;
@@ -16,7 +14,6 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SignUpTest {
@@ -63,10 +60,10 @@ public class SignUpTest {
     @Test
     public void testSignupWithExistingUsername() {
         signupPage.signUp(
-                TestData.SignUp.EXISTING_USERNAME,
-                TestData.SignUp.generateEmail(),
-                TestData.SignUp.PASSWORD,
-                TestData.SignUp.PASSWORD);
+                TestData.UserData.EXISTING_USERNAME,
+                TestData.UserData.generateEmail(),
+                TestData.UserData.PASSWORD,
+                TestData.UserData.PASSWORD);
 
         String errorMessage = signupPage.getErrorMessage();
         boolean ok = errorMessage.contains("Something went wrong");
@@ -78,10 +75,10 @@ public class SignUpTest {
     @Test
     public void testSignupWithExistingEmail() {
         signupPage.signUp(
-                TestData.SignUp.generateUsername(),
-                TestData.SignUp.EXISTING_EMAIL,
-                TestData.SignUp.PASSWORD,
-                TestData.SignUp.PASSWORD);
+                TestData.UserData.generateUsername(),
+                TestData.UserData.EXISTING_EMAIL,
+                TestData.UserData.PASSWORD,
+                TestData.UserData.PASSWORD);
 
         String errorMessage = signupPage.getErrorMessage();
         boolean ok = errorMessage.contains("Something went wrong");
@@ -93,10 +90,10 @@ public class SignUpTest {
     @Test
     public void testSignupWithIllegalEmail() {
         signupPage.signUp(
-                TestData.SignUp.generateUsername(),
-                TestData.SignUp.ILLEGAL_EMAIL,
-                TestData.SignUp.PASSWORD,
-                TestData.SignUp.PASSWORD);
+                TestData.UserData.generateUsername(),
+                TestData.UserData.ILLEGAL_EMAIL,
+                TestData.UserData.PASSWORD,
+                TestData.UserData.PASSWORD);
 
         String text = signupPage.getEmailError();
         boolean okText = text.contains("valid email");
@@ -108,10 +105,10 @@ public class SignUpTest {
     @Test
     public void testSignupWithDifferentPasswords() {
         signupPage.signUp(
-                TestData.SignUp.generateUsername(),
-                TestData.SignUp.generateEmail(),
-                TestData.SignUp.PASSWORD,
-                TestData.SignUp.INVALID_PASSWORD);
+                TestData.UserData.generateUsername(),
+                TestData.UserData.generateEmail(),
+                TestData.UserData.PASSWORD,
+                TestData.UserData.INVALID_PASSWORD);
 
         String text = signupPage.getConfirmPasswordError();
         boolean okText = text.contains("passwords do not match");
@@ -145,14 +142,14 @@ public class SignUpTest {
 
     @Test
     public void testSuccessfulSignup() {
-        String username = TestData.SignUp.generateUsername();
-        String email = TestData.SignUp.generateEmail();
+        String username = TestData.UserData.generateUsername();
+        String email = TestData.UserData.generateEmail();
 
         signupPage.signUp(
                 username,
                 email,
-                TestData.SignUp.PASSWORD,
-                TestData.SignUp.PASSWORD);
+                TestData.UserData.PASSWORD,
+                TestData.UserData.PASSWORD);
 
         try {
             // Must wait for the Home Page to load!

@@ -4,6 +4,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import utils.TestData;
 
 public class LogInPage extends BasePage {
     private final By usernameField = By.id("username");
@@ -19,7 +20,7 @@ public class LogInPage extends BasePage {
 
     // methods
     public void navigateToLogInPage() {
-        driver.get("http://localhost:5173/login");
+        driver.get(TestData.EnvData.BASE_URL + "/login");
     }
 
     public boolean isLogInPageDisplayed() {

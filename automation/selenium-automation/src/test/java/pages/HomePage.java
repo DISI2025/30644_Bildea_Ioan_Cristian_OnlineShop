@@ -4,6 +4,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import utils.TestData;
 
 public class HomePage extends BasePage {
 //    private final By header = By.tagName("header");
@@ -16,7 +17,7 @@ public class HomePage extends BasePage {
 
     // methods
     public void navigateToHomePage() {
-        driver.get("http://localhost:5173");
+        driver.get(TestData.EnvData.BASE_URL);
     }
 
     public boolean isHomePageDisplayed() {

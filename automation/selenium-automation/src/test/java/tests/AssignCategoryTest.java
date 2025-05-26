@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import pages.ForgotPasswordPage;
+import pages.AssignCategoryPage;
 import pages.LogInPage;
 import utils.TestData;
 
@@ -16,10 +16,10 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ForgotPasswordTest {
+public class AssignCategoryTest {
     private WebDriver driver;
-    private ForgotPasswordPage forgotPasswordPage;
-    private LogInPage logInPage;
+    private AssignCategoryPage assignCategoryPage;
+    private LogInPage loginPage;
 
     @BeforeEach
     public void setUp() {
@@ -29,10 +29,19 @@ public class ForgotPasswordTest {
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
         driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(30));
 
-        forgotPasswordPage = new ForgotPasswordPage(driver);
-        logInPage = new LogInPage(driver);
+        assignCategoryPage = new AssignCategoryPage(driver);
+        loginPage = new LogInPage(driver);
 
-        forgotPasswordPage.navigateToForgotPasswordPage();
+        loginPage.navigateToLogInPage();
+        loginPage.logIn(
+                TestData.UserData.ADMIN_USERNAME,
+                TestData.UserData.ADMIN_PASSWORD);
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        assignCategoryPage.navigateToPage();
     }
 
     private static ChromeOptions getChromeOptions() {
@@ -58,31 +67,20 @@ public class ForgotPasswordTest {
     }
 
     @Test
-    public void testSignupWithIllegalEmail() {
-        forgotPasswordPage.send(TestData.UserData.ILLEGAL_EMAIL);
+    public void testDumb() {
+        assignCategoryPage.assignCategory();
 
-        String errorMessage = forgotPasswordPage.getEmailError();
-        boolean ok = errorMessage.contains("valid email");
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
-        assertTrue(ok);
-        assertTrue(forgotPasswordPage.isForgotPasswordPageDisplayed());
-    }
+        // if this call fails with TimeoutException, the test fails as expected
+        // if this call succeeds, the test is ok
+        String text = this.assignCategoryPage.getCategoryTagText();
+        System.out.println(text);
 
-    @Test
-    public void testSendWithEmptyCredentials() {
-        forgotPasswordPage.send("");
-
-        String errorMessage = forgotPasswordPage.getEmailError();
-        boolean ok = errorMessage.contains("enter your email");
-
-        assertTrue(ok);
-        assertTrue(forgotPasswordPage.isForgotPasswordPageDisplayed());
-    }
-
-    @Test
-    public void testSuccessfulSend() {
-        forgotPasswordPage.send(TestData.UserData.EXISTING_EMAIL);
-
-        assertTrue(logInPage.isLogInPageDisplayed());
+        assertTrue(assignCategoryPage.isPageDisplayed());
     }
 }

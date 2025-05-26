@@ -4,6 +4,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import utils.TestData;
 
 public class ForgotPasswordPage extends BasePage{
     private final By emailField = By.id("email");
@@ -11,8 +12,7 @@ public class ForgotPasswordPage extends BasePage{
     private final By emailError = By.id("email_help");
 
     private final By sendButton = By.cssSelector("button[type='submit']");
-//    private final By errorMessage = By.cssSelector("[data-test='error']");
-    private final By errorMessage = By.className("TODO");
+    private final By errorMessage = By.cssSelector("[data-test='error']");
 
     // constructors
     public ForgotPasswordPage(WebDriver driver) {
@@ -21,7 +21,7 @@ public class ForgotPasswordPage extends BasePage{
 
     // methods
     public void navigateToForgotPasswordPage() {
-        driver.get("http://localhost:5173/forgot-password");
+        driver.get(TestData.EnvData.BASE_URL + "/forgot-password");
     }
 
     public boolean isForgotPasswordPageDisplayed() {
