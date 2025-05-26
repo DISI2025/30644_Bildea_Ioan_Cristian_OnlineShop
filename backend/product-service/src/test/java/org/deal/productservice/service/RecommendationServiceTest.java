@@ -47,7 +47,7 @@ class RecommendationServiceTest extends BaseUnitTest {
         var pageable = PaginationUtils.buildPageableRequest(filter);
         var productNode = Instancio.create(ProductNode.class);
         var product = Instancio.create(Product.class);
-        product.setId(productNode.getId());
+        product.setId(productNode.getProductId());
         Page<ProductNode> page = mock(Page.class);
         when(page.isEmpty()).thenReturn(false);
         when(page.getTotalElements()).thenReturn(5L);
@@ -70,7 +70,7 @@ class RecommendationServiceTest extends BaseUnitTest {
         var pageable = PaginationUtils.buildPageableRequest(filter);
         var productNode = Instancio.create(ProductNode.class);
         var product = Instancio.create(Product.class);
-        product.setId(productNode.getId());
+        product.setId(productNode.getProductId());
         Page<ProductNode> page = mock(Page.class);
         when(page.isEmpty()).thenReturn(true);
         when(productNodeRepository.findRecommendedProducts(userId, pageable)).thenReturn(page);

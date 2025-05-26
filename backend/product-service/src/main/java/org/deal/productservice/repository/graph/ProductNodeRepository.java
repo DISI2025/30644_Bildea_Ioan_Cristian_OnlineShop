@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface ProductNodeRepository extends Neo4jRepository<ProductNode, UUID> {
+public interface ProductNodeRepository extends Neo4jRepository<ProductNode, String> {
 
     Optional<ProductNode> findByProductId(final UUID productId);
 

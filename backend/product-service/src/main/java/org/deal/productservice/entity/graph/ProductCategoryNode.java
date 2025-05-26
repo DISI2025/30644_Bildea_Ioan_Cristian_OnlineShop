@@ -26,7 +26,7 @@ import java.util.UUID;
 public class ProductCategoryNode {
     @Id
     @GeneratedValue(generatorClass = UUIDStringGenerator.class)
-    private UUID id;
+    private String id;
 
     @Property
     private UUID productCategoryId;

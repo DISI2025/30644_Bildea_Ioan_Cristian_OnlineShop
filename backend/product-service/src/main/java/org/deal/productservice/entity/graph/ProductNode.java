@@ -27,7 +27,7 @@ public class ProductNode {
 
     @Id
     @GeneratedValue(generatorClass = UUIDStringGenerator.class)
-    private UUID id;
+    private String id;
 
     @Property
     private UUID productId;

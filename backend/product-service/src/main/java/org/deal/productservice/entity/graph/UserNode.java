@@ -27,7 +27,7 @@ public class UserNode {
 
     @Id
     @GeneratedValue(generatorClass = UUIDStringGenerator.class)
-    private UUID id;
+    private String id;
 
     @Property
     private UUID userId;
