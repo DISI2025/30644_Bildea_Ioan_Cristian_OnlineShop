@@ -7,7 +7,6 @@ import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,17 +19,52 @@ public interface ProductNodeRepository extends Neo4jRepository<ProductNode, UUID
     void deleteByProductId(final UUID productId);
 
     @Query(value = """
-            MATCH (u:User {userId: $userId})
-            MATCH (u)-[r:VIEWED|PURCHASED]->(p:Product)
-            RETURN DISTINCT p
-            ORDER BY p.productId ASC
-            SKIP $skip
-            LIMIT $limit
+                WITH $userId AS userId
+                MATCH (u:User {userId: userId})-[:VIEWED|PURCHASED]->(:Product)-[:HAS_CATEGORY]->(cat:ProductCategory)
+                WITH u, collect(DISTINCT cat) AS categories
+                UNWIND categories AS cat
+                MATCH (rec:Product)-[:HAS_CATEGORY]->(cat)
+                WHERE NOT (u)-[:VIEWED|PURCHASED]->(rec)
+                WITH u, collect(DISTINCT rec) AS categoryRecs
+            
+                CALL {
+                  WITH u, categoryRecs
+                  MATCH (p:Product)<-[:PURCHASED]-(:User)
+                  WHERE NOT (u)-[:VIEWED|PURCHASED]->(p) AND NOT p IN categoryRecs
+                  WITH p, COUNT(*) AS purchaseCount
+                  ORDER BY purchaseCount DESC
+                  RETURN collect(p) AS fallbackRecs
+                }
+            
+                WITH categoryRecs + fallbackRecs AS allRecs
+                UNWIND allRecs AS finalProduct
+                WITH DISTINCT finalProduct
+                RETURN finalProduct
+                ORDER BY finalProduct.productId ASC
+                SKIP $skip
+                LIMIT $limit
             """,
             countQuery = """
-            MATCH (u:User {userId: $userId})
-            MATCH (u)-[r:VIEWED|PURCHASED]->(p:Product)
-            RETURN count(DISTINCT p) as total
-            """)
-    Page<ProductNode> findRecommendedProducts(UUID userId, Pageable pageable);
+                        WITH $userId AS userId
+                    
+                        MATCH (u:User {userId: userId})-[:VIEWED|PURCHASED]->(:Product)-[:HAS_CATEGORY]->(cat:ProductCategory)
+                        WITH u, collect(DISTINCT cat) AS categories
+                    
+                        UNWIND categories AS cat
+                        MATCH (rec:Product)-[:HAS_CATEGORY]->(cat)
+                        WHERE NOT (u)-[:VIEWED|PURCHASED]->(rec)
+                        WITH u, collect(DISTINCT rec) AS categoryRecs
+                    
+                        CALL {
+                          WITH u, categoryRecs
+                          MATCH (p:Product)<-[:PURCHASED]-(:User)
+                          WHERE NOT (u)-[:VIEWED|PURCHASED]->(p) AND NOT p IN categoryRecs
+                          RETURN collect(p) AS fallbackRecs
+                        }
+                    
+                        WITH categoryRecs + fallbackRecs AS allRecs
+                        UNWIND allRecs AS finalProduct
+                        RETURN count(DISTINCT finalProduct)
+                    """)
+    Page<ProductNode> findRecommendedProducts(final UUID userId, final Pageable pageable);
 }

@@ -50,6 +50,9 @@ class ProductServiceTest extends BaseUnitTest {
     @Mock
     private ProductCategoryRepository productCategoryRepository;
 
+    @Mock
+    private ProductSyncService productSyncService;
+
     @InjectMocks
     private ProductService victim;
 
@@ -131,6 +134,7 @@ class ProductServiceTest extends BaseUnitTest {
             var result = victim.create(createProductRequest(expectedProduct));
 
             verify(productRepository).save(expectedProduct);
+            verify(productSyncService).syncCreate(expectedProduct);
             result.ifPresentOrElse(
                     product -> assertThat(product, equalTo(Mapper.mapTo(expectedProduct, ProductDTO.class))),
                     this::assertThatFails
@@ -148,13 +152,25 @@ class ProductServiceTest extends BaseUnitTest {
         updatedProduct.setCreatedAt(initialProduct.getCreatedAt());
         updatedProduct.setSellerId(initialProduct.getSellerId());
         when(productRepository.findById(initialProduct.getId())).thenReturn(Optional.of(initialProduct));
+        when(productRepository.save(any(Product.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        var updateRequest = updateProductRequest(updatedProduct);
 
-        var result = victim.update(updateProductRequest(updatedProduct));
+        var result = victim.update(updateRequest);
 
         verify(productRepository).findById(initialProduct.getId());
         verify(productRepository).save(initialProduct);
+        verify(productSyncService).syncUpdate(initialProduct);
+
         result.ifPresentOrElse(
-                product -> assertThat(product, equalTo(Mapper.mapTo(updatedProduct, ProductDTO.class))),
+                product -> {
+                    assertThat(product.title(), equalTo(updatedProduct.getTitle()));
+                    assertThat(product.description(), equalTo(updatedProduct.getDescription()));
+                    assertThat(product.price(), equalTo(updatedProduct.getPrice()));
+                    assertThat(product.stock(), equalTo(updatedProduct.getStock()));
+                    assertThat(product.imageUrl(), equalTo(updatedProduct.getImageUrl()));
+                    assertThat(product.categories(), equalTo(updatedProduct.getCategories()));
+                    assertThat(product.sellerId(), equalTo(updatedProduct.getSellerId()));
+                },
                 this::assertThatFails
         );
     }
@@ -180,6 +196,7 @@ class ProductServiceTest extends BaseUnitTest {
 
         verify(productRepository).findById(product.getId());
         verify(productRepository).deleteByIdReturning(product.getId());
+        verify(productSyncService).syncDelete(product.getId());
         result.ifPresentOrElse(
                 deletedProduct -> assertThat(deletedProduct, equalTo(Mapper.mapTo(product, ProductDTO.class))),
                 this::assertThatFails
@@ -194,6 +211,7 @@ class ProductServiceTest extends BaseUnitTest {
 
         verify(productRepository).findById(any());
         verify(productRepository, never()).deleteByIdReturning(any());
+        verify(productSyncService, never()).syncDelete(any());
         result.ifPresent(this::assertThatFails);
     }
 

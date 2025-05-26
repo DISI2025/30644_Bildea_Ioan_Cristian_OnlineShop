@@ -18,7 +18,7 @@ public class Neo4jCypherLoader implements CommandLineRunner {
 
     @Override
     public void run(final String... args) throws Exception {
-        var resource = new ClassPathResource("data.cypher");
+        var resource = new ClassPathResource("new-data.cypher");
         String cypher = Files.readString(resource.getFile().toPath());
 
         Arrays.stream(cypher.split(";"))

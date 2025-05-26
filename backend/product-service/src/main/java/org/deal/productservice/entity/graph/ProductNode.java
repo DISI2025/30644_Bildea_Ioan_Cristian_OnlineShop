@@ -34,7 +34,4 @@ public class ProductNode {
 
     @Relationship(type = "HAS_CATEGORY", direction = Relationship.Direction.OUTGOING)
     private Set<ProductCategoryNode> categories;
-
-    @Relationship(type = "SELLS", direction = Relationship.Direction.INCOMING)
-    private UserNode seller;
 } 

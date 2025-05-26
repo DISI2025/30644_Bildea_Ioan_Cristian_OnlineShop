@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.deal.productservice.entity.Product;
 import org.deal.productservice.entity.graph.ProductCategoryNode;
 import org.deal.productservice.entity.graph.ProductNode;
-import org.deal.productservice.entity.graph.UserNode;
 import org.deal.productservice.repository.graph.ProductCategoryNodeRepository;
 import org.deal.productservice.repository.graph.ProductNodeRepository;
 import org.springframework.stereotype.Service;
@@ -23,21 +22,18 @@ public class ProductSyncService {
 
     @Transactional
     public void syncCreate(final Product product) {
+        final ProductNode productNode = ProductNode.builder()
+                .withProductId(product.getId())
+                .build();
+        productNodeRepository.save(productNode);
+
         final Set<ProductCategoryNode> categoryNodes = product.getCategories().stream()
                 .map(category -> ProductCategoryNode.builder()
                         .withProductCategoryId(category.getId())
+                        .withProducts(Set.of(productNode))
                         .build())
                 .collect(Collectors.toSet());
         productCategoryNodeRepository.saveAll(categoryNodes);
-
-        final UserNode seller = UserNode.builder()
-                .withUserId(product.getSellerId())
-                .build();
-        final ProductNode productNode = ProductNode.builder()
-                .withProductId(product.getId())
-                .withCategories(categoryNodes)
-                .withSeller(seller)
-                .build();
         productNodeRepository.save(productNode);
     }
 

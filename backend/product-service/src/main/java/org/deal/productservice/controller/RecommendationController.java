@@ -6,8 +6,8 @@ import org.deal.core.dto.ProductDTO;
 import org.deal.core.request.product.ProductsFilter;
 import org.deal.core.response.DealResponse;
 import org.deal.core.response.PaginationDetails;
-import org.deal.productservice.entity.graph.ProductNode;
 import org.deal.productservice.service.RecommendationService;
+import org.deal.productservice.service.TrackingFacade;
 import org.deal.productservice.util.PaginationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,22 +25,14 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class RecommendationController {
     private final RecommendationService recommendationService;
+    private final TrackingFacade facade;
 
     @PostMapping("/viewed-product/{userId}/{productId}")
     public DealResponse<Void> trackProductView(
             @PathVariable final UUID userId,
             @PathVariable final UUID productId) {
-        recommendationService.trackProductView(userId, productId);
+        facade.trackProductView(userId, productId);
         return DealResponse.successResponse(null);
-    }
-
-    @GetMapping
-    public DealResponse<List<ProductDTO>> getProductNodes(final ProductsFilter filter, final HttpServletRequest request) {
-        Page<ProductDTO> page = recommendationService.findAll(filter);
-        List<ProductDTO> products = page.getContent();
-        var size = Optional.ofNullable(filter.size()).orElse(PaginationDetails.DEFAULT_PAGE_SIZE);
-
-        return DealResponse.successPaginatedResponse(products, PaginationUtils.buildPaginationDetails(page, request, size));
     }
 
     @GetMapping("/{userId}")

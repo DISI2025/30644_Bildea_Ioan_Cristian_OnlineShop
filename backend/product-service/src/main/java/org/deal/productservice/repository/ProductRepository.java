@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -28,4 +29,16 @@ public interface ProductRepository extends JpaRepository<Product, UUID>, JpaSpec
 
     @Query(value = "SELECT p from Product p WHERE p.id in :ids")
     Page<Product> findMultipleById(final List<UUID> ids, final Pageable pageable);
+
+    @Query(value = """
+        SELECT p.*, COUNT(oi.id) as popularity_score
+        FROM product p
+        LEFT JOIN order_item oi ON p.id = oi.product_id
+        LEFT JOIN "order" o ON oi.order_id = o.id AND o.status = 'DONE'
+        WHERE p.stock > 0
+        GROUP BY p.id, p.title, p.description, p.price, p.stock, p.image_url, p.seller_id, p.created_at
+        ORDER BY popularity_score DESC, p.created_at DESC
+        LIMIT :limit
+        """, nativeQuery = true)
+    List<Product> findPopularProducts(@Param("limit") int limit);
 }

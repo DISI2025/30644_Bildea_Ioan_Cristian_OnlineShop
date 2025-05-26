@@ -195,6 +195,7 @@
                 <configuration>
                     <excludes>
                         <exclude>**/ProductServiceApplication.*</exclude>
+                        <exclude>**/DealContext.*</exclude>
                         <exclude>**/config/*</exclude>
                         <exclude>**/*DTO.*</exclude>
                         <exclude>**/*Aspect.*</exclude>
@@ -237,6 +238,7 @@
                         <configuration>
                             <excludes>
                                 <exclude>**/ProductServiceApplication.*</exclude>
+                                <exclude>**/DealContext.*</exclude>
                                 <exclude>**/config/*</exclude>
                                 <exclude>**/*DTO.*</exclude>
                                 <exclude>**/*Aspect.*</exclude>

@@ -29,6 +29,7 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -42,6 +43,8 @@ class OrderServiceTest extends BaseUnitTest {
     private OrderItemRepository orderItemRepository;
     @Mock
     private OrderRepository orderRepository;
+    @Mock
+    private TrackingFacade facade;
 
     @InjectMocks
     private OrderService victim;
@@ -182,6 +185,7 @@ class OrderServiceTest extends BaseUnitTest {
         victim.updateOrderStatus(order, OrderStatus.PROCESSING);
 
         verify(productRepository).saveAll(any());
+        verify(facade).trackProductPurchased(order.getBuyerId(), product.getId());
         assertThat(product.getStock(), equalTo(5));
     }
 
@@ -202,6 +206,7 @@ class OrderServiceTest extends BaseUnitTest {
         victim.updateOrderStatus(order, OrderStatus.PROCESSING);
 
         verify(orderRepository, atLeastOnce()).save(order);
+        verify(facade, never()).trackProductPurchased(order.getBuyerId(), product.getId());
         assertThat(order.getStatus(), equalTo(OrderStatus.CANCELLED));
     }
 

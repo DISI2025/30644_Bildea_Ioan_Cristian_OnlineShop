@@ -32,12 +32,6 @@ public class UserNode {
     @Property
     private UUID userId;
 
-    @Relationship(type = "SELLS", direction = Relationship.Direction.OUTGOING)
-    private Set<ProductNode> products;
-
-    @Relationship(type = "HAS_CATEGORY", direction = Relationship.Direction.OUTGOING)
-    private Set<ProductCategoryNode> categories;
-
     @Relationship(type = "VIEWED", direction = Relationship.Direction.OUTGOING)
     private Set<ProductNode> viewedProducts;
 

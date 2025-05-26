@@ -9,6 +9,7 @@ import lombok.ToString;
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
+import org.springframework.data.neo4j.core.schema.Property;
 import org.springframework.data.neo4j.core.schema.Relationship;
 import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 
@@ -27,6 +28,7 @@ public class ProductCategoryNode {
     @GeneratedValue(generatorClass = UUIDStringGenerator.class)
     private UUID id;
 
+    @Property
     private UUID productCategoryId;
 
     @Relationship(type = "HAS_CATEGORY", direction = Relationship.Direction.INCOMING)
