@@ -1,14 +1,11 @@
 package org.deal.productservice.service;
 
 import lombok.RequiredArgsConstructor;
-import org.deal.productservice.entity.graph.ProductNode;
-import org.deal.productservice.entity.graph.UserNode;
 import org.deal.productservice.repository.graph.ProductNodeRepository;
 import org.deal.productservice.repository.graph.UserNodeRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
 import java.util.UUID;
 
 @Service

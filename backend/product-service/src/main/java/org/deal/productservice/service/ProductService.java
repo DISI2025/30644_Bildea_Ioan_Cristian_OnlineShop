@@ -31,7 +31,6 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final ProductCategoryRepository productCategoryRepository;
-    private final ProductSyncService productSyncService;
     private final DealContext dealContext;
 
     public Optional<ProductDTO> findById(final UUID id) {
@@ -74,7 +73,6 @@ public class ProductService {
         return Optional.of(productDetailsResponse);
     }
 
-    @Transactional
     public Optional<ProductDTO> create(final CreateProductRequest request) {
         final Product product = productRepository.save(
                 Product.builder()
@@ -88,11 +86,9 @@ public class ProductService {
                         .build()
         );
 
-        productSyncService.syncCreate(product);
         return Optional.of(mapToDTO(product));
     }
 
-    @Transactional
     public Optional<ProductDTO> update(final UpdateProductRequest request) {
         return productRepository.findById(request.getId())
                 .map(product -> {
@@ -100,7 +96,6 @@ public class ProductService {
                         Set<ProductCategory> newCategories = productCategoryRepository.findAllByName(request.getCategories());
                         request.setCategories(null);
                         product.setCategories(newCategories);
-                        productSyncService.syncUpdate(product);
                     }
 
                     Mapper.updateValues(product, request);
@@ -114,7 +109,6 @@ public class ProductService {
         return productRepository.findById(id)
                 .filter(__ -> productRepository.deleteByIdReturning(id) != 0)
                 .map(product -> {
-                    productSyncService.syncDelete(id);
                     return mapToDTO(product);
                 });
     }

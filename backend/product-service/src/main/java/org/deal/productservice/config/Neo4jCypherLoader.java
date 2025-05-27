@@ -12,7 +12,7 @@ import java.util.Arrays;
 
 @Component
 @RequiredArgsConstructor
-//@Profile("startup")
+@Profile("startup")
 public class Neo4jCypherLoader implements CommandLineRunner {
     private final Neo4jClient neo4jClient;
 
