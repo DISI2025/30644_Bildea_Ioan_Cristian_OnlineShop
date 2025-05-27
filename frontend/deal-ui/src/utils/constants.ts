@@ -6,6 +6,7 @@ export const DEAL_ENDPOINTS = {
     PRODUCT_CATEGORIES: "/ps/product-categories",
     PRODUCTS: "/ps/products",
     ORDERS: "/ps/orders",
+    RECOMMENDATIONS: "/ps/recommendations",
     AUTH: "/is/auth"
 }
 

@@ -1,7 +1,10 @@
 import React from 'react';
 import {Card, Typography, Tag, theme} from 'antd';
 import {Link} from 'react-router-dom';
+import {useSelector} from 'react-redux';
 import {Product} from '../../types/entities';
+import {selectAuthState} from '../../store/slices/auth-slice';
+import {useTrackProductViewMutation} from '../../store/api';
 
 const {Text, Title} = Typography;
 const { useToken } = theme;
@@ -12,9 +15,26 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({product}) => {
   const { token } = useToken();
+  const authState = useSelector(selectAuthState);
+  const [trackProductView] = useTrackProductViewMutation();
+
+  const handleProductClick = () => {
+    if (authState.user?.id) {
+      trackProductView({
+        userId: authState.user.id,
+        productId: product.id
+      }).catch(error => {
+        console.warn('Failed to track product view:', error);
+      });
+    }
+  };
   
   return (
-    <Link to={`/products/${product.id}`} style={{textDecoration: 'none', display: 'block', height: '100%'}}>
+    <Link 
+      to={`/products/${product.id}`} 
+      style={{textDecoration: 'none', display: 'block', height: '100%'}}
+      onClick={handleProductClick}
+    >
       <Card
         hoverable
         style={{

@@ -18,6 +18,7 @@ import AssignCategoryPage from "../pages/AssignCategoryPage.tsx";
 import AboutPage from "../pages/AboutPage.tsx";
 import ContactPage from "../pages/ContactPage.tsx";
 import OrderDetailPage from "../pages/OrderDetailPage.tsx";
+import {RecommendationPage} from "../pages/RecommendationPage.tsx";
 
 export const ROUTES = {
     INDEX: "/",
@@ -35,6 +36,7 @@ export const ROUTES = {
     ORDER_DETAILS: "/orders/:orderId",
     CART: "/cart",
     CHECKOUT: "/checkout",
+    RECOMMENDATIONS: "/recommendations",
     ABOUT: "/about",
     CONTACT: "/contact",
     ADMIN_ROUTE: "/admin",
@@ -55,6 +57,7 @@ export default function AppRouter() {
             <Route path={ROUTES.PRODUCT_DETAILS} element={<PrivateRoute><ProductDetailPage/></PrivateRoute>}/>
             <Route path={ROUTES.CART} element={<PrivateRoute><CartPage/></PrivateRoute>}/>
             <Route path={ROUTES.CHECKOUT} element={<PrivateRoute><CheckoutPage/></PrivateRoute>}/>
+            <Route path={ROUTES.RECOMMENDATIONS} element={<PrivateRoute><RecommendationPage/></PrivateRoute>}/>
             <Route path={ROUTES.PROFILE} element={<PrivateRoute><ProfilePage/></PrivateRoute>}/>
             <Route path={ROUTES.ORDER_DETAILS} element={<PrivateRoute><OrderDetailPage/></PrivateRoute>}/>
             <Route path={ROUTES.ABOUT} element={<PrivateRoute><AboutPage/></PrivateRoute>}/>

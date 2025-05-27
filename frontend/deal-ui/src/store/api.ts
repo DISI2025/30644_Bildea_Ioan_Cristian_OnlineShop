@@ -239,6 +239,32 @@ export const api = createApi({
             }),
             transformErrorResponse: (response) => response.data as BaseResponse,
         }),
+
+        // Recommendation endpoints
+        getRecommendedProducts: builder.query<DealResponse<Product[]>, { userId: string; filter?: ProductsFilter }>({
+            query: ({ userId, filter }) => {
+                const params = new URLSearchParams();
+                
+                if (filter?.property) params.append('property', filter.property);
+                if (filter?.search) params.append('search', filter.search);
+                if (filter?.sort) params.append('sort', filter.sort);
+                if (filter?.page !== undefined) params.append('page', filter.page.toString());
+                if (filter?.size !== undefined) params.append('size', filter.size.toString());
+                
+                const queryString = params.toString();
+                const baseUrl = `${DEAL_ENDPOINTS.RECOMMENDATIONS}/${userId}`;
+                return queryString ? `${baseUrl}?${queryString}` : baseUrl;
+            },
+            transformErrorResponse: (response) => response.data as BaseResponse,
+        }),
+
+        trackProductView: builder.mutation<DealResponse<void>, { userId: string; productId: string }>({
+            query: ({ userId, productId }) => ({
+                url: `${DEAL_ENDPOINTS.RECOMMENDATIONS}/viewed-product/${userId}/${productId}`,
+                method: HTTP_METHOD.POST,
+            }),
+            transformErrorResponse: (response) => response.data as BaseResponse,
+        }),
     }),
 });
 
@@ -269,5 +295,7 @@ export const {
     useGetOrderByIdQuery,
     useCreateOrderMutation,
     useCreatePaymentIntentMutation,
-    useDeleteOrderMutation
+    useDeleteOrderMutation,
+    useGetRecommendedProductsQuery,
+    useTrackProductViewMutation
 } = api;
