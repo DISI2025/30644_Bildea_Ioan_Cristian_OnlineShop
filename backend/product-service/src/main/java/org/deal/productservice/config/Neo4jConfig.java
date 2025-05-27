@@ -24,10 +24,11 @@ public class Neo4jConfig {
     @Bean({"neo4jTemplate"})
     @ConditionalOnMissingBean({Neo4jOperations.class})
     public Neo4jTemplate neo4jTemplate(
-            Neo4jClient neo4jClient,
-            Neo4jMappingContext neo4jMappingContext,
-            Driver driver, DatabaseSelectionProvider databaseNameProvider, ObjectProvider<TransactionManagerCustomizers> optionalCustomizers
-    ) {
+            final Neo4jClient neo4jClient,
+            final Neo4jMappingContext neo4jMappingContext,
+            final Driver driver,
+            final DatabaseSelectionProvider databaseNameProvider,
+            final ObjectProvider<TransactionManagerCustomizers> optionalCustomizers) {
         Neo4jTransactionManager transactionManager = new Neo4jTransactionManager(driver, databaseNameProvider);
         optionalCustomizers.ifAvailable((customizer) -> {
             customizer.customize(transactionManager);

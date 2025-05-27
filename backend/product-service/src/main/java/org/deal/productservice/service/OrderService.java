@@ -33,6 +33,7 @@ public class OrderService {
     private final ProductRepository productRepository;
     private final OrderItemRepository orderItemRepository;
     private final OrderRepository orderRepository;
+    private final TrackingFacade trackingFacade;
 
     public Optional<List<OrderDTO>> findAllOrders() {
         return Optional.of(orderRepository.findAll().stream().map(this::mapToDTO).toList());
@@ -96,6 +97,7 @@ public class OrderService {
             toUpdateProducts.forEach(product -> {
                 var quantity = orderedQuantityPerProduct.get(product.getId());
                 product.setStock(product.getStock() - quantity);
+                trackingFacade.trackProductPurchased(order.getBuyerId(), product.getId());
             });
             productRepository.saveAll(toUpdateProducts);
         } else {

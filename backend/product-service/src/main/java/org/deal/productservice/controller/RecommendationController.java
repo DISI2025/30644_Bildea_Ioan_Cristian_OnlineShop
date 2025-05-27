@@ -7,6 +7,7 @@ import org.deal.core.request.product.ProductsFilter;
 import org.deal.core.response.DealResponse;
 import org.deal.core.response.PaginationDetails;
 import org.deal.productservice.service.RecommendationService;
+import org.deal.productservice.service.TrackingFacade;
 import org.deal.productservice.util.PaginationUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,11 +25,13 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class RecommendationController {
     private final RecommendationService recommendationService;
+    private final TrackingFacade trackingFacade;
 
     @PostMapping("/viewed-product/{userId}/{productId}")
     public DealResponse<Void> trackProductView(
             @PathVariable final UUID userId,
             @PathVariable final UUID productId) {
+        trackingFacade.trackProductView(userId, productId);
         return DealResponse.successResponse(null);
     }
 
